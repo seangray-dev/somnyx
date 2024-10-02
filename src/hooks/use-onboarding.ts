@@ -1,16 +1,15 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-import { useRouter } from 'next/navigation';
-
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const formSchema = z.object({
   name: z.string().min(2, {
-    message: 'Must enter name.',
+    message: "Must enter name.",
   }),
 });
 
@@ -20,9 +19,9 @@ export const useOnboardingForm = () => {
   const methods = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
+      name: "",
     },
-    mode: 'onChange',
+    mode: "onChange",
   });
 
   const onHandleSubmit = methods.handleSubmit(
@@ -38,7 +37,7 @@ export const useOnboardingForm = () => {
       } finally {
         setLoading(false);
       }
-    },
+    }
   );
 
   return {

@@ -1,13 +1,14 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
-import { Card, CardContent, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
-import { UserTypeCardProps } from '@/types/types';
-import { User } from 'lucide-react';
+import { User } from "lucide-react";
+
+import { Card, CardContent, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { UserTypeCardProps } from "@/types/types";
 
 export function UserTypeCard({
   register,
@@ -21,22 +22,22 @@ export function UserTypeCard({
     <Label htmlFor={value}>
       <Card
         className={cn(
-          'w-full cursor-pointer',
-          userType == value && 'border-orange-500',
+          "w-full cursor-pointer",
+          userType == value && "border-orange-500"
         )}
       >
         <CardContent className="flex justify-between p-2">
           <div className="flex items-center gap-3">
             <Card
               className={cn(
-                'flex justify-center p-3',
-                userType == value && 'border-orange-500',
+                "flex justify-center p-3",
+                userType == value && "border-orange-500"
               )}
             >
               <User
                 size={30}
                 className={cn(
-                  userType == value ? 'text-orange-500' : 'text-gray-400',
+                  userType == value ? "text-orange-500" : "text-gray-400"
                 )}
               />
             </Card>
@@ -52,12 +53,12 @@ export function UserTypeCard({
           <div>
             <div
               className={cn(
-                'w-4 h-4 rounded-full',
-                userType == value ? 'bg-orange-500' : 'bg-transparent',
+                "h-4 w-4 rounded-full",
+                userType == value ? "bg-orange-500" : "bg-transparent"
               )}
             >
               <Input
-                {...register('type', {
+                {...register("type", {
                   onChange: (event) => setUserType(event.target.value),
                 })}
                 value={value}

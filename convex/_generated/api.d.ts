@@ -1,4 +1,5 @@
 /* eslint-disable */
+
 /**
  * Generated `api` utility.
  *
@@ -8,12 +9,12 @@
  * To regenerate, run `npx convex dev`.
  * @module
  */
-
 import type {
   ApiFromModules,
   FilterApi,
   FunctionReference,
 } from "convex/server";
+
 import type * as clerk from "../clerk.js";
 import type * as email_util from "../email/util.js";
 import type * as email_welcome from "../email/welcome.js";

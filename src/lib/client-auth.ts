@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useSession as useClerkSession } from '@clerk/nextjs';
+import { useSession as useClerkSession } from "@clerk/nextjs";
 
 export function useSession() {
   const session = useClerkSession();

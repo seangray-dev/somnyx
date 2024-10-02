@@ -1,5 +1,5 @@
-import { defineSchema, defineTable } from 'convex/server';
-import { v } from 'convex/values';
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
 
 export default defineSchema({
   users: defineTable({
@@ -11,12 +11,12 @@ export default defineSchema({
     endsOn: v.optional(v.number()),
     onboardingCompleted: v.boolean(),
   })
-    .index('by_userId', ['userId'])
-    .index('by_email', ['email'])
-    .index('by_subscriptionId', ['subscriptionId']),
+    .index("by_userId", ["userId"])
+    .index("by_email", ["email"])
+    .index("by_subscriptionId", ["subscriptionId"]),
   rateLimits: defineTable({
     key: v.string(),
     count: v.number(),
     expires: v.number(),
-  }).index('by_key', ['key']),
+  }).index("by_key", ["key"]),
 });

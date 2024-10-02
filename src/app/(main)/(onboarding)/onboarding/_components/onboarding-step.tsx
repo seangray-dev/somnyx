@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-import { useOnboardingContextHook } from '@/context/use-onboarding-context';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext } from "react-hook-form";
 
-import { TypeSelectionForm } from './forms/type-selection-form';
+import { useOnboardingContextHook } from "@/context/use-onboarding-context";
+
+import { TypeSelectionForm } from "./forms/type-selection-form";
 
 type Props = {};
 
@@ -16,7 +17,7 @@ export default function OnboardingFormStep(props: Props) {
     setValue,
   } = useFormContext();
   const { currentStep } = useOnboardingContextHook();
-  const [onUserType, setOnUserType] = useState<'owner' | 'student'>('owner');
+  const [onUserType, setOnUserType] = useState<"owner" | "student">("owner");
 
   switch (currentStep) {
     case 1:

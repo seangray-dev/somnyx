@@ -1,17 +1,17 @@
-'use node';
+"use node";
 
-import { ConvexError, v } from 'convex/values';
-import Stripe from 'stripe';
+import { ConvexError, v } from "convex/values";
+import Stripe from "stripe";
 
-import { internal } from './_generated/api';
-import { action, internalAction } from './_generated/server';
+import { internal } from "./_generated/api";
+import { action, internalAction } from "./_generated/server";
 
 type Metadata = {
   userId: string;
 };
 
 const stripe = new Stripe(process.env.STRIPE_KEY!, {
-  apiVersion: '2024-04-10',
+  apiVersion: "2024-04-10",
 });
 
 export const checkout = action({
@@ -21,11 +21,11 @@ export const checkout = action({
 
     console.log(user);
     if (!user) {
-      throw new ConvexError('you must be logged in to subscribe');
+      throw new ConvexError("you must be logged in to subscribe");
     }
 
     if (!user.emailVerified) {
-      throw new ConvexError('you must have a verified email to subscribe');
+      throw new ConvexError("you must have a verified email to subscribe");
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -34,7 +34,7 @@ export const checkout = action({
       metadata: {
         userId: user.subject,
       },
-      mode: 'subscription',
+      mode: "subscription",
       success_url: `${process.env.HOST_NAME}/success`,
       cancel_url: `${process.env.HOST_NAME}`,
     });
@@ -51,7 +51,7 @@ export const fulfill = internalAction({
       const event = stripe.webhooks.constructEvent(
         args.payload,
         args.signature,
-        webhookSecret,
+        webhookSecret
       );
 
       console.log(event);
@@ -60,9 +60,9 @@ export const fulfill = internalAction({
         metadata: Metadata;
       };
 
-      if (event.type === 'checkout.session.completed') {
+      if (event.type === "checkout.session.completed") {
         const subscription = await stripe.subscriptions.retrieve(
-          completedEvent.subscription as string,
+          completedEvent.subscription as string
         );
 
         const userId = completedEvent.metadata.userId;
@@ -79,9 +79,9 @@ export const fulfill = internalAction({
         });
       }
 
-      if (event.type === 'invoice.payment_succeeded') {
+      if (event.type === "invoice.payment_succeeded") {
         const subscription = await stripe.subscriptions.retrieve(
-          completedEvent.subscription as string,
+          completedEvent.subscription as string
         );
 
         const subscriptionId = subscription.items.data[0]?.price.id;

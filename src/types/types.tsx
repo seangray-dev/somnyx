@@ -1,4 +1,4 @@
-import { FieldValues, UseFormRegister } from 'react-hook-form';
+import { FieldValues, UseFormRegister } from "react-hook-form";
 
 export type LoaderProps = {
   loading: boolean;
@@ -13,8 +13,8 @@ export type SpinnerProps = {
 
 export type TypeSelectionFormProps = {
   register: UseFormRegister<FieldValues>;
-  userType: 'owner' | 'student';
-  setUserType: React.Dispatch<React.SetStateAction<'owner' | 'student'>>;
+  userType: "owner" | "student";
+  setUserType: React.Dispatch<React.SetStateAction<"owner" | "student">>;
 };
 
 export type UserTypeCardProps = {
@@ -22,6 +22,6 @@ export type UserTypeCardProps = {
   title: string;
   text: string;
   register: UseFormRegister<FieldValues>;
-  userType: 'owner' | 'student';
-  setUserType: React.Dispatch<React.SetStateAction<'owner' | 'student'>>;
+  userType: "owner" | "student";
+  setUserType: React.Dispatch<React.SetStateAction<"owner" | "student">>;
 };

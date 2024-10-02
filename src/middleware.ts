@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 import {
   clerkMiddleware,
   createRouteMatcher,
   redirectToSignIn,
-} from '@clerk/nextjs/server';
+} from "@clerk/nextjs/server";
 
-const isPublicRoute = createRouteMatcher(['/', '/sign-in(.*)', '/sign-up(.*)']);
+const isPublicRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)"]);
 
 export default clerkMiddleware((auth, req) => {
   const userId = auth().userId;
@@ -14,7 +14,7 @@ export default clerkMiddleware((auth, req) => {
   const sessionClaims = auth().sessionClaims;
 
   // For user visiting /onboarding, don't try and redirect
-  if (userId && pathname === '/onboarding') {
+  if (userId && pathname === "/onboarding") {
     return NextResponse.next();
   }
 
@@ -39,5 +39,5 @@ export default clerkMiddleware((auth, req) => {
 });
 
 export const config = {
-  matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
+  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
 };

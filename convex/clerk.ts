@@ -1,10 +1,10 @@
-'use node';
+"use node";
 
-import type { WebhookEvent } from '@clerk/clerk-sdk-node';
-import { v } from 'convex/values';
-import { Webhook } from 'svix';
+import type { WebhookEvent } from "@clerk/clerk-sdk-node";
+import { v } from "convex/values";
+import { Webhook } from "svix";
 
-import { internalAction } from './_generated/server';
+import { internalAction } from "./_generated/server";
 
 const webhookSecret = process.env.CLERK_WEBHOOK_SECRET || ``;
 

@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
 import React, {
-  createContext,
   Dispatch,
   ReactNode,
   SetStateAction,
+  createContext,
   useContext,
   useState,
-} from 'react';
+} from "react";
 
 type InitialValuesProps = {
   currentStep: number;
@@ -29,7 +29,7 @@ export const OnboardingContextProvider = ({
   children: ReactNode;
 }) => {
   const [currentStep, setCurrentStep] = useState<number>(
-    InitialValues.currentStep,
+    InitialValues.currentStep
   );
   const values = {
     currentStep,

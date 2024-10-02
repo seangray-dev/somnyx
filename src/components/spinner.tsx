@@ -1,15 +1,15 @@
-import React from 'react';
+import React from "react";
 
-import { cn } from '@/lib/utils';
-import { SpinnerProps } from '@/types/types';
+import { cn } from "@/lib/utils";
+import { SpinnerProps } from "@/types/types";
 
 export function Spinner({ noPadding }: SpinnerProps) {
   return (
-    <div className={cn('w-full flex justify-center', noPadding ? '' : 'py-10')}>
+    <div className={cn("flex w-full justify-center", noPadding ? "" : "py-10")}>
       <div role="status">
         <svg
           aria-hidden="true"
-          className="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-yellow-400"
+          className="inline h-8 w-8 animate-spin fill-yellow-400 text-gray-200 dark:text-gray-600"
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"

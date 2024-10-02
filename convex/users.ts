@@ -1,17 +1,17 @@
-import { ConvexError, v } from 'convex/values';
+import { ConvexError, v } from "convex/values";
 
-import { api, internal } from './_generated/api';
-import { Doc, Id } from './_generated/dataModel';
+import { api, internal } from "./_generated/api";
+import { Doc, Id } from "./_generated/dataModel";
 import {
+  MutationCtx,
+  QueryCtx,
   action,
   internalMutation,
   internalQuery,
   mutation,
-  MutationCtx,
   query,
-  QueryCtx,
-} from './_generated/server';
-import { getUserId } from './util';
+} from "./_generated/server";
+import { getUserId } from "./util";
 
 export const updateUser = internalMutation({
   args: {
@@ -22,7 +22,7 @@ export const updateUser = internalMutation({
     let user = await getUserByUserId(ctx, args.userId);
 
     if (!user) {
-      throw new ConvexError('user with id not found');
+      throw new ConvexError("user with id not found");
     }
 
     await ctx.db.patch(user._id, {
@@ -41,12 +41,12 @@ export const createUser = internalMutation({
   },
   handler: async (ctx, args) => {
     let user = await ctx.db
-      .query('users')
-      .withIndex('by_userId', (q) => q.eq('userId', args.userId))
+      .query("users")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
       .first();
 
     if (!user) {
-      await ctx.db.insert('users', {
+      await ctx.db.insert("users", {
         name: args.name,
         userId: args.userId,
         email: args.email,
@@ -61,8 +61,8 @@ export const getUserByEmail = internalQuery({
   args: { email: v.string() },
   handler: async (ctx, args) => {
     return await ctx.db
-      .query('users')
-      .withIndex('by_email', (q) => q.eq('email', args.email))
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
       .first();
   },
 });
@@ -71,8 +71,8 @@ export const getUserMetadata = query({
   args: { userId: v.string() },
   async handler(ctx, args) {
     const user = await ctx.db
-      .query('users')
-      .withIndex('by_userId', (q) => q.eq('userId', args.userId))
+      .query("users")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
       .first();
 
     if (!user) {
@@ -96,8 +96,8 @@ export const getMyUser = query({
     }
 
     const user = await ctx.db
-      .query('users')
-      .withIndex('by_userId', (q) => q.eq('userId', userId))
+      .query("users")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .first();
 
     if (!user) {
@@ -114,16 +114,16 @@ export const updateMyUser = mutation({
     const userId = await getUserId(ctx);
 
     if (!userId) {
-      throw new ConvexError('You must be logged in.');
+      throw new ConvexError("You must be logged in.");
     }
 
     const user = await ctx.db
-      .query('users')
-      .withIndex('by_userId', (q) => q.eq('userId', userId))
+      .query("users")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .first();
 
     if (!user) {
-      throw new ConvexError('user not found');
+      throw new ConvexError("user not found");
     }
 
     await ctx.db.patch(user._id, {
@@ -136,8 +136,8 @@ export const getUserByIdInternal = internalQuery({
   args: { userId: v.string() },
   async handler(ctx, args) {
     const user = await ctx.db
-      .query('users')
-      .withIndex('by_userId', (q) => q.eq('userId', args.userId))
+      .query("users")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
       .first();
 
     return user;
@@ -149,7 +149,7 @@ export const deleteUser = internalMutation({
   async handler(ctx, args) {
     const user = await getUserByUserId(ctx, args.userId);
     if (!user) {
-      throw new ConvexError('could not find user');
+      throw new ConvexError("could not find user");
     }
     await ctx.db.delete(user._id);
   },
@@ -157,11 +157,11 @@ export const deleteUser = internalMutation({
 
 export const getUserByUserId = (
   ctx: MutationCtx | QueryCtx,
-  userId: string,
+  userId: string
 ) => {
   return ctx.db
-    .query('users')
-    .withIndex('by_userId', (q) => q.eq('userId', userId))
+    .query("users")
+    .withIndex("by_userId", (q) => q.eq("userId", userId))
     .first();
 };
 
@@ -171,7 +171,7 @@ export const updateSubscription = internalMutation({
     const user = await getUserByUserId(ctx, args.userId);
 
     if (!user) {
-      throw new Error('no user found with that user id');
+      throw new Error("no user found with that user id");
     }
 
     await ctx.db.patch(user._id, {
@@ -185,14 +185,14 @@ export const updateSubscriptionBySubId = internalMutation({
   args: { subscriptionId: v.string(), endsOn: v.number() },
   handler: async (ctx, args) => {
     const user = await ctx.db
-      .query('users')
-      .withIndex('by_subscriptionId', (q) =>
-        q.eq('subscriptionId', args.subscriptionId),
+      .query("users")
+      .withIndex("by_subscriptionId", (q) =>
+        q.eq("subscriptionId", args.subscriptionId)
       )
       .first();
 
     if (!user) {
-      throw new Error('no user found with that user id');
+      throw new Error("no user found with that user id");
     }
 
     await ctx.db.patch(user._id, {
@@ -201,7 +201,7 @@ export const updateSubscriptionBySubId = internalMutation({
   },
 });
 
-export const isUserPremium = async (user: Doc<'users'>) => {
+export const isUserPremium = async (user: Doc<"users">) => {
   return (user?.endsOn ?? 0) > Date.now();
 };
 
@@ -228,21 +228,21 @@ export const updateUserOnboardingCompleted = mutation({
   async handler(ctx, args) {
     // Get the userId of the current user
     const userId = await getUserId(ctx);
-    console.log('userId', userId);
+    console.log("userId", userId);
     // Check if there is a userId
     if (!userId) {
-      throw new ConvexError('You must be logged in.');
+      throw new ConvexError("You must be logged in.");
     }
 
     // Check if the user exists in the database
     const user = await ctx.db
-      .query('users')
-      .withIndex('by_userId', (q) => q.eq('userId', userId))
+      .query("users")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .first();
 
     // If the user doesn't exist, throw an error
     if (!user) {
-      throw new ConvexError('User not found');
+      throw new ConvexError("User not found");
     }
 
     // The update the onboardingCompleted field to true

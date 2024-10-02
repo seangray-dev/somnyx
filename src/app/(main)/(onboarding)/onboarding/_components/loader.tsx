@@ -1,7 +1,8 @@
-import React from 'react';
+import React from "react";
 
-import { cn } from '@/lib/utils';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 
 type LoaderProps = {
   loading: boolean;
@@ -17,7 +18,7 @@ export const Loader = ({
   className,
 }: LoaderProps) => {
   return loading ? (
-    <div className={cn(className || 'w-full py-5 flex justify-center')}>
+    <div className={cn(className || "flex w-full justify-center py-5")}>
       <Loader2 className="h-5 w-5 animate-spin" />
     </div>
   ) : (
