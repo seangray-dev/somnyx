@@ -2,39 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
-
-import { SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useSession } from "@/lib/client-auth";
 
 export default function LandingPage() {
-  const session = useSession();
-
   return (
-    <div className="flex min-h-[100dvh] flex-col">
-      <header className="flex h-14 items-center px-4 lg:px-6">
-        <Link className="flex items-center justify-center" href="#">
-          <MountainIcon className="h-6 w-6" />
-          <span className="sr-only">Acme Inc</span>
-        </Link>
-        <nav className="ml-auto flex items-center gap-4 sm:gap-6">
-          {session.isLoggedIn ? (
-            <UserButton />
-          ) : (
-            <div className="flex gap-2">
-              <SignInButton mode="modal">
-                <Button variant="outline">Sign in</Button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <Button>Sign up</Button>
-              </SignUpButton>
-            </div>
-          )}
-        </nav>
-      </header>
+    <div className="flex flex-col">
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
@@ -53,7 +27,9 @@ export default function LandingPage() {
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Button asChild>
-                    <Link href="/sign-up">Analyze Your Dreams</Link>
+                    <Link href={{ pathname: "/sign-up" }}>
+                      Analyze Your Dreams
+                    </Link>
                   </Button>
                 </div>
               </div>
@@ -205,44 +181,6 @@ export default function LandingPage() {
           </div>
         </section>
       </main>
-      <footer className="w-full bg-gray-100 p-6 dark:bg-gray-800 md:py-12">
-        <div className="container grid max-w-7xl grid-cols-2 gap-8 text-sm sm:grid-cols-3 md:grid-cols-5">
-          <div className="grid gap-1">
-            <h3 className="font-semibold">Company</h3>
-            <Link href="#">About Us</Link>
-            <Link href="#">Our Team</Link>
-            <Link href="#">Careers</Link>
-            <Link href="#">News</Link>
-          </div>
-          <div className="grid gap-1">
-            <h3 className="font-semibold">Products</h3>
-            <Link href="#">Men</Link>
-            <Link href="#">Women</Link>
-            <Link href="#">Kids</Link>
-            <Link href="#">Accessories</Link>
-          </div>
-          <div className="grid gap-1">
-            <h3 className="font-semibold">Resources</h3>
-            <Link href="#">Blog</Link>
-            <Link href="#">Community</Link>
-            <Link href="#">Support</Link>
-            <Link href="#">FAQs</Link>
-          </div>
-          <div className="grid gap-1">
-            <h3 className="font-semibold">Legal</h3>
-            <Link href="#">Privacy Policy</Link>
-            <Link href="#">Terms of Service</Link>
-            <Link href="#">Cookie Policy</Link>
-          </div>
-          <div className="grid gap-1">
-            <h3 className="font-semibold">Contact</h3>
-            <Link href="#">Support</Link>
-            <Link href="#">Sales</Link>
-            <Link href="#">Press</Link>
-            <Link href="#">Partnerships</Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
@@ -262,25 +200,6 @@ function CheckIcon(props: any) {
       strokeLinejoin="round"
     >
       <path d="M20 6 9 17l-5-5" />
-    </svg>
-  );
-}
-
-function MountainIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
     </svg>
   );
 }

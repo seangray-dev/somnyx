@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, Lora, Open_Sans } from "next/font/google";
+import { Lora, Open_Sans } from "next/font/google";
 
-import { ContextProvider } from "@/components/context-provider";
-import { cn } from "@/lib/utils";
+import SiteFooter from "@/components/layout/site-footer";
+import SiteHeader from "@/components/layout/site-header";
+import { ContextProvider } from "@/providers/context-provider";
+import { ThemeProvider } from "@/providers/theme-provider";
 
 import "../styles/globals.css";
 
@@ -22,8 +24,14 @@ export default function RootLayout({
   return (
     <ContextProvider>
       <html lang="en">
-        <body className={`${lora.className} ${openSans.className}`}>
-          {children}
+        <body
+          className={`${lora.className} ${openSans.className} flex min-h-screen flex-col antialiased`}
+        >
+          <ThemeProvider attribute="class" defaultTheme="system">
+            <SiteHeader />
+            <main className="flex-1 py-6">{children}</main>
+            <SiteFooter />
+          </ThemeProvider>
         </body>
       </html>
     </ContextProvider>
