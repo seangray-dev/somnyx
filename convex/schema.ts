@@ -5,11 +5,11 @@ export default defineSchema({
   users: defineTable({
     userId: v.string(),
     email: v.string(),
-    name: v.optional(v.string()),
+    first_name: v.optional(v.string()),
+    last_name: v.optional(v.string()),
     subscriptionId: v.optional(v.string()),
     profileImage: v.optional(v.string()),
     endsOn: v.optional(v.number()),
-    onboardingCompleted: v.boolean(),
   })
     .index("by_userId", ["userId"])
     .index("by_email", ["email"])

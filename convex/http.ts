@@ -2,7 +2,6 @@ import { httpRouter } from "convex/server";
 
 import { internal } from "./_generated/api";
 import { httpAction } from "./_generated/server";
-import { formatName } from "./util";
 
 const http = httpRouter();
 
@@ -74,9 +73,9 @@ http.route({
           await ctx.runMutation(internal.users.createUser, {
             userId: result.data.id,
             email: result.data.email_addresses[0]?.email_address,
-            name: formatName(result.data.first_name, result.data.last_name),
+            first_name: result.data.first_name || "",
+            last_name: result.data.last_name || "",
             profileImage: result.data.image_url,
-            onboardingCompleted: false,
           });
           break;
         case "user.updated":
