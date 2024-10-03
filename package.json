@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.0.9",
-    "@clerk/nextjs": "^5.1.2",
+    "@clerk/nextjs": "^5.7.1",
     "@clerk/themes": "^2.1.7",
     "@hookform/resolvers": "^3.9.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.2.1",
