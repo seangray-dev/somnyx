@@ -27,10 +27,6 @@ export default function DreamCard({
   date: string;
   emotions: string[];
 }) {
-  // const emotionIds = useQuery(api.queries.emotions.getEmotionsByDreamId, {
-  //   id: _id as Id<"dreams">,
-  // });
-
   return (
     <Card className="flex w-full flex-col">
       <CardHeader>
