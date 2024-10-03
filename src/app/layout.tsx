@@ -3,6 +3,7 @@ import { Lora, Open_Sans } from "next/font/google";
 
 import SiteFooter from "@/components/layout/site-footer";
 import SiteHeader from "@/components/layout/site-header";
+import { Toaster } from "@/components/ui/sonner";
 import { ContextProvider } from "@/providers/context-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 
@@ -31,6 +32,7 @@ export default function RootLayout({
             <SiteHeader />
             <main className="flex-1 py-6">{children}</main>
             <SiteFooter />
+            <Toaster richColors position="top-center" duration={5000} />
           </ThemeProvider>
         </body>
       </html>
