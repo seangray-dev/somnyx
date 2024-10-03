@@ -9,11 +9,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import copyToClipboard from "@/utils/copy-to-clipboard";
 
 import { Button } from "../ui/button";
 import DeleteDreamDialog from "./delete-dream-dialog";
 
-export default function DreamCardActions({ _id }: { _id: string }) {
+export default function DreamCardActions({
+  _id,
+  isPublic,
+}: {
+  _id: string;
+  isPublic?: boolean;
+}) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -31,7 +38,11 @@ export default function DreamCardActions({ _id }: { _id: string }) {
             <span>Analysis</span>
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem disabled className="flex items-center gap-2">
+        <DropdownMenuItem
+          disabled={!isPublic}
+          className="flex items-center gap-2"
+          onClick={() => copyToClipboard(`http://localhost:3000/dreams/${_id}`)}
+        >
           <Share2Icon size={16} />
           <span>Share</span>
         </DropdownMenuItem>

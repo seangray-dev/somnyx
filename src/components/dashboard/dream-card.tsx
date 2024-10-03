@@ -16,12 +16,14 @@ import DreamCardActions from "./dream-card-actions";
 
 export default function DreamCard({
   _id,
+  isPublic,
   title,
   details,
   date,
   emotions,
 }: {
   _id: string;
+  isPublic?: boolean;
   title?: string;
   details: string;
   date: string;
@@ -60,7 +62,7 @@ export default function DreamCard({
       <CardFooter className="flex items-center justify-between">
         <div className="text-xs text-muted-foreground">{timeAgo(date)}</div>
         <div>
-          <DreamCardActions {...{ _id }} />
+          <DreamCardActions {...{ _id, isPublic }} />
         </div>
       </CardFooter>
     </Card>
