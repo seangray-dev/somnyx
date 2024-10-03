@@ -24,6 +24,7 @@ export const addNewDream = mutation({
 
     await ctx.db.insert("dreams", {
       userId: userId,
+      isPublic: false,
       date: args.date,
       emotions: args.emotions,
       role: args.role,
