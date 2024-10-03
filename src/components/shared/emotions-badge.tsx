@@ -8,8 +8,6 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Badge } from "../ui/badge";
 
 export default function EmotionsBadge({ emotionId }: { emotionId: string }) {
-  console.log(emotionId);
-
   const emotion = useQuery(api.queries.emotions.getEmotionById, {
     id: emotionId as Id<"emotions">,
   });
