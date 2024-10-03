@@ -14,9 +14,38 @@ export default defineSchema({
     .index("by_userId", ["userId"])
     .index("by_email", ["email"])
     .index("by_subscriptionId", ["subscriptionId"]),
+
   rateLimits: defineTable({
     key: v.string(),
     count: v.number(),
     expires: v.number(),
   }).index("by_key", ["key"]),
+
+  emotions: defineTable({
+    name: v.string(),
+    emoji: v.string(),
+  }),
+
+  roles: defineTable({
+    name: v.string(),
+    description: v.string(),
+  }),
+
+  themes: defineTable({
+    name: v.string(),
+    description: v.string(),
+  }),
+
+  dreams: defineTable({
+    userId: v.string(),
+    date: v.string(),
+    emotions: v.array(v.id("emotions")),
+    role: v.optional(v.id("roles")),
+    people: v.optional(v.array(v.string())),
+    places: v.optional(v.array(v.string())),
+    things: v.optional(v.array(v.string())),
+    themes: v.optional(v.array(v.id("themes"))),
+    title: v.optional(v.string()),
+    details: v.string(),
+  }).index("by_userId", ["userId"]),
 });
