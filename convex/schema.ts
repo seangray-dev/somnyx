@@ -38,6 +38,7 @@ export default defineSchema({
 
   dreams: defineTable({
     userId: v.string(),
+    isPublic: v.optional(v.boolean()),
     date: v.string(),
     emotions: v.array(v.id("emotions")),
     role: v.optional(v.id("roles")),
