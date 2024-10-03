@@ -22,10 +22,10 @@ export default function DreamCardActions({ _id }: { _id: string }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem>
+        <DropdownMenuItem asChild>
           <Link
             href={{ pathname: `/dreams/${_id}` }}
-            className="flex items-center gap-2"
+            className="flex w-full cursor-pointer items-center gap-2"
           >
             <OrbitIcon size={16} />
             <span>Analysis</span>
