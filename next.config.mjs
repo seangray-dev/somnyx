@@ -3,7 +3,7 @@ import createNextDocsMDX from "next-docs-mdx/config";
 import { fileURLToPath } from "node:url";
 
 const jiti = createJiti(fileURLToPath(import.meta.url));
-jiti("./src/env/server.ts");
+jiti("./src/config/env/server");
 
 const withMDX = createNextDocsMDX();
 
