@@ -20,3 +20,24 @@ export const getRecentUserDreams = query({
       .take(amount);
   },
 });
+
+export const getDreamById = query({
+  args: { id: v.id("dreams"), userId: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    const dream = await ctx.db.get(args.id);
+
+    if (!dream) {
+      throw new Error(`Dream with ID ${args.id} not found.`);
+    }
+
+    if (dream.isPublic) {
+      return dream;
+    }
+
+    if (args.userId !== dream?.userId) {
+      throw new Error("You do not have access to this dream.");
+    }
+
+    return dream;
+  },
+});
