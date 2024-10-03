@@ -1,8 +1,7 @@
-import { Loader2Icon } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 
 import { Button, ButtonProps } from "../ui/button";
+import Loader from "./loader";
 
 export default function LoadingButton({
   isLoading,
@@ -12,7 +11,7 @@ export default function LoadingButton({
 }: ButtonProps & { isLoading: boolean }) {
   return (
     <Button disabled={isLoading} {...props} className={cn(className)}>
-      {isLoading ? <Loader2Icon className="animate-spin" /> : children}
+      {isLoading ? <Loader /> : children}
     </Button>
   );
 }

@@ -20,6 +20,7 @@ import type * as email_welcome from "../email/welcome.js";
 import type * as http from "../http.js";
 import type * as mutations_dreams from "../mutations/dreams.js";
 import type * as mutations from "../mutations.js";
+import type * as queries_dreams from "../queries/dreams.js";
 import type * as queries_emotions from "../queries/emotions.js";
 import type * as queries_roles from "../queries/roles.js";
 import type * as queries_themes from "../queries/themes.js";
@@ -43,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   "mutations/dreams": typeof mutations_dreams;
   mutations: typeof mutations;
+  "queries/dreams": typeof queries_dreams;
   "queries/emotions": typeof queries_emotions;
   "queries/roles": typeof queries_roles;
   "queries/themes": typeof queries_themes;

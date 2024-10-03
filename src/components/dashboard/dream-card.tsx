@@ -1,0 +1,72 @@
+import Link from "next/link";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { timeAgo } from "@/utils/date-time";
+
+import EmotionsBadge from "../shared/emotions-badge";
+import Loader from "../shared/loader";
+import DreamCardActions from "./dream-card-actions";
+
+export default function DreamCard({
+  _id,
+  title,
+  details,
+  date,
+  emotions,
+}: {
+  _id: string;
+  title?: string;
+  details: string;
+  date: string;
+  emotions: string[];
+}) {
+  // const emotionIds = useQuery(api.queries.emotions.getEmotionsByDreamId, {
+  //   id: _id as Id<"dreams">,
+  // });
+
+  return (
+    <Card className="flex w-full flex-col">
+      <CardHeader>
+        <CardTitle className="w-fit">
+          <Link
+            href={{ pathname: `/dreams/${_id}` }}
+            className="transition-all duration-150 hover:text-primary hover:underline"
+          >
+            {title ? (
+              title
+            ) : (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span className="hover:text-primary">Untitled</span>
+                <Loader />
+              </div>
+            )}
+          </Link>
+        </CardTitle>
+        <CardDescription>
+          {!title && "Your title is being generated"}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-grow flex-col gap-4 text-muted-foreground">
+        <p className="line-clamp-3 flex-grow">{details}</p>
+        <div className="flex flex-wrap gap-2">
+          {emotions.map((emotion) => (
+            <EmotionsBadge key={emotion} emotionId={emotion} />
+          ))}
+        </div>
+      </CardContent>
+      <CardFooter className="flex items-center justify-between">
+        <div className="text-xs text-muted-foreground">{timeAgo(date)}</div>
+        <div>
+          <DreamCardActions {...{ _id }} />
+        </div>
+      </CardFooter>
+    </Card>
+  );
+}
