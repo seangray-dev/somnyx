@@ -1,0 +1,14 @@
+[
+  { "name": "Happy", "emoji": "😊" },
+  { "name": "Sad", "emoji": "😔" },
+  { "name": "Angry", "emoji": "😡" },
+  { "name": "Fear", "emoji": "😱" },
+  { "name": "Calm", "emoji": "😌" },
+  { "name": "Love", "emoji": "😍" },
+  { "name": "Confused", "emoji": "🤔" },
+  { "name": "Nervous", "emoji": "😅" },
+  { "name": "Excited", "emoji": "🤩" },
+  { "name": "Awkward", "emoji": "😬" },
+  { "name": "Desire", "emoji": "🤤" },
+  { "name": "Disgust", "emoji": "🤮" }
+]

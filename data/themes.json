@@ -1,0 +1,66 @@
+[
+  {
+    "name": "Abandonment",
+    "description": "A sense of abandonment, often reflecting fears of isolation or rejection."
+  },
+  {
+    "name": "Danger",
+    "description": "Experiencing threats, peril, or fear of harm; common in chase or falling dreams."
+  },
+  {
+    "name": "Confusion",
+    "description": "A lack of clarity or control, often depicting unfamiliar or puzzling situations."
+  },
+  {
+    "name": "Freedom",
+    "description": "A sensation of liberation, escape, or the ability to overcome limitations."
+  },
+  {
+    "name": "Love",
+    "description": "Feeling affection, care, or strong emotional connections with others."
+  },
+  {
+    "name": "Anxiety",
+    "description": "Heightened stress or worry, often linked to situations of loss, failure, or unpreparedness."
+  },
+  {
+    "name": "Disappointment",
+    "description": "A sense of sadness or regret, typically when expectations are unmet or desired outcomes are reversed."
+  },
+  {
+    "name": "Empowerment",
+    "description": "Feeling powerful, confident, or in control, often experienced as overcoming obstacles."
+  },
+  {
+    "name": "Isolation",
+    "description": "A feeling of loneliness or separation, reflecting emotional distance or disconnection."
+  },
+  {
+    "name": "Temptation",
+    "description": "Being drawn to something desirable but potentially harmful, often depicting internal conflict."
+  },
+  {
+    "name": "Curiosity",
+    "description": "A strong urge to explore, seek answers, or investigate the unknown in a dream setting."
+  },
+  {
+    "name": "Mystery",
+    "description": "The presence of an unsolved puzzle, hidden meanings, or an elusive situation."
+  },
+  {
+    "name": "Strength",
+    "description": "Feeling strong, resilient, and capable of facing challenges head-on."
+  },
+  {
+    "name": "Forgiveness",
+    "description": "Letting go of grudges or reconciling with oneself or others, leading to inner peace."
+  },
+  {
+    "name": "Safety",
+    "description": "A sense of being protected from harm, usually appearing in calming or comforting dreams."
+  },
+  {
+    "name": "Other",
+    "description": "A theme that doesn't fit into any of the other categories."
+  }
+]
