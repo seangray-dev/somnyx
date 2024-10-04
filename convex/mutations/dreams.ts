@@ -37,3 +37,35 @@ export const addNewDream = mutation({
     });
   },
 });
+
+export const updateDream = mutation({
+  args: {
+    id: v.id("dreams"),
+    isPublic: v.optional(v.boolean()),
+    title: v.optional(v.string()),
+    details: v.optional(v.string()),
+    emotions: v.optional(v.array(v.id("emotions"))),
+    role: v.optional(v.id("roles")),
+    people: v.optional(v.array(v.string())),
+    places: v.optional(v.array(v.string())),
+    things: v.optional(v.array(v.string())),
+    themes: v.optional(v.array(v.id("themes"))),
+  },
+  handler: async (ctx, args) => {
+    const dream = await ctx.db.get(args.id);
+
+    if (!dream) {
+      throw new Error("Dream not found");
+    }
+
+    const { ...updates } = args;
+
+    const patchData = Object.fromEntries(
+      Object.entries(updates).filter(
+        ([key, value]) => value !== undefined && key !== "id"
+      )
+    );
+
+    await ctx.db.patch(dream._id, patchData);
+  },
+});
