@@ -14,30 +14,33 @@ export default async function DreamPage({
 }) {
   const { userId }: { userId: string | null } = auth();
 
-  const dream = await preloadQuery(api.queries.dreams.getDreamById, {
-    id: params.id.toString() as Id<"dreams">,
-    userId: (userId as Id<"users">) ?? undefined,
-  });
-
-  const emotions = await preloadQuery(
-    api.queries.emotions.getEmotionsByDreamId,
-    {
+  const [dream, emotions, role, themes] = await Promise.all([
+    preloadQuery(api.queries.dreams.getDreamById, {
       id: params.id.toString() as Id<"dreams">,
-    }
-  );
+      userId: (userId as Id<"users">) ?? undefined,
+    }),
+    preloadQuery(api.queries.emotions.getEmotionsByDreamId, {
+      id: params.id.toString() as Id<"dreams">,
+    }),
+    preloadQuery(api.queries.roles.getRoleById, {
+      id: params.id.toString() as Id<"roles">,
+    }),
+    preloadQuery(api.queries.themes.getAllThemesToDream, {
+      dreamId: params.id.toString() as Id<"dreams">,
+    }),
+  ]);
 
+  // Validate if the dream is public or belongs to the current user
   // @ts-ignore
   if (!dream._valueJSON.isPublic && dream._valueJSON.userId !== userId) {
     return notFound();
   }
 
+  const dreamData = { dream, emotions, role, themes };
+
   return (
-    <div>
-      <div className="container">
-        <AboutDream {...{ dream, emotions }} />
-        {/* <div>Generated Image</div>
-        <div>Analysis</div> */}
-      </div>
+    <div className="container">
+      <AboutDream {...dreamData} />
     </div>
   );
 }

@@ -1,7 +1,12 @@
-import Link from "next/link";
+import {
+  EllipsisIcon,
+  EyeIcon,
+  EyeOffIcon,
+  PencilIcon,
+  Share2Icon,
+} from "lucide-react";
 
-import { EllipsisIcon, OrbitIcon, Share2Icon } from "lucide-react";
-
+import DeleteDreamDialog from "@/components/shared/delete-dream-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,9 +17,8 @@ import {
 import copyToClipboard from "@/utils/copy-to-clipboard";
 
 import { Button } from "../ui/button";
-import DeleteDreamDialog from "../shared/delete-dream-dialog";
 
-export default function DreamCardActions({
+export default function AboutDreamActions({
   _id,
   isPublic,
 }: {
@@ -29,14 +33,11 @@ export default function DreamCardActions({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem asChild>
-          <Link
-            href={{ pathname: `/dreams/${_id}` }}
-            className="flex w-full cursor-pointer items-center gap-2"
-          >
-            <OrbitIcon size={16} />
-            <span>Analysis</span>
-          </Link>
+        <DropdownMenuItem className="space-x-2">
+          <div>
+            {isPublic ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
+          </div>
+          <span>{isPublic ? "Make Private" : "Make Public"}</span>
         </DropdownMenuItem>
         <DropdownMenuItem
           disabled={!isPublic}
@@ -45,6 +46,12 @@ export default function DreamCardActions({
         >
           <Share2Icon size={16} />
           <span>Share</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="space-x-2">
+          <div>
+            <PencilIcon size={16} />
+          </div>
+          <span>Edit</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
