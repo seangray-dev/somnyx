@@ -14,33 +14,40 @@ export default async function DreamPage({
 }) {
   const { userId }: { userId: string | null } = auth();
 
-  const [dream, emotions, role, themes] = await Promise.all([
-    preloadQuery(api.queries.dreams.getDreamById, {
-      id: params.id.toString() as Id<"dreams">,
-      userId: (userId as Id<"users">) ?? undefined,
-    }),
-    preloadQuery(api.queries.emotions.getEmotionsByDreamId, {
-      id: params.id.toString() as Id<"dreams">,
-    }),
-    preloadQuery(api.queries.roles.getRoleById, {
-      id: params.id.toString() as Id<"roles">,
-    }),
-    preloadQuery(api.queries.themes.getAllThemesToDream, {
-      dreamId: params.id.toString() as Id<"dreams">,
-    }),
-  ]);
+  const dream = await preloadQuery(api.queries.dreams.getDreamById, {
+    id: params.id.toString() as Id<"dreams">,
+    userId: (userId as Id<"users">) ?? undefined,
+  });
 
-  // Validate if the dream is public or belongs to the current user
+  const emotions = await preloadQuery(
+    api.queries.emotions.getEmotionsByDreamId,
+    {
+      id: params.id.toString() as Id<"dreams">,
+    }
+  );
+
+  const role = await preloadQuery(api.queries.roles.getRoleById, {
+    // @ts-ignore
+    id: dream._valueJSON.role as Id<"roles">,
+  });
+
+  const themes = await preloadQuery(api.queries.themes.getAllThemesToDream, {
+    // @ts-ignore
+    dreamId: dream._valueJSON._id as Id<"dreams">,
+  });
+
   // @ts-ignore
   if (!dream._valueJSON.isPublic && dream._valueJSON.userId !== userId) {
     return notFound();
   }
 
-  const dreamData = { dream, emotions, role, themes };
-
   return (
-    <div className="container">
-      <AboutDream {...dreamData} />
+    <div>
+      <div className="container">
+        <AboutDream {...{ dream, emotions, role, themes }} />
+        {/* <div>Generated Image</div>
+        <div>Analysis</div> */}
+      </div>
     </div>
   );
 }
