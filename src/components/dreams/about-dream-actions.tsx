@@ -1,3 +1,4 @@
+import { useMutation } from "convex/react";
 import {
   EllipsisIcon,
   EyeIcon,
@@ -5,6 +6,7 @@ import {
   PencilIcon,
   Share2Icon,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import DeleteDreamDialog from "@/components/shared/delete-dream-dialog";
 import {
@@ -14,6 +16,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import copyToClipboard from "@/utils/copy-to-clipboard";
 
 import { Button } from "../ui/button";
@@ -25,6 +29,16 @@ export default function AboutDreamActions({
   _id: string;
   isPublic?: boolean;
 }) {
+  const updateDream = useMutation(api.mutations.dreams.updateDream);
+  const handleTogglePublic = async () => {
+    try {
+      await updateDream({ id: _id as Id<"dreams">, isPublic: !isPublic });
+      toast.success("Dream is now " + (!isPublic ? "public" : "private"));
+    } catch (err) {
+      toast.error("Failed to make dream " + (!isPublic ? "public" : "private"));
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -33,7 +47,10 @@ export default function AboutDreamActions({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem className="space-x-2">
+        <DropdownMenuItem
+          className="space-x-2"
+          onClick={() => handleTogglePublic()}
+        >
           <div>
             {isPublic ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
           </div>
