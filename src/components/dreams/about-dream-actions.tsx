@@ -20,6 +20,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import copyToClipboard from "@/utils/copy-to-clipboard";
 
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 
 export default function AboutDreamActions({
@@ -64,11 +65,14 @@ export default function AboutDreamActions({
           <Share2Icon size={16} />
           <span>Share</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="space-x-2">
+        <DropdownMenuItem disabled className="space-x-2">
           <div>
             <PencilIcon size={16} />
           </div>
           <span>Edit</span>
+          <Badge variant={"secondary"} className="text-xs">
+            Coming Soon
+          </Badge>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
