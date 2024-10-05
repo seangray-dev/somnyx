@@ -69,3 +69,23 @@ export const updateDream = mutation({
     await ctx.db.patch(dream._id, patchData);
   },
 });
+
+export const deleteDream = mutation({
+  args: {
+    id: v.id("dreams"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getUserId(ctx);
+    const dream = await ctx.db.get(args.id);
+
+    if (!dream) {
+      throw new Error(`Dream with ID ${args.id} not found.`);
+    }
+
+    if (userId !== dream?.userId) {
+      throw new Error("You do not have access to this dream.");
+    }
+
+    await ctx.db.delete(dream._id);
+  },
+});

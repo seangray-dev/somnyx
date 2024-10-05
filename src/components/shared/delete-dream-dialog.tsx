@@ -1,8 +1,11 @@
+import { useState } from "react";
+
+import { useMutation } from "convex/react";
 import { Trash2Icon } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -11,10 +14,40 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 
-export default function DeleteDreamDialog() {
+import LoadingButton from "./loading-button";
+
+type DeleteDreamDialogProps = {
+  dreamId: string;
+};
+
+export default function DeleteDreamDialog(props: DeleteDreamDialogProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const deleteDream = useMutation(api.mutations.dreams.deleteDream);
+
+  const handleDelete = async () => {
+    try {
+      setIsLoading(true);
+      await deleteDream({
+        id: props.dreamId as Id<"dreams">,
+      });
+      toast.success("Dream deleted successfully!");
+      setIsOpen(false);
+    } catch (err) {
+      setIsOpen(true);
+      toast.error("Uh oh! Something went wrong.", {
+        description: "We couldn't delete your dream. Please try again later.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <AlertDialog>
+    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger className="flex w-full items-center gap-2 rounded px-2 py-1 text-sm text-destructive transition-all duration-150 hover:bg-destructive hover:text-destructive-foreground">
         <Trash2Icon size={16} />
         <span>Delete</span>
@@ -30,10 +63,14 @@ export default function DeleteDreamDialog() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+          <AlertDialogCancel className="w-full">Cancel</AlertDialogCancel>
+          <LoadingButton
+            isLoading={isLoading}
+            onClick={() => handleDelete()}
+            className="w-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
             Delete
-          </AlertDialogAction>
+          </LoadingButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

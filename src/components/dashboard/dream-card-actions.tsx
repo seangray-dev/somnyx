@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { EllipsisIcon, OrbitIcon, Share2Icon } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +12,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import copyToClipboard from "@/utils/copy-to-clipboard";
 
-import { Button } from "../ui/button";
 import DeleteDreamDialog from "../shared/delete-dream-dialog";
 
 export default function DreamCardActions({
@@ -48,7 +48,7 @@ export default function DreamCardActions({
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <DeleteDreamDialog />
+          <DeleteDreamDialog dreamId={_id} />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

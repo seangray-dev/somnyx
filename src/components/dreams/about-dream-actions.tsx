@@ -76,7 +76,7 @@ export default function AboutDreamActions({
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <DeleteDreamDialog />
+          <DeleteDreamDialog dreamId={_id} />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
