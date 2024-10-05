@@ -36,8 +36,11 @@ export default async function DreamPage({
     dreamId: dream._valueJSON._id as Id<"dreams">,
   });
 
-  // @ts-ignore
-  if (!dream._valueJSON.isPublic && dream._valueJSON.userId !== userId) {
+  if (
+    // @ts-ignore
+    (!dream._valueJSON.isPublic && dream._valueJSON.userId !== userId) ||
+    !dream
+  ) {
     return notFound();
   }
 
