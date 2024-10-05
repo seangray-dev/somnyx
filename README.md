@@ -1,5 +1,13 @@
 # SOMNYX
 
+## TODO
+
+- [ ] Refactor to use Preloaded queries
+- [x] Delete Dream - on dashboard page
+- [ ] Delete Dream - on dream page
+- [ ] Dream Analysis
+- [ ] Edit Dream
+
 ## Getting Started
 
 Copy the `.env.example` file to `.env` and obtain the values.
