@@ -17,7 +17,7 @@ export default function SiteFooter() {
 
   const hiddenPaths = ["/dashboard", "/journal", "/settings"];
 
-  if (hiddenPaths.includes(pathname)) {
+  if (hiddenPaths.includes(pathname) || pathname.startsWith("/dreams/")) {
     return null;
   }
 
