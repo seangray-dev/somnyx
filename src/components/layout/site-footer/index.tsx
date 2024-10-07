@@ -11,7 +11,7 @@ import {
 
 export default function SiteFooter() {
   return (
-    <footer className="border-b-4 border-t border-b-primary py-10">
+    <footer className="border-t pb-28 pt-10 md:py-10">
       <div className="container flex flex-col items-center justify-center gap-8 sm:flex-row sm:items-start sm:justify-between">
         <Logo />
         <div className="flex flex-wrap justify-between gap-8 text-sm text-muted-foreground">

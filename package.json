@@ -5,7 +5,7 @@
   "scripts": {
     "db:seed": "npx convex import --table emotions data/emotions.json && npx convex import --table roles data/roles.json && npx convex import --table themes data/themes.json",
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "dev:frontend": "next dev",
+    "dev:frontend": "next dev --experimental-https",
     "dev:backend": "convex dev --typecheck=disable",
     "build": "next build",
     "start": "concurrently \"npm run dev:frontend\" \"npm rundev:backend\"",
@@ -40,6 +40,7 @@
     "lucide-react": "^0.379.0",
     "next": "^14.2.14",
     "next-docs-mdx": "^7.1.2",
+    "next-pwa": "^5.6.0",
     "next-themes": "^0.3.0",
     "nextjs-toploader": "1.6.12",
     "npm-run-all": "^4.1.5",
@@ -54,6 +55,7 @@
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^1.0.0",
+    "web-push": "^3.6.7",
     "zod": "^3.23.8"
   },
   "devDependencies": {
