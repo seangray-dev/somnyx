@@ -18,7 +18,7 @@ export default function Tabs() {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 w-full border-t bg-background pb-6 shadow-[0_-2px_4px_rgba(0,0,0,0.1)] md:hidden">
+    <div className="fixed bottom-0 left-0 w-full border-t bg-background pb-6 shadow-[0_-2px_4px_rgba(0,0,0,0.1)] sm:hidden">
       <nav className="flex h-16 items-center justify-around">
         <Link
           href="/dashboard"
