@@ -28,7 +28,7 @@ export function AddDreamButton(props: AddDreamButtonProps) {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {isTab ? (
-          <button className="flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
+          <button className="flex flex-col items-center justify-center gap-1 text-xs font-medium text-muted-foreground">
             <SparklesIcon className="size-5" />
             <span>New Dream</span>
           </button>

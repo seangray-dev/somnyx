@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import Logo from "@/components/shared/logo";
 
@@ -10,8 +13,16 @@ import {
 } from "./footer-links";
 
 export default function SiteFooter() {
+  const pathname = usePathname();
+
+  const hiddenPaths = ["/dashboard", "/journal", "/settings"];
+
+  if (hiddenPaths.includes(pathname)) {
+    return null;
+  }
+
   return (
-    <footer className="border-t pb-28 pt-10 sm:py-10">
+    <footer className="border-t py-10">
       <div className="container flex flex-col items-center justify-center gap-8 sm:flex-row sm:items-start sm:justify-between">
         <Logo />
         <div className="flex flex-wrap justify-between gap-8 text-sm text-muted-foreground">
