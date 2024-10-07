@@ -1,5 +1,8 @@
 import { useState } from "react";
 
+import { SparklesIcon } from "lucide-react";
+
+import { AddNewDreamForm } from "@/components/shared/add-new-dream-form";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,17 +13,31 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { AddNewDreamForm } from "./add-new-dream-form";
+type AddDreamButtonProps = {
+  isTab?: boolean;
+};
 
-export function AddDreamButton() {
+export function AddDreamButton(props: AddDreamButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const isTab = props.isTab;
 
   const closeDialog = () => setIsOpen(false);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>Add Dream</Button>
+        {isTab ? (
+          <button className="flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
+            <SparklesIcon className="size-5" />
+            <span>New Dream</span>
+          </button>
+        ) : (
+          <Button className="flex items-center gap-2">
+            <SparklesIcon className="size-4" />
+            <span>New Dream</span>
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-h-[80vh] overflow-y-auto">
         <DialogHeader>

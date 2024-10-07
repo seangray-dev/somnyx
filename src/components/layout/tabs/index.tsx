@@ -3,12 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import {
-  BookOpenIcon,
-  CogIcon,
-  LayoutDashboardIcon,
-  SparklesIcon,
-} from "lucide-react";
+import { BookOpenIcon, CogIcon, LayoutDashboardIcon } from "lucide-react";
+
+import { AddDreamButton } from "@/components/shared/add-dream-button";
 
 export default function Tabs() {
   const pathname = usePathname();
@@ -36,14 +33,15 @@ export default function Tabs() {
           <BookOpenIcon className="size-5" />
           <span className="text-xs font-medium">Journal</span>
         </Link>
-        <Link
+        <AddDreamButton isTab />
+        {/* <Link
           href="#"
           className="flex flex-col items-center justify-center gap-1 text-muted-foreground transition-colors hover:text-primary"
           prefetch={false}
         >
           <SparklesIcon className="size-5" />
           <span className="text-xs font-medium">New Dream</span>
-        </Link>
+        </Link> */}
         <Link
           href="/settings"
           className="flex flex-col items-center justify-center gap-1 text-muted-foreground transition-colors hover:text-primary"

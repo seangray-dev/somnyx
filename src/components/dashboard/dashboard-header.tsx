@@ -3,8 +3,8 @@
 import { useSession } from "@/lib/client-auth";
 import getGreeting from "@/utils/get-greeting";
 
+import { AddDreamButton } from "../shared/add-dream-button";
 import Loader from "../shared/loader";
-import { AddDreamButton } from "./add-dream-button";
 
 export default function DashboardHeader() {
   const { session, isLoaded, isLoggedIn } = useSession();
