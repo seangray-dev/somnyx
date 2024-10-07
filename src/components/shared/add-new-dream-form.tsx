@@ -59,13 +59,13 @@ const FormSchema = z.object({
     }),
 });
 
-export function AddNewDreamForm({
-  className,
-  closeDialog,
-}: {
+type AddNewDreamFormProps = {
   className?: string;
   closeDialog: () => void;
-}) {
+};
+
+export function AddNewDreamForm(props: AddNewDreamFormProps) {
+  const { className, closeDialog } = props;
   const emotions = useQuery(api.queries.getAllEmotions);
   const roles = useQuery(api.queries.getAllRoles);
   const themes = useQuery(api.queries.getAllThemes);
