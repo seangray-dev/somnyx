@@ -7,6 +7,12 @@ import { BookOpenIcon, CogIcon, LayoutDashboardIcon } from "lucide-react";
 
 import { AddDreamButton } from "@/components/shared/add-dream-button";
 
+const navItems = [
+  { href: "/dashboard", label: "Dashboard", Icon: LayoutDashboardIcon },
+  { href: "/journal", label: "Journal", Icon: BookOpenIcon },
+  { href: "/settings", label: "Settings", Icon: CogIcon },
+];
+
 export default function Tabs() {
   const pathname = usePathname();
 
@@ -17,39 +23,44 @@ export default function Tabs() {
   return (
     <div className="fixed bottom-0 left-0 w-full border-t bg-background pb-6 shadow-[0_-2px_4px_rgba(0,0,0,0.1)] sm:hidden">
       <nav className="flex h-16 items-center justify-around">
-        <Link
-          href="/dashboard"
-          className="flex flex-col items-center justify-center gap-1 text-muted-foreground transition-colors hover:text-primary"
-          prefetch={false}
-        >
-          <LayoutDashboardIcon className="size-5" />
-          <span className="text-xs font-medium">Dashboard</span>
-        </Link>
-        <Link
-          href="/journal"
-          className="flex flex-col items-center justify-center gap-1 text-muted-foreground transition-colors hover:text-primary"
-          prefetch={false}
-        >
-          <BookOpenIcon className="size-5" />
-          <span className="text-xs font-medium">Journal</span>
-        </Link>
+        {/* Render the first two items */}
+        {navItems.slice(0, 2).map(({ href, label, Icon }) => {
+          const isActive = pathname === href;
+          return (
+            <Link
+              key={href}
+              href={{ pathname: href }}
+              className={`flex flex-col items-center justify-center gap-1 transition-colors hover:text-primary ${
+                isActive ? "text-primary" : "text-muted-foreground"
+              }`}
+              prefetch={false}
+            >
+              <Icon className="size-5" />
+              <span className="text-xs font-medium">{label}</span>
+            </Link>
+          );
+        })}
+
+        {/* AddDreamButton as the 3rd item */}
         <AddDreamButton isTab />
-        {/* <Link
-          href="#"
-          className="flex flex-col items-center justify-center gap-1 text-muted-foreground transition-colors hover:text-primary"
-          prefetch={false}
-        >
-          <SparklesIcon className="size-5" />
-          <span className="text-xs font-medium">New Dream</span>
-        </Link> */}
-        <Link
-          href="/settings"
-          className="flex flex-col items-center justify-center gap-1 text-muted-foreground transition-colors hover:text-primary"
-          prefetch={false}
-        >
-          <CogIcon className="size-5" />
-          <span className="text-xs font-medium">Settings</span>
-        </Link>
+
+        {/* Render the rest of the items */}
+        {navItems.slice(2).map(({ href, label, Icon }) => {
+          const isActive = pathname === href;
+          return (
+            <Link
+              key={href}
+              href={{ pathname: href }}
+              className={`flex flex-col items-center justify-center gap-1 transition-colors hover:text-primary ${
+                isActive ? "text-primary" : "text-muted-foreground"
+              }`}
+              prefetch={false}
+            >
+              <Icon className="size-5" />
+              <span className="text-xs font-medium">{label}</span>
+            </Link>
+          );
+        })}
       </nav>
     </div>
   );
