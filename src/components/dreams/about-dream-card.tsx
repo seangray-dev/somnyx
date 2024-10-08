@@ -41,7 +41,8 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
         <div className="space-y-1">
           <CardTitle className="w-fit">
             {title ? (
-              title
+              // replace double quotes with empty string
+              title.replace(/"/g, "")
             ) : (
               <div className="flex items-center gap-2 text-muted-foreground">
                 <span>Untitled</span>
@@ -77,31 +78,41 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
           <div className="flex flex-col gap-2">
             <h3 className="font-bold">Themes</h3>
             <div className="flex flex-wrap gap-2">
-              {themes.map((theme) => (
-                <Badge variant={"outline"}>{theme?.name}</Badge>
-              ))}
+              {themes
+                ? themes.map((theme) => (
+                    <Badge variant={"outline"}>{theme?.name}</Badge>
+                  ))
+                : "None"}
             </div>
           </div>
         </div>
         <div className="flex flex-col gap-2">
           <h3 className="font-bold">People, Places & Things</h3>
           <div className="flex flex-wrap gap-2">
-            {[
-              ...(people?.map((item) => ({ label: item, type: "person" })) ??
-                []),
-              ...(places?.map((item) => ({ label: item, type: "place" })) ??
-                []),
-              ...(things?.map((item) => ({ label: item, type: "thing" })) ??
-                []),
-            ].map(({ label }, index) => (
-              <Badge
-                key={index}
-                variant={"outline"}
-                className="hover:cursor-default"
-              >
-                {label}
-              </Badge>
-            ))}
+            {(() => {
+              const combinedItems = [
+                ...(people?.map((item) => ({ label: item, type: "person" })) ??
+                  []),
+                ...(places?.map((item) => ({ label: item, type: "place" })) ??
+                  []),
+                ...(things?.map((item) => ({ label: item, type: "thing" })) ??
+                  []),
+              ];
+
+              return combinedItems.length > 0 ? (
+                combinedItems.map(({ label }, index) => (
+                  <Badge
+                    key={index}
+                    variant="outline"
+                    className="hover:cursor-default"
+                  >
+                    {label}
+                  </Badge>
+                ))
+              ) : (
+                <div className="text-sm text-muted-foreground">N/A</div>
+              );
+            })()}
           </div>
         </div>
       </CardContent>

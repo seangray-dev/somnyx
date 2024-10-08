@@ -35,13 +35,14 @@ export default function DreamCard({
         <CardTitle className="w-fit">
           <Link
             href={{ pathname: `/dreams/${_id}` }}
-            className="transition-all duration-150 hover:text-primary hover:underline"
+            className="hover:underline"
           >
             {title ? (
-              title
+              // replace double quotes with empty string
+              title.replace(/"/g, "")
             ) : (
               <div className="flex items-center gap-2 text-muted-foreground">
-                <span className="hover:text-primary">Untitled</span>
+                <span>Untitled</span>
                 <Loader />
               </div>
             )}
