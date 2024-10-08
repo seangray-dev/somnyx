@@ -40,7 +40,7 @@ export const addNewDream = mutation({
     await ctx.scheduler.runAfter(
       0,
       internal.mutations.openai.generateDreamTitle,
-      { dreamId: dreamId, details: args.details }
+      { dreamId: dreamId, details: args.details, emotions: args.emotions }
     );
 
     return dreamId;

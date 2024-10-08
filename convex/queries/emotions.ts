@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 
-import { query } from "../_generated/server";
+import { internalQuery, query } from "../_generated/server";
 
 export const getAllEmotions = query({
   handler: async (ctx) => {
@@ -25,5 +25,14 @@ export const getEmotionById = query({
   args: { id: v.id("emotions") },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);
+  },
+});
+
+export const getEmotionsByIdsInternal = internalQuery({
+  args: { ids: v.array(v.id("emotions")) },
+  handler: async (ctx, args) => {
+    const emotions = await Promise.all(args.ids.map((id) => ctx.db.get(id)));
+
+    return emotions;
   },
 });
