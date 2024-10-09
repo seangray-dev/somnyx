@@ -2,11 +2,17 @@
 
 ## TODO
 
+- [ ] New Dream Form - (places, people, things) - detect missing commas
+- [ ] Update mobile header design
 - [ ] Refactor to use Preloaded queries
+- [ ] Cache the emotions / themes / roles queries
 - [x] Delete Dream - on dashboard page
 - [ ] Delete Dream - on dream page
-- [ ] Dream Analysis
+- [x] Dream Analysis
 - [ ] Edit Dream
+- [ ] Prevent unauthenticated users from deleting, or making dreams public/private
+- [ ] Update the share link to use the new domain
+- [x] Make it deploy
 
 ## Getting Started
 
@@ -28,7 +34,7 @@ Run the development server:
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [https://localhost:3000](https://localhost:3000) with your browser to see the result.
 
 ## 🗄️ Project Structure
 
