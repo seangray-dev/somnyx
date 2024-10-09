@@ -43,6 +43,15 @@ export const addNewDream = mutation({
       { dreamId: dreamId, details: args.details, emotions: args.emotions }
     );
 
+    await ctx.scheduler.runAfter(
+      0,
+      internal.mutations.openai.generateAnalysis,
+      {
+        dreamId: dreamId,
+        userId: userId,
+      }
+    );
+
     return dreamId;
   },
 });

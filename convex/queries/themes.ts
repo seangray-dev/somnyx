@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 
-import { query } from "../_generated/server";
+import { internalQuery, query } from "../_generated/server";
 
 export const getAllThemes = query({
   handler: async (ctx) => {
@@ -10,6 +10,23 @@ export const getAllThemes = query({
 });
 
 export const getAllThemesToDream = query({
+  args: { dreamId: v.id("dreams") },
+  handler: async (ctx, args) => {
+    const { dreamId } = args;
+
+    const dream = await ctx.db.get(dreamId);
+
+    const themeIds = dream?.themes ?? [];
+
+    const themes = await Promise.all(
+      themeIds.map((themeId) => ctx.db.get(themeId))
+    );
+
+    return themes;
+  },
+});
+
+export const getAllThemesToDreamInternal = internalQuery({
   args: { dreamId: v.id("dreams") },
   handler: async (ctx, args) => {
     const { dreamId } = args;

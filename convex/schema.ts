@@ -49,4 +49,14 @@ export default defineSchema({
     title: v.optional(v.string()),
     details: v.string(),
   }).index("by_userId", ["userId"]),
+
+  analysis: defineTable({
+    dreamId: v.string(),
+    userId: v.string(),
+    summary: v.string(),
+    emotionalBreakdown: v.string(),
+    symbolicInterpretation: v.string(),
+    underlyingMessage: v.string(),
+    actionableTakeaway: v.string(),
+  }).index("by_dreamId", ["dreamId"]),
 });

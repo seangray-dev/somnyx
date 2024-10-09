@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 
-import { query } from "../_generated/server";
+import { internalQuery, query } from "../_generated/server";
 
 export const getAllRoles = query({
   handler: async (ctx) => {
@@ -9,6 +9,13 @@ export const getAllRoles = query({
 });
 
 export const getRoleById = query({
+  args: { id: v.id("roles") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
+export const getRoleByIdInternal = internalQuery({
   args: { id: v.id("roles") },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);

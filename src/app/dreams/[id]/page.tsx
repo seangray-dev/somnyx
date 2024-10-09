@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { preloadQuery } from "convex/nextjs";
 
 import AboutDream from "@/components/dreams/about-dream";
+import Analysis from "@/components/dreams/analysis";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
@@ -18,6 +19,13 @@ export default async function DreamPage({
     id: params.id.toString() as Id<"dreams">,
     userId: (userId as Id<"users">) ?? undefined,
   });
+
+  const analysis = await preloadQuery(
+    api.queries.analysis.getAnalysisByDreamId,
+    {
+      dreamId: params.id.toString() as Id<"dreams">,
+    }
+  );
 
   const emotions = await preloadQuery(
     api.queries.emotions.getEmotionsByDreamId,
@@ -46,10 +54,9 @@ export default async function DreamPage({
 
   return (
     <div>
-      <div className="container">
+      <div className="container flex flex-col gap-12">
         <AboutDream {...{ dream, emotions, role, themes }} />
-        {/* <div>Generated Image</div>
-        <div>Analysis</div> */}
+        <Analysis analysis={analysis} />
       </div>
     </div>
   );

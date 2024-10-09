@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 
-import { query } from "../_generated/server";
+import { internalQuery, query } from "../_generated/server";
 import { getUserId } from "../util";
 
 export const getRecentUserDreams = query({
@@ -22,6 +22,27 @@ export const getRecentUserDreams = query({
 });
 
 export const getDreamById = query({
+  args: { id: v.id("dreams"), userId: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    const dream = await ctx.db.get(args.id);
+
+    if (!dream) {
+      throw new Error(`Dream with ID ${args.id} not found.`);
+    }
+
+    if (dream.isPublic) {
+      return dream;
+    }
+
+    if (args.userId !== dream?.userId) {
+      throw new Error("You do not have access to this dream.");
+    }
+
+    return dream;
+  },
+});
+
+export const getDreamByIdInternal = internalQuery({
   args: { id: v.id("dreams"), userId: v.optional(v.string()) },
   handler: async (ctx, args) => {
     const dream = await ctx.db.get(args.id);

@@ -36,10 +36,10 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
   const { _id, isPublic, title, details, date, people, places, things } = dream;
 
   return (
-    <Card className="max-w-[80ch]">
+    <Card>
       <CardHeader className="flex flex-row items-baseline justify-between">
         <div className="space-y-1">
-          <CardTitle className="w-fit">
+          <CardTitle className="w-fit text-3xl">
             {title ? (
               // replace double quotes with empty string
               title.replace(/"/g, "")
@@ -50,8 +50,11 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
               </div>
             )}
           </CardTitle>
-          <CardDescription>
-            {!title && "Your title is being generated"}
+          <CardDescription className="max-w-[80ch] text-base">
+            <div className="pb-2 text-sm">
+              {!title && "Your title is being generated"}
+            </div>
+            {details}
           </CardDescription>
         </div>
         <div>
@@ -59,7 +62,6 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
         </div>
       </CardHeader>
       <CardContent className="flex flex-grow flex-col gap-4">
-        <p className="flex-grow text-muted-foreground">{details}</p>
         <div>
           <h2 className="pb-2 font-bold">Role</h2>
           <div className="text-sm text-muted-foreground">
