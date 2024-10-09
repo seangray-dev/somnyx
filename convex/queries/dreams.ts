@@ -15,7 +15,7 @@ export const getRecentUserDreams = query({
 
     return await ctx.db
       .query("dreams")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .withIndex("by_userId", (q) => q.eq("userId", userId!))
       .order("desc")
       .take(amount);
   },
