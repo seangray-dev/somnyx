@@ -34,9 +34,9 @@ export default function AboutDreamActions({
   const handleTogglePublic = async () => {
     try {
       await updateDream({ id: _id as Id<"dreams">, isPublic: !isPublic });
-      toast.success("Dream is now " + (!isPublic ? "public" : "private"));
+      toast.success(`Dream is now ${!isPublic ? "public" : "private"}`);
     } catch (err) {
-      toast.error("Failed to make dream " + (!isPublic ? "public" : "private"));
+      toast.error(`Failed to make dream ${!isPublic ? "public" : "private"}`);
     }
   };
 

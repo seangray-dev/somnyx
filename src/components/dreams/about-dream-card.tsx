@@ -82,7 +82,9 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
             <div className="flex flex-wrap gap-2">
               {themes
                 ? themes.map((theme) => (
-                    <Badge variant={"outline"}>{theme?.name}</Badge>
+                    <Badge key={theme?._id} variant={"outline"}>
+                      {theme?.name}
+                    </Badge>
                   ))
                 : "None"}
             </div>

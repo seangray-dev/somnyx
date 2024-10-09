@@ -37,5 +37,3 @@ export const addNewAnalysis = internalMutation({
     return analyisId;
   },
 });
-
-
