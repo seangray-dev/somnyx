@@ -5,8 +5,8 @@ import { format } from "date-fns";
 import { useSession } from "@/lib/client-auth";
 import getGreeting from "@/utils/get-greeting";
 
-import { AddDreamButton } from "../shared/add-dream-button";
-import Loader from "../shared/loader";
+import { AddDreamButton } from "../../shared/add-dream-button";
+import Loader from "../../shared/loader";
 
 export default function DashboardHeader() {
   const { session, isLoaded, isLoggedIn } = useSession();
@@ -26,7 +26,7 @@ export default function DashboardHeader() {
   const user = session?.user;
 
   return (
-    <section className="sm:flew-row container flex flex-wrap items-center justify-between gap-4">
+    <section className="sm:flew-row container flex flex-wrap items-center justify-between gap-4 border-b pb-6">
       {isLoaded && (
         <div className="flex flex-col gap-1">
           <p className="text-xs text-muted-foreground">
