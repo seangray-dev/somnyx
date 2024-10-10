@@ -16,6 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { baseUrl } from "@/config/app";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import copyToClipboard from "@/utils/copy-to-clipboard";
@@ -60,7 +61,7 @@ export default function AboutDreamActions({
         <DropdownMenuItem
           disabled={!isPublic}
           className="flex items-center gap-2"
-          onClick={() => copyToClipboard(`http://localhost:3000/dreams/${_id}`)}
+          onClick={() => copyToClipboard(`${baseUrl}/dreams/${_id}`)}
         >
           <Share2Icon size={16} />
           <span>Share</span>

@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { baseUrl } from "@/config/app";
 import copyToClipboard from "@/utils/copy-to-clipboard";
 
 import DeleteDreamDialog from "../shared/delete-dream-dialog";
@@ -41,7 +42,7 @@ export default function DreamCardActions({
         <DropdownMenuItem
           disabled={!isPublic}
           className="flex items-center gap-2"
-          onClick={() => copyToClipboard(`http://localhost:3000/dreams/${_id}`)}
+          onClick={() => copyToClipboard(`${baseUrl}/dreams/${_id}`)}
         >
           <Share2Icon size={16} />
           <span>Share</span>
