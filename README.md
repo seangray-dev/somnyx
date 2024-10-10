@@ -11,8 +11,11 @@
 - [x] Dream Analysis
 - [ ] Edit Dream
 - [ ] Prevent unauthenticated users from deleting, or making dreams public/private
-- [ ] Update the share link to use the new domain
+- [x] Update the share link to use the new domain
 - [x] Make it deploy
+- [ ] Journal Page (with pagination, search, and filters)
+- [x] Settings / Profile Page
+- [ ] Delete Account and related data
 
 ## Getting Started
 
