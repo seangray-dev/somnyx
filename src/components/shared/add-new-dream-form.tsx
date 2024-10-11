@@ -352,6 +352,18 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                         setPeopleInputValue("");
                       }
                     }}
+                    onBlur={() => {
+                      if (
+                        peopleInputValue.trim() &&
+                        !peopleInputValue.endsWith(",")
+                      ) {
+                        field.onChange([
+                          ...field.value!,
+                          peopleInputValue.trim(),
+                        ]);
+                        setPeopleInputValue("");
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -403,6 +415,18 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                         if (newPlace) {
                           field.onChange([...field.value!, newPlace]);
                         }
+                        setPlacesInputValue("");
+                      }
+                    }}
+                    onBlur={() => {
+                      if (
+                        placesInputValue.trim() &&
+                        !placesInputValue.endsWith(",")
+                      ) {
+                        field.onChange([
+                          ...field.value!,
+                          placesInputValue.trim(),
+                        ]);
                         setPlacesInputValue("");
                       }
                     }}
@@ -458,6 +482,18 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                         if (newThing) {
                           field.onChange([...field.value!, newThing]);
                         }
+                        setThingsInputValue("");
+                      }
+                    }}
+                    onBlur={() => {
+                      if (
+                        thingsInputValue.trim() &&
+                        !thingsInputValue.endsWith(",")
+                      ) {
+                        field.onChange([
+                          ...field.value!,
+                          thingsInputValue.trim(),
+                        ]);
                         setThingsInputValue("");
                       }
                     }}
