@@ -1,11 +1,11 @@
 "use client";
 
+import { UserButton } from "@clerk/nextjs";
 import { format } from "date-fns";
 
 import { useSession } from "@/lib/client-auth";
 import getGreeting from "@/utils/get-greeting";
 
-import { AddDreamButton } from "../../shared/add-dream-button";
 import Loader from "../../shared/loader";
 
 export default function DashboardHeader() {
@@ -35,7 +35,7 @@ export default function DashboardHeader() {
           <h1 className="text-xl font-medium sm:text-2xl">{`${getGreeting()}, ${user?.firstName || "User"}!`}</h1>
         </div>
       )}
-      <AddDreamButton />
+      <UserButton />
     </section>
   );
 }
