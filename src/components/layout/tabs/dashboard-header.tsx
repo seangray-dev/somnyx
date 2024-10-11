@@ -26,7 +26,7 @@ export default function DashboardHeader() {
   const user = session?.user;
 
   return (
-    <section className="sm:flew-row container flex flex-wrap items-center justify-between gap-4 border-b pb-6">
+    <section className="sm:flew-row container flex flex-wrap items-center justify-between gap-4 border-b py-5">
       {isLoaded && (
         <div className="flex flex-col gap-1">
           <p className="text-xs text-muted-foreground">

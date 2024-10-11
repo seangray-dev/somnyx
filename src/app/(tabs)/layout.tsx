@@ -1,3 +1,4 @@
+import Tabs from "@/components/layout/tabs";
 import DashboardHeader from "@/components/layout/tabs/dashboard-header";
 
 export default function TabsLayout({
@@ -6,9 +7,10 @@ export default function TabsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex min-h-screen flex-col">
       <DashboardHeader />
-      {children}
+      <div className="flex-1 pb-28 pt-6">{children}</div>
+      <Tabs />
     </div>
   );
 }

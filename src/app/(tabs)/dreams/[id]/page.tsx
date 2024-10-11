@@ -54,7 +54,7 @@ export default async function DreamPage({
 
   return (
     <div>
-      <div className="container flex flex-col gap-12 pb-24">
+      <div className="container flex flex-col gap-12">
         <AboutDream {...{ dream, emotions, role, themes }} />
         <Analysis analysis={analysis} />
       </div>
