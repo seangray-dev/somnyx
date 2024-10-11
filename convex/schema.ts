@@ -48,7 +48,9 @@ export default defineSchema({
     themes: v.optional(v.array(v.id("themes"))),
     title: v.optional(v.string()),
     details: v.string(),
-  }).index("by_userId", ["userId"]),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_userId_and_date", ["userId", "date"]),
 
   analysis: defineTable({
     dreamId: v.string(),

@@ -2,9 +2,8 @@
 
 import { Preloaded, usePreloadedQuery } from "convex/react";
 
+import DreamCard from "@/components/shared/dream-card";
 import { api } from "@/convex/_generated/api";
-
-import DreamCard from "./dream-card";
 
 type RecentDreamsProps = {
   recentDreams: Preloaded<typeof api.queries.getRecentUserDreams>;

@@ -6,8 +6,11 @@
 - [x] Dream Analysis
 - [ ] Update nav header design + for mobile (back navigation)
 - [x] Refactor to use Preloaded queries
-- [ ] Prevent unauthenticated users from deleting, or making dreams public/private
-- [ ] Journal Page (with pagination, search, and filters)
+- [x] Prevent unauthenticated users from deleting, or making dreams public/private
+- [ ] Journal Page
+  - [x] pagination
+  - [ ] search
+  - [ ] filters
 - [ ] Cache the emotions / themes / roles queries in global state?
 - [ ] Delete Dream - on dream page
 - [ ] Edit Dream

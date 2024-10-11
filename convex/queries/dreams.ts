@@ -1,3 +1,4 @@
+import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 
 import { internalQuery, query } from "../_generated/server";
@@ -77,5 +78,33 @@ export const hasAccessToDream = query({
     }
 
     return true;
+  },
+});
+
+export const journalEntries = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+    userId: v.string(),
+    order: v.union(v.literal("asc"), v.literal("desc")),
+    timePeriod: v.optional(v.string()),
+    emotions: v.optional(v.array(v.id("emotions"))),
+    themes: v.optional(v.array(v.id("themes"))),
+    role: v.optional(v.id("roles")),
+  },
+  handler: async (ctx, args) => {
+    const { userId, order } = args;
+    let query = ctx.db
+      .query("dreams")
+      .withIndex("by_userId_and_date", (q) => q.eq("userId", userId));
+
+    let results = await query.paginate(args.paginationOpts);
+
+    results.page = results.page.sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return order === "asc" ? dateA - dateB : dateB - dateA;
+    });
+
+    return results;
   },
 });
