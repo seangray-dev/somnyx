@@ -62,3 +62,20 @@ export const getDreamByIdInternal = internalQuery({
     return dream;
   },
 });
+
+export const hasAccessToDream = query({
+  args: { dreamId: v.id("dreams"), userId: v.string() },
+  handler: async (ctx, args) => {
+    const dream = await ctx.db.get(args.dreamId);
+
+    if (!dream) {
+      throw new Error(`Dream with ID ${args.dreamId} not found.`);
+    }
+
+    if (args.userId !== dream?.userId) {
+      return false;
+    }
+
+    return true;
+  },
+});

@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/card";
 import { timeAgo } from "@/utils/date-time";
 
+import DreamCardActions from "../shared/dream-card-actions";
 import EmotionsBadge from "../shared/emotions-badge";
 import Loader from "../shared/loader";
-import DreamCardActions from "./dream-card-actions";
 
 export default function DreamCard({
   _id,

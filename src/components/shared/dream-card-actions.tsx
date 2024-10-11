@@ -1,4 +1,5 @@
-import { useMutation } from "convex/react";
+import { useSession } from "@clerk/nextjs";
+import { useMutation, useQuery } from "convex/react";
 import {
   EllipsisIcon,
   EyeIcon,
@@ -24,13 +25,21 @@ import copyToClipboard from "@/utils/copy-to-clipboard";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 
-export default function AboutDreamActions({
+export default function DreamCardActions({
   _id,
   isPublic,
 }: {
   _id: string;
   isPublic?: boolean;
 }) {
+  const { isSignedIn, session } = useSession();
+  const userId = session?.user?.id;
+
+  const hasAccessToDream = useQuery(api.queries.dreams.hasAccessToDream, {
+    dreamId: _id as Id<"dreams">,
+    userId: userId ?? "",
+  });
+
   const updateDream = useMutation(api.mutations.dreams.updateDream);
   const handleTogglePublic = async () => {
     try {
@@ -40,6 +49,10 @@ export default function AboutDreamActions({
       toast.error(`Failed to make dream ${!isPublic ? "public" : "private"}`);
     }
   };
+
+  if (!hasAccessToDream || !isSignedIn || !session) {
+    return null;
+  }
 
   return (
     <DropdownMenu>

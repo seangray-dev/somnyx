@@ -11,10 +11,10 @@ import {
 import { api } from "@/convex/_generated/api";
 import { timeAgo } from "@/utils/date-time";
 
+import DreamCardActions from "../shared/dream-card-actions";
 import EmotionsBadge from "../shared/emotions-badge";
 import Loader from "../shared/loader";
 import { Badge } from "../ui/badge";
-import AboutDreamActions from "./about-dream-actions";
 
 type AboutDreamCardProps = {
   dream: Preloaded<typeof api.queries.dreams.getDreamById>;
@@ -58,7 +58,7 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
           </CardDescription>
         </div>
         <div>
-          <AboutDreamActions {...{ _id, isPublic }} />
+          <DreamCardActions {...{ _id, isPublic }} />
         </div>
       </CardHeader>
       <CardContent className="flex flex-grow flex-col gap-4">
