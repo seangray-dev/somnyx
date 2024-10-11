@@ -7,7 +7,7 @@ export const getRecentUserDreams = query({
   args: { amount: v.optional(v.number()) },
   handler: async (ctx, args) => {
     const userId = await getUserId(ctx);
-    const amount = args.amount ?? 5;
+    const amount = args.amount ?? 6;
 
     if (!userId) {
       // throw new Error("You must be logged in.");

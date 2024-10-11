@@ -1,13 +1,17 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { Preloaded, usePreloadedQuery } from "convex/react";
 
 import { api } from "@/convex/_generated/api";
 
 import DreamCard from "./dream-card";
 
-export default function RecentDreams() {
-  const recentDreams = useQuery(api.queries.getRecentUserDreams, {});
+type RecentDreamsProps = {
+  recentDreams: Preloaded<typeof api.queries.getRecentUserDreams>;
+};
+
+export default function RecentDreams(props: RecentDreamsProps) {
+  const recentDreams = usePreloadedQuery(props.recentDreams);
 
   if (!recentDreams) {
     return null;

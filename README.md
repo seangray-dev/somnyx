@@ -5,7 +5,7 @@
 - [x] New Dream Form - (places, people, things) - detect missing commas
 - [x] Dream Analysis
 - [ ] Update nav header design + for mobile (back navigation)
-- [ ] Refactor to use Preloaded queries
+- [x] Refactor to use Preloaded queries
 - [ ] Prevent unauthenticated users from deleting, or making dreams public/private
 - [ ] Journal Page (with pagination, search, and filters)
 - [ ] Cache the emotions / themes / roles queries in global state?
@@ -15,6 +15,7 @@
 - [ ] Update the share link to use the new domain - look into using a service
 - [ ] Stats Feature + Pages (common emotions, themes. Total dreams, Dreams in last month)
 - [ ] Zodiac Features? (requires onboarding steps, storing additional data ie: birthday, zodiac sign)
+- [ ] Error + 404 pages
 - [ ] PWA setup and notifications
 - [ ] Determine pricing model (credit vs subscription)
 - [ ] Stripe Setup
