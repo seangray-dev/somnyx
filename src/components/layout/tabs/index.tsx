@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { BookOpenIcon, CogIcon, LayoutDashboardIcon } from "lucide-react";
 
 import { AddDreamButton } from "@/components/shared/add-dream-button";
+import { useSession } from "@/lib/client-auth";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", Icon: LayoutDashboardIcon },
@@ -15,8 +16,9 @@ const navItems = [
 
 export default function Tabs() {
   const pathname = usePathname();
+  const { isLoggedIn } = useSession();
 
-  if (pathname === "/") {
+  if (pathname === "/" || !isLoggedIn) {
     return null;
   }
 

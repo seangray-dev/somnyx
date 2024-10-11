@@ -2,7 +2,7 @@
 
 ## TODO
 
-- [ ] New Dream Form - (places, people, things) - detect missing commas
+- [x] New Dream Form - (places, people, things) - detect missing commas
 - [ ] Update mobile header design
 - [ ] Refactor to use Preloaded queries
 - [ ] Cache the emotions / themes / roles queries
