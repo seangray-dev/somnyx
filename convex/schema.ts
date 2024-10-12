@@ -60,5 +60,7 @@ export default defineSchema({
     symbolicInterpretation: v.string(),
     underlyingMessage: v.string(),
     actionableTakeaway: v.string(),
-  }).index("by_dreamId", ["dreamId"]),
+  })
+    .index("by_dreamId", ["dreamId"])
+    .index("by_userId", ["userId"]),
 });

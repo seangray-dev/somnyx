@@ -1,14 +1,15 @@
-import { ThemeToggle } from "@/components/layout/site-header/theme-toggle";
 import Account from "@/components/settings/account";
+import DeleteActions from "@/components/settings/delete-actions";
+import ThemeSection from "@/components/settings/theme-section";
 
 export default function SettingsPage() {
   return (
-    <div className="container flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <Account />
-      <h1 className="text-2xl font-medium">Settings</h1>
-      <div className="flex items-center justify-between">
-        <div>Theme:</div>
-        <ThemeToggle />
+      <h1 className="container text-2xl font-bold sm:text-3xl">Settings</h1>
+      <div className="container space-y-6">
+        <ThemeSection />
+        <DeleteActions />
       </div>
     </div>
   );

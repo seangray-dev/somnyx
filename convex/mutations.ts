@@ -1,1 +1,2 @@
-export * as from from "./mutations/dreams";
+export * from "./mutations/dreams";
+export * from "./mutations/users";

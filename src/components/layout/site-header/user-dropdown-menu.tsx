@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+import { SignOutButton } from "@clerk/nextjs";
+import { LogOutIcon } from "lucide-react";
+
 import UserAvatar from "@/components/shared/user-avatar";
 import {
   DropdownMenu,
@@ -46,6 +49,15 @@ export default function UserDropdownMenu() {
             </Link>
           </DropdownMenuItem>
         ))}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>
+          <SignOutButton>
+            <div className="flex items-center gap-2">
+              <LogOutIcon size={16} />
+              <span>Sign Out</span>
+            </div>
+          </SignOutButton>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -139,3 +139,21 @@ export const deleteDream = mutation({
     await ctx.db.delete(dream._id);
   },
 });
+
+export const deleteAllUserDreams = mutation({
+  handler: async (ctx) => {
+    const userId = await getUserId(ctx);
+    const dreams = await ctx.db
+      .query("dreams")
+      .withIndex("by_userId", (q) => q.eq("userId", userId!))
+      .collect();
+
+    const analysis = await ctx.db
+      .query("analysis")
+      .withIndex("by_userId", (q) => q.eq("userId", userId!))
+      .collect();
+
+    await Promise.all(dreams.map((d) => ctx.db.delete(d._id)));
+    await Promise.all(analysis.map((a) => ctx.db.delete(a._id)));
+  },
+});

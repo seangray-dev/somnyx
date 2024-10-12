@@ -2,10 +2,10 @@
 
 import { SignInButton } from "@clerk/nextjs";
 
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/client-auth";
 
-import { ThemeToggle } from "./theme-toggle";
 import UserDropdownMenu from "./user-dropdown-menu";
 
 export default function HeaderActions() {

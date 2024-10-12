@@ -1,5 +1,7 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import { UserButton } from "@clerk/nextjs";
 import { format } from "date-fns";
 
@@ -10,6 +12,11 @@ import Loader from "../../shared/loader";
 
 export default function DashboardHeader() {
   const { session, isLoaded, isLoggedIn } = useSession();
+  const pathname = usePathname();
+
+  if (pathname === "/settings") {
+    return null;
+  }
 
   if (!isLoggedIn) {
     return null;

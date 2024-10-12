@@ -7,11 +7,13 @@
 - [x] Update nav header design + for mobile (back navigation)
 - [x] Refactor to use Preloaded queries
 - [x] Prevent unauthenticated users from deleting, or making dreams public/private
+- [ ] No dreams UI (dashboard, journal) + remove Load More button (journal page)
 - [ ] Journal Page
   - [x] pagination
   - [ ] search
   - [ ] filters
 - [x] Cache the emotions / themes / roles queries in global state?
+- [ ] Issue with signing up not redirecting... stuck on clerk page
 - [ ] Delete Dream - on dream page
 - [ ] Edit Dream
 - [ ] Delete Account and related data (settings page)
