@@ -1,11 +1,12 @@
 "use client";
 
-import { SignInButton, UserButton } from "@clerk/nextjs";
+import { SignInButton } from "@clerk/nextjs";
 
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/client-auth";
 
 import { ThemeToggle } from "./theme-toggle";
+import UserDropdownMenu from "./user-dropdown-menu";
 
 export default function HeaderActions() {
   const session = useSession();
@@ -15,7 +16,7 @@ export default function HeaderActions() {
     <div className="flex items-center gap-2">
       <ThemeToggle />
       {isLoggedIn ? (
-        <UserButton />
+        <UserDropdownMenu />
       ) : (
         <SignInButton mode="modal">
           <Button disabled={!isLoaded}>Sign In</Button>

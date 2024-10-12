@@ -4,14 +4,14 @@
 
 - [x] New Dream Form - (places, people, things) - detect missing commas
 - [x] Dream Analysis
-- [ ] Update nav header design + for mobile (back navigation)
+- [x] Update nav header design + for mobile (back navigation)
 - [x] Refactor to use Preloaded queries
 - [x] Prevent unauthenticated users from deleting, or making dreams public/private
 - [ ] Journal Page
   - [x] pagination
   - [ ] search
   - [ ] filters
-- [ ] Cache the emotions / themes / roles queries in global state?
+- [x] Cache the emotions / themes / roles queries in global state?
 - [ ] Delete Dream - on dream page
 - [ ] Edit Dream
 - [ ] Delete Account and related data (settings page)
