@@ -42,13 +42,6 @@ export const getEmotionsByDreamIdInternal = internalQuery({
   },
 });
 
-export const getEmotionById = query({
-  args: { id: v.id("emotions") },
-  handler: async (ctx, args) => {
-    return await ctx.db.get(args.id);
-  },
-});
-
 export const getEmotionsByIdsInternal = internalQuery({
   args: { ids: v.array(v.id("emotions")) },
   handler: async (ctx, args) => {

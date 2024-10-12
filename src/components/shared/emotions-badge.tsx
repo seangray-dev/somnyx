@@ -1,16 +1,11 @@
 "use client";
 
-import { useQuery } from "convex/react";
-
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+import { useEmotionById } from "@/features/store/emotions";
 
 import { Badge } from "../ui/badge";
 
 export default function EmotionsBadge({ emotionId }: { emotionId: string }) {
-  const emotion = useQuery(api.queries.emotions.getEmotionById, {
-    id: emotionId as Id<"emotions">,
-  });
+  const { emotion, isLoading } = useEmotionById(emotionId);
 
   if (!emotion) {
     return null;

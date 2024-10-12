@@ -31,11 +31,13 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { useGetAllEmotions } from "@/features/store/emotions";
 import { cn } from "@/lib/utils";
 
 import LoadingButton from "../shared/loading-button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
+import Loader from "./loader";
 
 const FormSchema = z.object({
   date: z.date({ required_error: "Please select a date" }),
@@ -66,7 +68,7 @@ type AddNewDreamFormProps = {
 
 export function AddNewDreamForm(props: AddNewDreamFormProps) {
   const { className, closeDialog } = props;
-  const emotions = useQuery(api.queries.getAllEmotions);
+  const { emotions, isLoading: emotionsLoading } = useGetAllEmotions();
   const roles = useQuery(api.queries.getAllRoles);
   const themes = useQuery(api.queries.getAllThemes);
   const [loading, setLoading] = useState(false);
@@ -171,54 +173,61 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                   Select the emotions you had while dreaming.
                 </FormDescription>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {emotions?.map((emotion) => (
-                  <FormField
-                    key={emotion._id}
-                    control={form.control}
-                    name="emotions"
-                    render={({ field }) => {
-                      return (
-                        <FormItem key={emotion._id}>
-                          <FormLabel>
-                            <Badge
-                              variant={"outline"}
-                              className={`flex items-center gap-2 ${
-                                field.value?.includes(emotion._id)
-                                  ? "bg-primary text-primary-foreground"
-                                  : ""
-                              }`}
-                            >
-                              <div className="flex items-center gap-1">
-                                <div>{emotion.emoji}</div>
-                                <div>{emotion.name}</div>
-                              </div>
-                              <FormControl>
-                                <Checkbox
-                                  className="sr-only border-none"
-                                  checked={field.value?.includes(emotion._id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([
-                                          ...field.value,
-                                          emotion._id,
-                                        ])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== emotion._id
-                                          )
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                            </Badge>
-                          </FormLabel>
-                        </FormItem>
-                      );
-                    }}
-                  />
-                ))}
-              </div>
+              {emotionsLoading ? (
+                <div className="flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <Loader />
+                  <div>Loading emotions...</div>
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {emotions?.map((emotion) => (
+                    <FormField
+                      key={emotion._id}
+                      control={form.control}
+                      name="emotions"
+                      render={({ field }) => {
+                        return (
+                          <FormItem key={emotion._id}>
+                            <FormLabel>
+                              <Badge
+                                variant={"outline"}
+                                className={`flex items-center gap-2 ${
+                                  field.value?.includes(emotion._id)
+                                    ? "bg-primary text-primary-foreground"
+                                    : ""
+                                }`}
+                              >
+                                <div className="flex items-center gap-1">
+                                  <div>{emotion.emoji}</div>
+                                  <div>{emotion.name}</div>
+                                </div>
+                                <FormControl>
+                                  <Checkbox
+                                    className="sr-only border-none"
+                                    checked={field.value?.includes(emotion._id)}
+                                    onCheckedChange={(checked) => {
+                                      return checked
+                                        ? field.onChange([
+                                            ...field.value,
+                                            emotion._id,
+                                          ])
+                                        : field.onChange(
+                                            field.value?.filter(
+                                              (value) => value !== emotion._id
+                                            )
+                                          );
+                                    }}
+                                  />
+                                </FormControl>
+                              </Badge>
+                            </FormLabel>
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
               <FormMessage />
             </FormItem>
           )}
