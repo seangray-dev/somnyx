@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { format } from "date-fns";
 import { CalendarIcon, XIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -32,6 +32,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useGetAllEmotions } from "@/features/store/emotions";
+import { useGetAllRoles } from "@/features/store/roles";
+import { useGetAllThemes } from "@/features/store/themes";
 import { cn } from "@/lib/utils";
 
 import LoadingButton from "../shared/loading-button";
@@ -69,8 +71,8 @@ type AddNewDreamFormProps = {
 export function AddNewDreamForm(props: AddNewDreamFormProps) {
   const { className, closeDialog } = props;
   const { emotions, isLoading: emotionsLoading } = useGetAllEmotions();
-  const roles = useQuery(api.queries.getAllRoles);
-  const themes = useQuery(api.queries.getAllThemes);
+  const { roles, isLoading: rolesLoading } = useGetAllRoles();
+  const { themes, isLoading: themesLoading } = useGetAllThemes();
   const [loading, setLoading] = useState(false);
   const [peopleInputValue, setPeopleInputValue] = useState("");
   const [placesInputValue, setPlacesInputValue] = useState("");
@@ -244,30 +246,37 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                   What role did you play in the dream?
                 </FormDescription>
               </div>
-              <FormControl>
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  className="space-y-2"
-                >
-                  {roles?.map((role) => (
-                    <FormItem
-                      key={role._id}
-                      className="flex items-center space-x-3 space-y-0"
-                    >
-                      <FormControl>
-                        <RadioGroupItem value={role._id} />
-                      </FormControl>
-                      <FormLabel className="flex flex-col gap-1 font-normal">
-                        <span>{role.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {role.description}
-                        </span>
-                      </FormLabel>
-                    </FormItem>
-                  ))}
-                </RadioGroup>
-              </FormControl>
+              {rolesLoading ? (
+                <div className="flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <Loader />
+                  <div>Loading roles...</div>
+                </div>
+              ) : (
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="space-y-2"
+                  >
+                    {roles?.map((role) => (
+                      <FormItem
+                        key={role._id}
+                        className="flex items-center space-x-3 space-y-0"
+                      >
+                        <FormControl>
+                          <RadioGroupItem value={role._id} />
+                        </FormControl>
+                        <FormLabel className="flex flex-col gap-1 font-normal">
+                          <span>{role.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {role.description}
+                          </span>
+                        </FormLabel>
+                      </FormItem>
+                    ))}
+                  </RadioGroup>
+                </FormControl>
+              )}
               <FormMessage />
             </FormItem>
           )}
@@ -284,51 +293,58 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                   Select the themes related to your dream.
                 </FormDescription>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {themes?.map((theme) => (
-                  <FormField
-                    key={theme._id}
-                    control={form.control}
-                    name="themes"
-                    render={({ field }) => {
-                      return (
-                        <FormItem key={theme.name}>
-                          <FormLabel>
-                            <Badge
-                              variant={"outline"}
-                              className={`${
-                                field.value?.includes(theme._id)
-                                  ? "bg-primary text-primary-foreground"
-                                  : ""
-                              }`}
-                            >
-                              <div>{theme.name}</div>
-                              <FormControl>
-                                <Checkbox
-                                  className="sr-only border-none data-[state=checked]:bg-secondary"
-                                  checked={field.value?.includes(theme._id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([
-                                          ...field.value,
-                                          theme._id,
-                                        ])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== theme._id
-                                          )
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                            </Badge>
-                          </FormLabel>
-                        </FormItem>
-                      );
-                    }}
-                  />
-                ))}
-              </div>
+              {themesLoading ? (
+                <div className="flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <Loader />
+                  <div>Loading themes...</div>
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {themes?.map((theme) => (
+                    <FormField
+                      key={theme._id}
+                      control={form.control}
+                      name="themes"
+                      render={({ field }) => {
+                        return (
+                          <FormItem key={theme.name}>
+                            <FormLabel>
+                              <Badge
+                                variant={"outline"}
+                                className={`${
+                                  field.value?.includes(theme._id)
+                                    ? "bg-primary text-primary-foreground"
+                                    : ""
+                                }`}
+                              >
+                                <div>{theme.name}</div>
+                                <FormControl>
+                                  <Checkbox
+                                    className="sr-only border-none data-[state=checked]:bg-secondary"
+                                    checked={field.value?.includes(theme._id)}
+                                    onCheckedChange={(checked) => {
+                                      return checked
+                                        ? field.onChange([
+                                            ...field.value,
+                                            theme._id,
+                                          ])
+                                        : field.onChange(
+                                            field.value?.filter(
+                                              (value) => value !== theme._id
+                                            )
+                                          );
+                                    }}
+                                  />
+                                </FormControl>
+                              </Badge>
+                            </FormLabel>
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
               <FormMessage />
             </FormItem>
           )}
