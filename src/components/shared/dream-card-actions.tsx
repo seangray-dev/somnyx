@@ -1,9 +1,13 @@
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
 import { useSession } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import {
   EllipsisIcon,
   EyeIcon,
   EyeOffIcon,
+  OrbitIcon,
   PencilIcon,
   Share2Icon,
 } from "lucide-react";
@@ -34,6 +38,8 @@ export default function DreamCardActions({
 }) {
   const { isSignedIn, session } = useSession();
   const userId = session?.user?.id;
+  const pathname = usePathname();
+  const isAnalysisPage = pathname === `/dreams/${_id}`;
 
   const hasAccessToDream = useQuery(api.queries.dreams.hasAccessToDream, {
     dreamId: _id as Id<"dreams">,
@@ -62,6 +68,14 @@ export default function DreamCardActions({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
+        {!isAnalysisPage && (
+          <Link href={{ pathname: `/dreams/${_id}` }}>
+            <DropdownMenuItem className="flex items-center gap-2 hover:cursor-pointer hover:underline">
+              <OrbitIcon size={16} />
+              <span>Analysis</span>
+            </DropdownMenuItem>
+          </Link>
+        )}
         <DropdownMenuItem
           className="space-x-2"
           onClick={() => handleTogglePublic()}
