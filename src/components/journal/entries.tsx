@@ -8,6 +8,7 @@ import { api } from "@/convex/_generated/api";
 import { useSession } from "@/lib/client-auth";
 
 import DreamCard from "../shared/dream-card";
+import NoDreams from "../shared/no-dreams";
 import { Button } from "../ui/button";
 
 export default function JournalEntries() {
@@ -55,8 +56,12 @@ export default function JournalEntries() {
     },
   ];
 
+  if (dreams.length === 0) {
+    return <NoDreams />;
+  }
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-1 flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-lg sm:text-2xl">Journal</h1>
         {/* <div className="flex flex-col gap-2">

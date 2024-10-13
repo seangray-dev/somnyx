@@ -9,7 +9,7 @@ export default function TabsLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <DashboardHeader />
-      <div className="flex-1 pb-28 pt-6">{children}</div>
+      <div className="flex flex-1 flex-col pb-28 pt-6">{children}</div>
       <Tabs />
     </div>
   );
