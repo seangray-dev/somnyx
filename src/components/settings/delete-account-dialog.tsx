@@ -1,8 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { useMutation } from "convex/react";
+import { useAction, useMutation } from "convex/react";
 import { toast } from "sonner";
 
 import {
@@ -23,14 +24,20 @@ import LoadingButton from "../shared/loading-button";
 export default function DeleteAccountDialog() {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const deleteAccount = useMutation(api.mutations.users.deleteAccount);
+  const deleteAccount = useAction(api.mutations.deleteAccount);
+  const deleteAllUserDreams = useMutation(
+    api.mutations.dreams.deleteAllUserDreams
+  );
+  const router = useRouter();
 
   async function handleDelete() {
     setIsLoading(true);
     try {
+      await deleteAllUserDreams();
       await deleteAccount();
       setIsOpen(false);
       toast.success("Account deleted successfully");
+      router.push("/");
     } catch (err) {
       toast.error("Uh oh! Something went wrong.", {
         description: "We couldn't delete your account. Please try again later.",

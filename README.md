@@ -7,7 +7,8 @@
 - [x] Update nav header design + for mobile (back navigation)
 - [x] Refactor to use Preloaded queries
 - [x] Prevent unauthenticated users from deleting, or making dreams public/private
-- [ ] No dreams UI (dashboard, journal) + remove Load More button (journal page)
+- [x] No dreams UI (dashboard, journal) + remove Load More button (journal page)
+- [ ] Loading state for analysis generation on dreams/id page
 - [ ] Journal Page
   - [x] pagination
   - [ ] search
@@ -15,8 +16,9 @@
 - [x] Cache the emotions / themes / roles queries in global state?
 - [ ] Issue with signing up not redirecting... stuck on clerk page
 - [ ] Delete Dream - on dream page
-- [ ] Edit Dream
-- [ ] Delete Account and related data (settings page)
+- [ ] (Paid) - Edit Dream + New Analysis
+- [x] Delete Account and related data (settings page)
+  - [ ] Feedback for reason on deleting account
 - [ ] Update the share link to use the new domain - look into using a service
 - [ ] Stats Feature + Pages (common emotions, themes. Total dreams, Dreams in last month)
 - [ ] Zodiac Features? (requires onboarding steps, storing additional data ie: birthday, zodiac sign)

@@ -1,8 +1,12 @@
-import { api } from "../_generated/api";
-import { mutation } from "../_generated/server";
+"use node";
+
+import { clerkClient } from "@clerk/clerk-sdk-node";
+
+import { api, internal } from "../_generated/api";
+import { action } from "../_generated/server";
 import { getUserId } from "../util";
 
-export const deleteAccount = mutation({
+export const deleteAccount = action({
   args: {},
   handler: async (ctx, args) => {
     const userId = await getUserId(ctx);
@@ -11,18 +15,13 @@ export const deleteAccount = mutation({
       throw new Error("You must be logged in.");
     }
 
-    // Fetch the user document by userId
-    const user = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("userId"), userId))
-      .first();
+    const user = await ctx.runQuery(api.users.getMyUser);
 
     if (!user) {
       throw new Error("User not found.");
     }
 
-    // Delete the user by _id
-    await ctx.db.delete(user._id);
-    await ctx.scheduler.runAfter(0, api.mutations.deleteAllUserDreams, {});
+    await ctx.runMutation(internal.users.deleteUser, { userId: userId });
+    await clerkClient.users.deleteUser(userId);
   },
 });
