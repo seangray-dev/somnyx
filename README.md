@@ -8,6 +8,7 @@
 - [x] Refactor to use Preloaded queries
 - [x] Prevent unauthenticated users from deleting, or making dreams public/private
 - [x] No dreams UI (dashboard, journal) + remove Load More button (journal page)
+- [ ] Sorting dreams by date the dream happened - Recent Dreams + Journal
 - [ ] Loading state for analysis generation on dreams/id page
 - [ ] Journal Page
   - [x] pagination

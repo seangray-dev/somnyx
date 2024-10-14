@@ -2,6 +2,7 @@
 
 import { SignInButton } from "@clerk/nextjs";
 
+import { AddDreamButton } from "@/components/shared/add-dream-button";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/client-auth";
@@ -13,7 +14,8 @@ export default function HeaderActions() {
   const { isLoggedIn, isLoaded } = session;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3">
+      <AddDreamButton />
       <ThemeToggle />
       {isLoggedIn ? (
         <UserDropdownMenu />

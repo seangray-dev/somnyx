@@ -1,7 +1,12 @@
 import Link from "next/link";
 
 import { SignOutButton } from "@clerk/nextjs";
-import { LogOutIcon } from "lucide-react";
+import {
+  BookOpenIcon,
+  CogIcon,
+  LayoutDashboardIcon,
+  LogOutIcon,
+} from "lucide-react";
 
 import UserAvatar from "@/components/shared/user-avatar";
 import {
@@ -21,9 +26,13 @@ export default function UserDropdownMenu() {
   const email = user?.primaryEmailAddress?.emailAddress;
 
   const links = [
-    { label: "Dashboard", href: "/dashboard" },
-    { label: "Journal", href: "/journal" },
-    { label: "Settings", href: "/settings" },
+    {
+      label: "Dashboard",
+      href: "/dashboard",
+      icon: <LayoutDashboardIcon size={16} />,
+    },
+    { label: "Journal", href: "/journal", icon: <BookOpenIcon size={16} /> },
+    { label: "Settings", href: "/settings", icon: <CogIcon size={16} /> },
   ];
 
   return (
@@ -45,6 +54,7 @@ export default function UserDropdownMenu() {
               className="flex w-full cursor-pointer items-center gap-2 text-sm"
               href={{ pathname: link.href }}
             >
+              {link.icon}
               {link.label}
             </Link>
           </DropdownMenuItem>

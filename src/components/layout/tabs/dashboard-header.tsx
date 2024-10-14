@@ -43,7 +43,9 @@ export default function DashboardHeader() {
             <h1 className="text-xl font-medium sm:text-2xl">{`${getGreeting()}, ${user?.firstName || "User"}!`}</h1>
           </div>
         )}
-        <UserButton />
+        <div className="sm:hidden">
+          <UserButton />
+        </div>
       </div>
     </section>
   );
