@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { SparklesIcon } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -27,8 +29,12 @@ export default function LandingPage() {
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Button asChild>
-                    <Link href={{ pathname: "/sign-up" }}>
-                      Analyze Your Dreams
+                    <Link
+                      href={{ pathname: "/dashboard" }}
+                      className="flex items-center gap-2"
+                    >
+                      <SparklesIcon size={16} />
+                      <span>Analyze Your Dreams</span>
                     </Link>
                   </Button>
                 </div>
