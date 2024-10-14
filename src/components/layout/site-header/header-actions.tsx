@@ -15,14 +15,21 @@ export default function HeaderActions() {
 
   return (
     <div className="flex items-center gap-3">
-      <AddDreamButton />
-      <ThemeToggle />
       {isLoggedIn ? (
-        <UserDropdownMenu />
+        <>
+          <AddDreamButton />
+          <div className="hidden sm:block">
+            <ThemeToggle />
+          </div>
+          <UserDropdownMenu />
+        </>
       ) : (
-        <SignInButton mode="modal">
-          <Button disabled={!isLoaded}>Sign In</Button>
-        </SignInButton>
+        <>
+          <ThemeToggle />
+          <SignInButton mode="modal">
+            <Button disabled={!isLoaded}>Sign In</Button>
+          </SignInButton>
+        </>
       )}
     </div>
   );

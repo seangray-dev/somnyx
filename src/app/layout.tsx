@@ -39,7 +39,7 @@ export default function RootLayout({
         >
           <ThemeProvider attribute="class" defaultTheme="system">
             <SiteHeader />
-            <main className="flex flex-1 flex-col border">{children}</main>
+            <main className="flex flex-1 flex-col">{children}</main>
             <SiteFooter />
             <Toaster richColors position="top-center" duration={5000} />
           </ThemeProvider>

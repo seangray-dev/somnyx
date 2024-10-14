@@ -33,7 +33,7 @@ export function AddDreamButton(props: AddDreamButtonProps) {
             <span>New Dream</span>
           </button>
         ) : (
-          <Button className="flex items-center gap-2">
+          <Button className="flex items-center gap-2" size={"sm"}>
             <SparklesIcon className="size-4" />
             <span>New Dream</span>
           </Button>
