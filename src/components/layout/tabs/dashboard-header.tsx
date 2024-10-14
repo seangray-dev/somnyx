@@ -2,13 +2,13 @@
 
 import { usePathname } from "next/navigation";
 
-import { UserButton } from "@clerk/nextjs";
 import { format } from "date-fns";
 
 import { useSession } from "@/lib/client-auth";
 import getGreeting from "@/utils/get-greeting";
 
 import Loader from "../../shared/loader";
+import UserDropdownMenu from "../site-header/user-dropdown-menu";
 
 export default function DashboardHeader() {
   const { session, isLoaded, isLoggedIn } = useSession();
@@ -33,7 +33,7 @@ export default function DashboardHeader() {
   const user = session?.user;
 
   return (
-    <section className="sm:flew-row border-b py-5">
+    <section className="flex flex-col gap-4 border-b py-5">
       <div className="container flex flex-wrap items-center justify-between gap-4">
         {isLoaded && (
           <div className="flex flex-col gap-1">
@@ -44,7 +44,7 @@ export default function DashboardHeader() {
           </div>
         )}
         <div className="sm:hidden">
-          <UserButton />
+          <UserDropdownMenu />
         </div>
       </div>
     </section>
