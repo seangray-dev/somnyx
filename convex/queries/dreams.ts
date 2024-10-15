@@ -1,6 +1,7 @@
 import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 
+import { Id } from "../_generated/dataModel";
 import { internalQuery, query } from "../_generated/server";
 import { getUserId } from "../util";
 
@@ -106,5 +107,74 @@ export const journalEntries = query({
     });
 
     return results;
+  },
+});
+
+export const getTotalDreamsCount = query({
+  handler: async (ctx) => {
+    const userId = await getUserId(ctx);
+    const dreams = await ctx.db
+      .query("dreams")
+      .withIndex("by_userId", (q) => q.eq("userId", userId!))
+      .collect();
+
+    return dreams.length;
+  },
+});
+
+export const getDreamsInCurrentMonthCount = query({
+  handler: async (ctx) => {
+    const userId = await getUserId(ctx);
+    const currentMonth = new Date().getMonth();
+    const dreams = await ctx.db
+      .query("dreams")
+      .withIndex("by_userId", (q) => q.eq("userId", userId!))
+      .collect();
+
+    return dreams.filter((dream) => {
+      const month = new Date(dream.date).getMonth();
+      return month === currentMonth;
+    }).length;
+  },
+});
+
+export const getMostFrequentEmotion = query({
+  handler: async (ctx) => {
+    const userId = await getUserId(ctx);
+    const dreams = await ctx.db
+      .query("dreams")
+      .withIndex("by_userId", (q) => q.eq("userId", userId!))
+      .collect();
+
+    const emotions = dreams.map((dream) => dream.emotions).flat();
+
+    if (emotions.length === 0) {
+      return null; // Return null if no emotions
+    }
+
+    const emotionCounts = emotions.reduce(
+      (acc, emotion) => {
+        const emotionKey = emotion.toString(); // Convert Id<"emotions"> to string
+        acc[emotionKey] = (acc[emotionKey] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
+    const mostFrequentEmotionId = Object.entries(emotionCounts).reduce(
+      (acc, curr) => (acc[1] < curr[1] ? curr : acc),
+      ["", 0] // Initial value
+    )[0];
+
+    // Fetch the emotion details from the emotions table
+    const mostFrequentEmotion = await ctx.db.get(
+      mostFrequentEmotionId as Id<"emotions">
+    );
+
+    return {
+      emotionName: mostFrequentEmotion?.name,
+      emoji: mostFrequentEmotion?.emoji,
+      count: emotionCounts[mostFrequentEmotionId],
+    };
   },
 });
