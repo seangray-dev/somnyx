@@ -21,7 +21,8 @@
 - [x] Delete Account and related data (settings page)
   - [ ] Feedback for reason on deleting account
 - [ ] Update the share link to use the new domain - look into using a service
-- [ ] Stats Feature + Pages (common emotions, themes. Total dreams, Dreams in last month)
+- [x] Stats Feature + Pages (common emotions, themes. Total dreams, Dreams in last month)
+- [ ] (Paid - free for first month) Deep Analysis after x amount of dreams (or per month basis)
 - [ ] Zodiac Features? (requires onboarding steps, storing additional data ie: birthday, zodiac sign)
 - [ ] Error + 404 pages
 - [ ] PWA setup and notifications
