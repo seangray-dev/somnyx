@@ -9,7 +9,8 @@
 - [x] Prevent unauthenticated users from deleting, or making dreams public/private
 - [x] No dreams UI (dashboard, journal) + remove Load More button (journal page)
 - [ ] Sorting dreams by date the dream happened - Recent Dreams + Journal
-- [ ] Loading state for analysis generation on dreams/id page
+- [x] Remove stats banner on dream/id page when not logged in
+- [x] Loading state for analysis generation on dreams/id page
 - [ ] Journal Page
   - [x] pagination
   - [ ] search
@@ -37,6 +38,7 @@
 - [ ] Analytics (posthog, plausible)
 - [ ] Error Management? (Sentry)
 - [ ] Deploy to production (convex, clerk)
+- [ ] Create blog posts 
 - [x] Make it deploy
 
 ## Getting Started
