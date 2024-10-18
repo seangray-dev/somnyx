@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 
 import { internal } from "../_generated/api";
+import { Id } from "../_generated/dataModel";
 import { internalMutation, mutation } from "../_generated/server";
 import { getUserId } from "../util";
 
@@ -121,22 +122,36 @@ export const updateDreamInternal = internalMutation({
 });
 
 export const deleteDream = mutation({
-  args: {
-    id: v.id("dreams"),
-  },
-  handler: async (ctx, args) => {
+  args: { id: v.id("dreams") },
+  handler: async (ctx, args): Promise<Id<"_scheduled_functions">> => {
     const userId = await getUserId(ctx);
     const dream = await ctx.db.get(args.id);
 
-    if (!dream) {
-      throw new Error(`Dream with ID ${args.id} not found.`);
-    }
+    if (!dream) throw new Error(`Dream with ID ${args.id} not found.`);
+    if (userId !== dream.userId) throw new Error("Unauthorized access.");
 
-    if (userId !== dream?.userId) {
-      throw new Error("You do not have access to this dream.");
-    }
+    // Schedule the deletion after 10 seconds
+    const taskId = await ctx.scheduler.runAfter(
+      10 * 1000,
+      internal.mutations.deleteDreamScheduler,
+      { id: dream._id }
+    );
 
-    await ctx.db.delete(dream._id);
+    return taskId;
+  },
+});
+
+export const deleteDreamScheduler = internalMutation({
+  args: { id: v.id("dreams") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+  },
+});
+
+export const cancelScheduledDeletion = mutation({
+  args: { taskId: v.id("_scheduled_functions") },
+  handler: async (ctx, args) => {
+    await ctx.scheduler.cancel(args.taskId);
   },
 });
 

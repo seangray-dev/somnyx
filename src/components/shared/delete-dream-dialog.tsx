@@ -1,7 +1,8 @@
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useMutation } from "convex/react";
-import { Trash2Icon } from "lucide-react";
+import { Trash2Icon, UndoIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -17,6 +18,7 @@ import {
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
+import { Button } from "../ui/button";
 import LoadingButton from "./loading-button";
 
 type DeleteDreamDialogProps = {
@@ -27,15 +29,67 @@ export default function DeleteDreamDialog(props: DeleteDreamDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const deleteDream = useMutation(api.mutations.dreams.deleteDream);
+  const cancelScheduledDeletion = useMutation(
+    api.mutations.dreams.cancelScheduledDeletion
+  );
+  const isDreamPage = usePathname() === `/dreams/${props.dreamId}`;
+  const router = useRouter();
 
   const handleDelete = async () => {
     try {
       setIsLoading(true);
-      await deleteDream({
+
+      const taskId = await deleteDream({
         id: props.dreamId as Id<"dreams">,
       });
-      toast.success("Dream deleted successfully!");
+
+      let isCancelled = false;
+
+      const toastId = toast.loading("Dream will be deleted in 10 seconds", {
+        duration: 10 * 1000,
+        action: (
+          <Button
+            onClick={() => {
+              isCancelled = true;
+              cancelScheduledDeletion({ taskId });
+              toast.success("Cancelled deletion");
+              toast.dismiss(toastId);
+            }}
+            variant="ghost"
+            className="ml-auto flex items-center gap-2 text-xs"
+            size="sm"
+          >
+            <UndoIcon size={16} />
+            <span>Undo</span>
+          </Button>
+        ),
+      });
+
+      let secondsLeft = 10;
+      const countdownInterval = setInterval(() => {
+        if (isCancelled) {
+          clearInterval(countdownInterval);
+        } else {
+          secondsLeft -= 1;
+          toast.loading(`Dream will be deleted in ${secondsLeft} seconds`, {
+            id: toastId,
+          });
+
+          if (secondsLeft <= 0) {
+            clearInterval(countdownInterval);
+          }
+        }
+      }, 1000);
+
+      setTimeout(() => {
+        if (!isCancelled) {
+          toast.success("Dream deleted successfully!");
+          toast.dismiss(toastId);
+        }
+      }, 10 * 1000);
+
       setIsOpen(false);
+      if (isDreamPage) router.push("/dashboard");
     } catch (err) {
       setIsOpen(true);
       toast.error("Uh oh! Something went wrong.", {
