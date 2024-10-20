@@ -8,6 +8,8 @@
 - [x] Refactor to use Preloaded queries
 - [x] Prevent unauthenticated users from deleting, or making dreams public/private
 - [x] No dreams UI (dashboard, journal) + remove Load More button (journal page)
+- [ ] Refactor: Dashboard Header Greeting - if no user first name - don't show 'User' fallback
+- [ ] Dashoard Header - loading state...
 - [ ] Sorting dreams by date the dream happened - Recent Dreams + Journal
 - [x] Remove stats banner on dream/id page when not logged in
 - [x] Loading state for analysis generation on dreams/id page
@@ -38,7 +40,7 @@
 - [ ] Analytics (posthog, plausible)
 - [ ] Error Management? (Sentry)
 - [ ] Deploy to production (convex, clerk)
-- [ ] Create blog posts 
+- [ ] Create blog posts
 - [x] Make it deploy
 
 ## Getting Started
