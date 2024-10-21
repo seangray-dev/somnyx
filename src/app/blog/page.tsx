@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { formatDate } from "date-fns";
 import fs from "fs";
 import matter from "gray-matter";
 import path from "path";
@@ -17,6 +18,7 @@ type BlogPost = {
   title: string;
   description: string;
   slug: string;
+  date: string;
 };
 
 // Fetch all blog posts from the /data/blog directory
@@ -33,6 +35,7 @@ function getAllPosts(): BlogPost[] {
       title: data.title || "Untitled Post",
       description: data.description || "No description available.",
       slug: filename.replace(".mdx", ""),
+      date: data.date,
     };
   });
 
@@ -41,6 +44,7 @@ function getAllPosts(): BlogPost[] {
 
 export default function BlogPage() {
   const posts = getAllPosts();
+
   return (
     <section className="container py-6">
       <div className="pb-6">
@@ -53,12 +57,15 @@ export default function BlogPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-pretty">{post.title}</CardTitle>
-                <CardDescription className="text-pretty">
-                  {post.description}
+                <CardDescription className="flex flex-col gap-2 text-pretty">
+                  <span>{post.description}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {formatDate(post.date, "MMMM d, yyyy")}
+                  </span>
                 </CardDescription>
               </CardHeader>
 
-              <CardFooter>
+              <CardFooter className="flex flex-col gap-4">
                 <Link
                   className="w-full"
                   href={{ pathname: `/blog/${post.slug}` }}
