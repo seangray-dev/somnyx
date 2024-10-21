@@ -18,6 +18,9 @@
     "@clerk/themes": "^2.1.7",
     "@hookform/resolvers": "^3.9.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.2.1",
+    "@mdx-js/loader": "^3.1.0",
+    "@mdx-js/react": "^3.1.0",
+    "@next/mdx": "^14.2.15",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-checkbox": "^1.1.2",
@@ -33,6 +36,7 @@
     "@react-email/components": "^0.0.18",
     "@t3-oss/env-nextjs": "^0.11.1",
     "@tanstack/react-query": "^5.37.1",
+    "@types/mdx": "^2.0.13",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "convex": "^1.12.0",
@@ -43,6 +47,7 @@
     "lucide-react": "^0.379.0",
     "next": "^14.2.14",
     "next-docs-mdx": "^7.1.2",
+    "next-mdx-remote": "^5.0.0",
     "next-pwa": "^5.6.0",
     "next-themes": "^0.3.0",
     "nextjs-toploader": "1.6.12",
@@ -63,6 +68,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.15",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/node": "^20",
     "@types/react": "^18",
