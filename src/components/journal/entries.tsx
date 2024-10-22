@@ -17,7 +17,6 @@ export default function JournalEntries() {
   const [order, setOrder] = useState("desc");
   const emotions = useQuery(api.queries.getAllEmotions);
   const roles = useQuery(api.queries.getAllRoles);
-  const themes = useQuery(api.queries.getAllThemes);
   const userId = session?.user?.id;
   const {
     results: dreams,

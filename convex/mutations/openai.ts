@@ -157,13 +157,6 @@ export const generateAnalysis = internalAction({
       }
     );
 
-    const themes = await ctx.runQuery(
-      internal.queries.themes.getAllThemesToDreamInternal,
-      {
-        dreamId: dreamId,
-      }
-    );
-
     const formattedEmotions = emotions.map((e) => e?.name).join(", ");
     const people = dream.people?.join(", ") || "N/A";
     const places = dream.places?.join(", ") || "N/A";

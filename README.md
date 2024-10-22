@@ -11,6 +11,7 @@
 - [x] Refactor: Dashboard Header Greeting - if no user first name - don't show 'User' fallback
 - [x] Dashoard Header - loading state...
 - [x] Remove theme in dream form - let ai determine the theme based off the details
+- [ ] ? Allow users to log that they did not dream - don't execute analysis
 - [ ] (backlog) Consider adding a themes table, store id of theme on dream table. Do lookup on themes table before inserting new themes in db. Add it if it doesn't exist yet.
 - [ ] Sorting dreams by date the dream happened - Recent Dreams + Journal
 - [x] Remove stats banner on dream/id page when not logged in
@@ -21,7 +22,7 @@
   - [ ] filters
 - [x] Cache the emotions / themes / roles queries in global state?
 - [ ] Issue with signing up not redirecting... stuck on clerk page
-- [ ] Delete Dream - on dream page
+- [x] Delete Dream - on dream page
 - [ ] (Paid) - Edit Dream + New Analysis
 - [x] Delete Account and related data (settings page)
   - [ ] Feedback for reason on deleting account
