@@ -31,6 +31,7 @@ export default function DashboardHeader() {
   }
 
   const user = session?.user;
+  const firstName = user?.firstName;
 
   return (
     <section className="flex flex-col gap-4 border-b py-5">
@@ -40,7 +41,11 @@ export default function DashboardHeader() {
             <p className="text-xs text-muted-foreground">
               {format(new Date(), "EEE, MMM d, yyyy")}
             </p>
-            <h1 className="text-xl font-medium sm:text-2xl">{`${getGreeting()}, ${user?.firstName || "User"}!`}</h1>
+            <h1 className="text-xl font-medium sm:text-2xl">
+              {firstName
+                ? `${getGreeting()}, ${firstName}!`
+                : `${getGreeting()}!`}
+            </h1>
           </div>
         )}
         <div className="sm:hidden">
