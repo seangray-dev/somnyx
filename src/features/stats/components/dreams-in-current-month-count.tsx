@@ -11,7 +11,7 @@ export default function DreamsInCurrentMonthCount() {
       {isLoading ? (
         <Skeleton className="h-[20px] w-[50px] rounded-full bg-muted-foreground" />
       ) : (
-        <div>{data === 0 ? "No dreams yet" : data}</div>
+        <div>{data}</div>
       )}
     </div>
   );
