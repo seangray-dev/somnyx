@@ -47,8 +47,8 @@ export default function BlogPage() {
 
   return (
     <section className="container py-6">
-      <div className="pb-6">
-        <h1 className="text-2xl font-bold">Blog Posts</h1>
+      <div className="pb-6 sm:space-y-2">
+        <h1 className="text-3xl font-bold sm:text-5xl">Somnyx Blog</h1>
         <p className="text-muted-foreground">Explore our latest blog posts.</p>
       </div>
       <ul className="flex flex-col gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
