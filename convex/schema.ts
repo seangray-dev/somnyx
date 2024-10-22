@@ -31,11 +31,6 @@ export default defineSchema({
     description: v.string(),
   }),
 
-  themes: defineTable({
-    name: v.string(),
-    description: v.string(),
-  }),
-
   dreams: defineTable({
     userId: v.string(),
     isPublic: v.optional(v.boolean()),
@@ -45,7 +40,7 @@ export default defineSchema({
     people: v.optional(v.array(v.string())),
     places: v.optional(v.array(v.string())),
     things: v.optional(v.array(v.string())),
-    themes: v.optional(v.array(v.id("themes"))),
+    themes: v.optional(v.array(v.string())),
     title: v.optional(v.string()),
     details: v.string(),
   })

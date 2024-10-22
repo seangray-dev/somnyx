@@ -33,7 +33,6 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useGetAllEmotions } from "@/features/store/emotions";
 import { useGetAllRoles } from "@/features/store/roles";
-import { useGetAllThemes } from "@/features/store/themes";
 import { cn } from "@/lib/utils";
 
 import LoadingButton from "../shared/loading-button";
@@ -47,9 +46,7 @@ const FormSchema = z.object({
     message: "You have to select at least one emotion.",
   }),
   role: z.string(),
-  themes: z.array(z.string()).refine((value) => value.length > 0, {
-    message: "You have to select at least one theme.",
-  }),
+
   people: z.array(z.string()).optional(),
   places: z.array(z.string()).optional(),
   things: z.array(z.string()).optional(),
@@ -72,7 +69,6 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
   const { className, closeDialog } = props;
   const { emotions, isLoading: emotionsLoading } = useGetAllEmotions();
   const { roles, isLoading: rolesLoading } = useGetAllRoles();
-  const { themes, isLoading: themesLoading } = useGetAllThemes();
   const [loading, setLoading] = useState(false);
   const [peopleInputValue, setPeopleInputValue] = useState("");
   const [placesInputValue, setPlacesInputValue] = useState("");
@@ -86,20 +82,17 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
       people: [],
       places: [],
       things: [],
-      themes: [],
     },
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      const { date, emotions, role, people, places, things, themes, details } =
-        data;
+      const { date, emotions, role, people, places, things, details } = data;
 
       const result = await addNewDream({
         date: date.toISOString(),
         emotions: emotions as Id<"emotions">[],
         role: role as Id<"roles">,
-        themes: themes as Id<"themes">[],
         people: people,
         places: places,
         things: things,
@@ -276,74 +269,6 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                     ))}
                   </RadioGroup>
                 </FormControl>
-              )}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="themes"
-          render={() => (
-            <FormItem>
-              <div className="mb-4">
-                <FormLabel>Themes</FormLabel>
-                <FormDescription>
-                  Select the themes related to your dream.
-                </FormDescription>
-              </div>
-              {themesLoading ? (
-                <div className="flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
-                  <Loader />
-                  <div>Loading themes...</div>
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {themes?.map((theme) => (
-                    <FormField
-                      key={theme._id}
-                      control={form.control}
-                      name="themes"
-                      render={({ field }) => {
-                        return (
-                          <FormItem key={theme.name}>
-                            <FormLabel>
-                              <Badge
-                                variant={"outline"}
-                                className={`${
-                                  field.value?.includes(theme._id)
-                                    ? "bg-primary text-primary-foreground"
-                                    : ""
-                                }`}
-                              >
-                                <div>{theme.name}</div>
-                                <FormControl>
-                                  <Checkbox
-                                    className="sr-only border-none data-[state=checked]:bg-secondary"
-                                    checked={field.value?.includes(theme._id)}
-                                    onCheckedChange={(checked) => {
-                                      return checked
-                                        ? field.onChange([
-                                            ...field.value,
-                                            theme._id,
-                                          ])
-                                        : field.onChange(
-                                            field.value?.filter(
-                                              (value) => value !== theme._id
-                                            )
-                                          );
-                                    }}
-                                  />
-                                </FormControl>
-                              </Badge>
-                            </FormLabel>
-                          </FormItem>
-                        );
-                      }}
-                    />
-                  ))}
-                </div>
               )}
               <FormMessage />
             </FormItem>

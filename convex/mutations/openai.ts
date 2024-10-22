@@ -17,6 +17,10 @@ const Analysis = z.object({
   actionableTakeaway: z.string(),
 });
 
+const Themes = z.object({
+  themes: z.array(z.string()),
+});
+
 const DreamTitle = z.object({
   title: z.string().max(20),
 });
@@ -46,7 +50,8 @@ export const generateDreamTitle = internalAction({
       messages: [
         {
           role: "system",
-          content: `You are a dream analyis expert. Given the following details, and emotions associated with the dream, write a short creative title for the dream. Do not return special characters, only letters`,
+          content:
+            "You are a dream analyis expert. Given the following details, and emotions associated with the dream, write a short creative title for the dream. Do not return special characters, only letters",
         },
         {
           role: "user",
@@ -65,6 +70,60 @@ export const generateDreamTitle = internalAction({
     await ctx.runMutation(internal.mutations.dreams.updateDreamInternal, {
       id: args.dreamId,
       title: title,
+    });
+  },
+});
+
+export const generateDreamThemes = internalAction({
+  args: {
+    dreamId: v.id("dreams"),
+    details: v.string(),
+    emotions: v.array(v.id("emotions")),
+  },
+  async handler(ctx, args) {
+    const emotions = await ctx.runQuery(
+      internal.queries.emotions.getEmotionsByIdsInternal,
+      { ids: args.emotions }
+    );
+
+    const emotionNames =
+      emotions
+        .map((e) => e?.name)
+        .filter(Boolean)
+        .join(", ") || "No specific emotions were recorded.";
+
+    const userPrompt = `Details: ${args.details} | Emotions: ${emotionNames}`;
+
+    const response = await openai.beta.chat.completions.parse({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a dream analyis expert. Given the following details, and emotions associated with the dream, determine the themes present in the dream. 2-3 themes maximum. Do not return special characters, only letters",
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+      response_format: zodResponseFormat(Themes, "themes"),
+      temperature: 0.8,
+    });
+
+    let themes = response.choices[0].message.parsed?.themes;
+
+    if (!themes || themes.length === 0) {
+      throw new Error("Failed to generate themes");
+    }
+
+    if (themes.length > 3) {
+      themes = themes.slice(0, 3);
+    }
+
+    await ctx.runMutation(internal.mutations.dreams.updateDreamInternal, {
+      id: args.dreamId,
+      themes,
     });
   },
 });
@@ -106,7 +165,6 @@ export const generateAnalysis = internalAction({
     );
 
     const formattedEmotions = emotions.map((e) => e?.name).join(", ");
-    const formattedThemes = themes.map((t) => t?.name).join(", ");
     const people = dream.people?.join(", ") || "N/A";
     const places = dream.places?.join(", ") || "N/A";
     const things = dream.things?.join(", ") || "N/A";
@@ -119,7 +177,6 @@ export const generateAnalysis = internalAction({
       "${details}"
 
       Emotions Experienced: ${formattedEmotions},
-      Themes Present: ${formattedThemes},
       Role in the dream: ${roleDescription},
       People Involved: ${people},
       Places Involved: ${places},

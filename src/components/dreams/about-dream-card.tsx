@@ -20,14 +20,13 @@ type AboutDreamCardProps = {
   dream: Preloaded<typeof api.queries.dreams.getDreamById>;
   emotions: Preloaded<typeof api.queries.emotions.getEmotionsByDreamId>;
   role: Preloaded<typeof api.queries.roles.getRoleById>;
-  themes: Preloaded<typeof api.queries.themes.getAllThemesToDream>;
 };
 
 export default function AboutDreamCard(props: AboutDreamCardProps) {
   const dream = usePreloadedQuery(props.dream);
   const emotions = usePreloadedQuery(props.emotions);
   const role = usePreloadedQuery(props.role);
-  const themes = usePreloadedQuery(props.themes);
+  const themes = dream?.themes;
 
   if (!dream) {
     return null;
@@ -82,8 +81,8 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
             <div className="flex flex-wrap gap-2">
               {themes
                 ? themes.map((theme) => (
-                    <Badge key={theme?._id} variant={"outline"}>
-                      {theme?.name}
+                    <Badge key={theme} variant={"outline"}>
+                      {theme}
                     </Badge>
                   ))
                 : "None"}

@@ -13,7 +13,6 @@ export const addNewDream = mutation({
     people: v.optional(v.array(v.string())),
     places: v.optional(v.array(v.string())),
     things: v.optional(v.array(v.string())),
-    themes: v.optional(v.array(v.id("themes"))),
     title: v.optional(v.string()),
     details: v.string(),
   },
@@ -33,7 +32,6 @@ export const addNewDream = mutation({
       people: args.people,
       places: args.places,
       things: args.things,
-      themes: args.themes,
       title: args.title,
       details: args.details,
     });
@@ -41,6 +39,12 @@ export const addNewDream = mutation({
     await ctx.scheduler.runAfter(
       0,
       internal.mutations.openai.generateDreamTitle,
+      { dreamId: dreamId, details: args.details, emotions: args.emotions }
+    );
+
+    await ctx.scheduler.runAfter(
+      0,
+      internal.mutations.openai.generateDreamThemes,
       { dreamId: dreamId, details: args.details, emotions: args.emotions }
     );
 
@@ -100,7 +104,7 @@ export const updateDreamInternal = internalMutation({
     people: v.optional(v.array(v.string())),
     places: v.optional(v.array(v.string())),
     things: v.optional(v.array(v.string())),
-    themes: v.optional(v.array(v.id("themes"))),
+    themes: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const dream = await ctx.db.get(args.id);

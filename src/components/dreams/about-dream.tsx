@@ -10,7 +10,6 @@ type AboutDreamProps = {
   dream: Preloaded<typeof api.queries.dreams.getDreamById>;
   emotions: Preloaded<typeof api.queries.emotions.getEmotionsByDreamId>;
   role: Preloaded<typeof api.queries.roles.getRoleById>;
-  themes: Preloaded<typeof api.queries.themes.getAllThemesToDream>;
 };
 
 export default function AboutDream(props: AboutDreamProps) {

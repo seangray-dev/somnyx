@@ -32,11 +32,6 @@ export default async function DreamPage({
     id: dream._valueJSON.role as Id<"roles">,
   });
 
-  const themes = await preloadQuery(api.queries.themes.getAllThemesToDream, {
-    // @ts-ignore
-    dreamId: dream._valueJSON._id as Id<"dreams">,
-  });
-
   if (
     // @ts-ignore
     (!dream._valueJSON.isPublic && dream._valueJSON.userId !== userId) ||
@@ -48,7 +43,7 @@ export default async function DreamPage({
   return (
     <div>
       <div className="container flex flex-col gap-12">
-        <AboutDream {...{ dream, emotions, role, themes }} />
+        <AboutDream {...{ dream, emotions, role }} />
         <AnalysisCard dreamId={params.id} />
       </div>
     </div>
