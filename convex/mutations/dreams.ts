@@ -148,6 +148,15 @@ export const deleteDream = mutation({
 export const deleteDreamScheduler = internalMutation({
   args: { id: v.id("dreams") },
   handler: async (ctx, args) => {
+    const analysis = await ctx.db
+      .query("analysis")
+      .withIndex("by_dreamId", (q) => q.eq("dreamId", args.id))
+      .collect();
+
+    for (const entry of analysis) {
+      await ctx.db.delete(entry._id);
+    }
+
     await ctx.db.delete(args.id);
   },
 });
