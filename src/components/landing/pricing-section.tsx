@@ -77,7 +77,7 @@ const formatPrice = (price: number | string) => {
 
 export default function PricingSection() {
   return (
-    <section className="mt-24 bg-secondary">
+    <section className="bg-secondary">
       <div className="container flex flex-col gap-14 py-12">
         <div className="space-y-7 text-center">
           <h3 className="text-3xl font-bold md:text-4xl">Pricing</h3>

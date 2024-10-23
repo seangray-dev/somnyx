@@ -11,8 +11,6 @@
 - [x] Refactor: Dashboard Header Greeting - if no user first name - don't show 'User' fallback
 - [x] Dashoard Header - loading state...
 - [x] Remove theme in dream form - let ai determine the theme based off the details
-- [ ] ? Allow users to log that they did not dream - don't execute analysis
-- [ ] (backlog) Consider adding a themes table, store id of theme on dream table. Do lookup on themes table before inserting new themes in db. Add it if it doesn't exist yet.
 - [ ] Sorting dreams by date the dream happened - Recent Dreams + Journal
 - [x] Remove stats banner on dream/id page when not logged in
 - [x] Loading state for analysis generation on dreams/id page
@@ -29,7 +27,6 @@
 - [ ] Update the share link to use the new domain - look into using a service
 - [x] Stats Feature + Pages (common emotions, themes. Total dreams, Dreams in last month)
 - [ ] (Paid - free for first month) Deep Analysis after x amount of dreams (or per month basis)
-- [ ] Zodiac Features? (requires onboarding steps, storing additional data ie: birthday, zodiac sign)
 - [ ] Error + 404 pages
 - [ ] PWA setup and notifications
 - [ ] Determine pricing model (credit vs subscription)
@@ -45,6 +42,9 @@
 - [ ] Deploy to production (convex, clerk)
 - [ ] Create blog posts
 - [x] Make it deploy
+- [ ] Zodiac Features? (requires onboarding steps, storing additional data ie: birthday, zodiac sign)
+- [ ] ? Allow users to log that they did not dream - don't execute analysis
+- [ ] (backlog) Consider adding a themes table, store id of theme on dream table. Do lookup on themes table before inserting new themes in db. Add it if it doesn't exist yet.
 
 ## Getting Started
 
