@@ -80,11 +80,13 @@ export default function PricingSection() {
     <section className="bg-secondary">
       <div className="container flex flex-col gap-14 py-12">
         <div className="space-y-7 text-center">
-          <h3 className="text-3xl font-bold md:text-4xl">Pricing</h3>
-          <p className="mx-auto max-w-[80ch] text-balance font-medium text-muted-foreground">
-            Somnyx is <strong>free to use</strong> for journaling. Unlock more
-            insights with credits—choose a package below to explore deeper.
-          </p>
+          <div className="space-y-2">
+            <h3 className="text-3xl font-bold md:text-4xl">Pricing</h3>
+            <p className="mx-auto max-w-[80ch] text-balance font-medium text-muted-foreground">
+              Somnyx is <strong>free to use</strong> for journaling. Unlock more
+              insights with credits—choose a package below to explore deeper.
+            </p>
+          </div>
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Badge
               variant={"outline"}
@@ -129,7 +131,10 @@ export default function PricingSection() {
                     {option.credits} credits
                   </li>
                   {option.features.map((feature) => (
-                    <li className="flex items-center gap-2 text-pretty">
+                    <li
+                      key={feature}
+                      className="flex items-center gap-2 text-pretty"
+                    >
                       <CheckIcon size={16} />
                       {feature}
                     </li>
@@ -137,7 +142,7 @@ export default function PricingSection() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button disabled variant="secondary">
+                <Button disabled variant="secondary" className="w-full">
                   Coming Soon!
                   {/* {option.price === "Free"
                     ? "Start Free Trial"

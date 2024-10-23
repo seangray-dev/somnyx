@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export default function HeroSection() {
   return (
     <section className="container py-28 lg:py-48">
-      <div className="flex flex-col items-center justify-center space-y-4 text-center">
+      <div className="flex flex-col items-center justify-center space-y-6 text-center">
         <div className="space-y-2">
           <h1 className="font-lora text-balance text-5xl font-bold tracking-tighter xl:text-6xl/none">
             Somnyx
