@@ -26,6 +26,7 @@
   - [ ] Feedback for reason on deleting account
 - [ ] Update the share link to use the new domain - look into using a service
 - [x] Stats Feature + Pages (common emotions, themes. Total dreams, Dreams in last month)
+- [ ] Implement credit system
 - [ ] (Paid - free for first month) Deep Analysis after x amount of dreams (or per month basis)
 - [ ] Error + 404 pages
 - [ ] PWA setup and notifications

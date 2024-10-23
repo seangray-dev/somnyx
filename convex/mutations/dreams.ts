@@ -48,6 +48,9 @@ export const addNewDream = mutation({
       { dreamId: dreamId, details: args.details, emotions: args.emotions }
     );
 
+    // Consume credits here - do not run anaylsis if user doesn't have enough credits
+    // await consumeCredits(ctx, args.userId, CREDIT_COSTS.ANALYSIS);
+
     await ctx.scheduler.runAfter(
       0,
       internal.mutations.openai.generateAnalysis,

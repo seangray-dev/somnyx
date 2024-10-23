@@ -45,11 +45,12 @@ export const createUser = internalMutation({
 
     if (!user) {
       await ctx.db.insert("users", {
+        userId: args.userId,
         first_name: args.first_name,
         last_name: args.last_name,
-        userId: args.userId,
         email: args.email,
         profileImage: args.profileImage,
+        credits: 300,
       });
     }
   },
@@ -152,6 +153,17 @@ export const deleteUser = internalMutation({
       throw new ConvexError("could not find user");
     }
     await ctx.db.delete(user._id);
+  },
+});
+
+export const getUserCredits = query({
+  args: { userId: v.string() },
+  async handler(ctx, args) {
+    const user = await getUserByUserId(ctx, args.userId);
+    if (!user) {
+      throw new ConvexError("could not find user");
+    }
+    return user.credits;
   },
 });
 

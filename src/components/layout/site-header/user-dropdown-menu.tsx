@@ -4,6 +4,7 @@ import { SignOutButton } from "@clerk/nextjs";
 import {
   BookOpenIcon,
   CogIcon,
+  HandCoinsIcon,
   LayoutDashboardIcon,
   LogOutIcon,
 } from "lucide-react";
@@ -17,6 +18,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
+import useUserCredits from "@/features/credits/api/use-user-credits";
 import { useSession } from "@/lib/client-auth";
 
 export default function UserDropdownMenu() {
@@ -24,6 +27,7 @@ export default function UserDropdownMenu() {
   const user = session?.user;
   const fullName = user?.fullName;
   const email = user?.primaryEmailAddress?.emailAddress;
+  const { data: credits, isLoading } = useUserCredits();
 
   const links = [
     {
@@ -45,6 +49,14 @@ export default function UserDropdownMenu() {
           <div>
             <p>{fullName}</p>
             <p>{email}</p>
+          </div>
+          <div className="flex items-center gap-2 pt-2">
+            <HandCoinsIcon size={16} />
+            {isLoading ? (
+              <Skeleton className="h-4 w-16" />
+            ) : (
+              <span>{credits} Credits</span>
+            )}
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
