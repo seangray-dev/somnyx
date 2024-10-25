@@ -8,6 +8,7 @@ export default function useDreamAnalysis(params: { dreamId: string }) {
     dreamId: params.dreamId as Id<"dreams">,
   });
   const isLoading = data === undefined;
+  const noAnalysis = data !== undefined && !data;
 
-  return { isLoading, data };
+  return { isLoading, noAnalysis, data };
 }
