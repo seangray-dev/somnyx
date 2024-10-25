@@ -33,3 +33,7 @@ export function formatName(
   }
   return combinedName;
 }
+
+export const CREDIT_COSTS = {
+  ANALYSIS: 100,
+};
