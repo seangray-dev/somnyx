@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 import { useMutation, useQuery } from "convex/react";
@@ -7,6 +8,7 @@ import { SparklesIcon } from "lucide-react";
 
 import Loader from "@/components/shared/loader";
 import LoadingButton from "@/components/shared/loading-button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -63,7 +65,8 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
   const [generateAnalyisLoading, setGenerateAnalyisLoading] = useState(false);
   const { data: userCredits } = useUserCredits();
   const user = useQuery(api.users.getMyUser);
-  const canAddDreamWithAnalysis = userCredits! >= CREDIT_COSTS.ANALYSIS;
+  const hasSufficientCredits = userCredits! >= CREDIT_COSTS.ANALYSIS;
+  const neededCredits = CREDIT_COSTS.ANALYSIS - userCredits!;
   const generateAnalyis = useMutation(api.mutations.generateAnalysis);
 
   const handleGenerateAnalysis = async () => {
@@ -87,18 +90,32 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
 
     if (noAnalysis) {
       return (
-        <div className="flex flex-col items-center justify-center gap-4">
-          <p className="text-center text-muted-foreground">
-            No analysis was generated for this dream.
+        <div className="flex flex-col gap-8">
+          <p className="text-muted-foreground">
+            No analysis was generated for this dream yet.
           </p>
-          <LoadingButton
-            disabled={!canAddDreamWithAnalysis || generateAnalyisLoading}
-            isLoading={generateAnalyisLoading}
-            onClick={handleGenerateAnalysis}
-          >
-            <SparklesIcon size={16} className="mr-2" />
-            Analyze Dream ({CREDIT_COSTS.ANALYSIS} Credits)
-          </LoadingButton>
+          {!hasSufficientCredits ? (
+            <div className="flex flex-col items-center justify-center gap-4">
+              <Link
+                href={"/#pricing"}
+                className={buttonVariants({ variant: "default" })}
+              >
+                Purchase Credits
+              </Link>
+              <p className="text-sm">
+                You need {neededCredits} more credits to analyze this dream.
+              </p>
+            </div>
+          ) : (
+            <LoadingButton
+              disabled={generateAnalyisLoading}
+              isLoading={generateAnalyisLoading}
+              onClick={handleGenerateAnalysis}
+            >
+              <SparklesIcon size={16} className="mr-2" />
+              Analyze Dream ({CREDIT_COSTS.ANALYSIS} Credits)
+            </LoadingButton>
+          )}
         </div>
       );
     }
