@@ -1,5 +1,6 @@
 import { ConvexError, v } from "convex/values";
 
+import { api, internal } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
 import {
   MutationCtx,
@@ -157,9 +158,9 @@ export const deleteUser = internalMutation({
 });
 
 export const getUserCredits = query({
-  args: { userId: v.string() },
+  args: { userId: v.optional(v.string()) },
   async handler(ctx, args) {
-    const user = await getUserByUserId(ctx, args.userId);
+    const user = await getUserByUserId(ctx, args.userId!);
     if (!user) {
       throw new ConvexError("could not find user");
     }
@@ -232,5 +233,47 @@ export const isPremium = query({
     }
 
     return isUserPremium(user);
+  },
+});
+
+async function validateCredits(ctx: any, requiredCredits: number) {
+  const user = await ctx.runQuery(api.users.getMyUser);
+
+  if (!user) throw new Error("User not found.");
+  if (user.credits < requiredCredits) {
+    const creditsNeeded = requiredCredits - user.credits;
+    throw new Error(
+      `Insufficient credits. You need ${creditsNeeded} more credits.`
+    );
+  }
+
+  return user;
+}
+
+export const updateUserCredits = internalMutation({
+  args: {
+    userId: v.string(),
+    amount: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.runQuery(api.users.getMyUser);
+    if (!user) throw new Error("User not found.");
+
+    const newCredits = user.credits! + args.amount;
+    if (newCredits < 0) throw new Error("Insufficient credits.");
+
+    await ctx.db.patch(user._id, { credits: newCredits });
+  },
+});
+
+export const consumeCredits = internalMutation({
+  args: { cost: v.number() },
+  handler: async (ctx, args) => {
+    const user = await validateCredits(ctx, args.cost);
+
+    await ctx.runMutation(internal.users.updateUserCredits, {
+      userId: user._id,
+      amount: -args.cost,
+    });
   },
 });

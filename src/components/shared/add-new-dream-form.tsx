@@ -5,7 +5,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
 import { format } from "date-fns";
-import { CalendarIcon, XIcon } from "lucide-react";
+import { CalendarIcon, SparklesIcon, XIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -31,6 +31,8 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { CREDIT_COSTS } from "@/convex/util";
+import useUserCredits from "@/features/credits/api/use-user-credits";
 import { useGetAllEmotions } from "@/features/store/emotions";
 import { useGetAllRoles } from "@/features/store/roles";
 import { cn } from "@/lib/utils";
@@ -58,6 +60,7 @@ const FormSchema = z.object({
     .max(1000, {
       message: "Details must not exceed 1000 characters.",
     }),
+  withAnalysis: z.boolean(),
 });
 
 type AddNewDreamFormProps = {
@@ -68,6 +71,7 @@ type AddNewDreamFormProps = {
 export function AddNewDreamForm(props: AddNewDreamFormProps) {
   const { className, closeDialog } = props;
   const { emotions, isLoading: emotionsLoading } = useGetAllEmotions();
+  const { data: userCredits } = useUserCredits();
   const { roles, isLoading: rolesLoading } = useGetAllRoles();
   const [loading, setLoading] = useState(false);
   const [peopleInputValue, setPeopleInputValue] = useState("");
@@ -82,12 +86,24 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
       people: [],
       places: [],
       things: [],
+      withAnalysis: false,
     },
   });
 
+  const canAddDreamWithAnalysis = userCredits! >= CREDIT_COSTS.ANALYSIS;
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      const { date, emotions, role, people, places, things, details } = data;
+      const {
+        date,
+        emotions,
+        role,
+        people,
+        places,
+        things,
+        details,
+        withAnalysis,
+      } = data;
 
       const result = await addNewDream({
         date: date.toISOString(),
@@ -97,6 +113,7 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
         places: places,
         things: things,
         details: details,
+        withAnalysis,
       });
 
       toast.success("Dream added successfully!");
@@ -496,10 +513,29 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
             </FormItem>
           )}
         />
-
-        <LoadingButton type="submit" isLoading={loading} className="w-full">
-          Submit
-        </LoadingButton>
+        <div className="flex flex-col gap-2">
+          <LoadingButton
+            variant={"secondary"}
+            isLoading={loading}
+            className="w-full"
+            onClick={() => {
+              form.setValue("withAnalysis", false);
+            }}
+          >
+            Log Dream (No Analysis)
+          </LoadingButton>
+          <LoadingButton
+            disabled={!canAddDreamWithAnalysis}
+            isLoading={loading}
+            className="w-full"
+            onClick={() => {
+              form.setValue("withAnalysis", true);
+            }}
+          >
+            <SparklesIcon size={16} className="mr-2" />
+            Analyze Dream ({CREDIT_COSTS.ANALYSIS} Credits)
+          </LoadingButton>
+        </div>
       </form>
     </Form>
   );
