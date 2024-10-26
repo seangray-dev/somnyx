@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import { internalMutation, mutation } from "../_generated/server";
+import { getMyUser } from "../users";
 import { CREDIT_COSTS, getUserId } from "../util";
 
 export const addNewDream = mutation({
@@ -18,11 +19,12 @@ export const addNewDream = mutation({
     withAnalysis: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const userId = await getUserId(ctx);
-    if (!userId) throw new Error("You must be logged in.");
+    const user = await getMyUser(ctx, {});
+
+    if (!user) throw new Error("You must be logged in.");
 
     const dreamId = await ctx.db.insert("dreams", {
-      userId,
+      userId: user.userId,
       isPublic: false,
       date: args.date,
       emotions: args.emotions,
@@ -51,7 +53,7 @@ export const addNewDream = mutation({
     if (args.withAnalysis) {
       await ctx.runMutation(internal.mutations.generateAnalysisInternal, {
         dreamId,
-        userId,
+        userId: user.userId,
       });
     }
 

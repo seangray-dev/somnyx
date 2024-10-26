@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { api } from "@/convex/_generated/api";
-import { STRIPE_PRICE_IDS } from "@/convex/util";
+import { STRIPE_PRODUCTS } from "@/convex/util";
 import { useSession } from "@/lib/client-auth";
 
 import LoadingButton from "../shared/loading-button";
@@ -33,9 +33,11 @@ const starterFeatures = [
   "AI-Powered Dream Titles",
 ];
 
+const { insgiht, dreamer, visionary } = STRIPE_PRODUCTS;
+
 const pricingOptions = [
   {
-    priceId: null,
+    priceId: "starter",
     name: "Starter Pack",
     description:
       "New here? No worries! Our free trial gives you 300 credits to get started and explore dream analysis.",
@@ -46,33 +48,33 @@ const pricingOptions = [
     features: starterFeatures,
   },
   {
-    priceId: STRIPE_PRICE_IDS.insgiht,
+    priceId: insgiht.priceId,
     name: "Insight Pack",
     description:
       "Need quick insights? This package offers 700 credits to keep your dreams on track.",
-    credits: 700,
+    credits: insgiht.credits,
     price: 2.99,
     basePrice: 2.99,
     discount: 0,
     features: allFeatures,
   },
   {
-    priceId: STRIPE_PRICE_IDS.dreamer,
+    priceId: dreamer.priceId,
     name: "Dreamer Pack",
     description:
       "Ready to commit? The Dreamer Pack gives you 3000 credits for consistent tracking.",
-    credits: 3000,
+    credits: dreamer.credits,
     price: 9.99,
     basePrice: 12.99,
     discount: 23,
     features: allFeatures,
   },
   {
-    priceId: STRIPE_PRICE_IDS.visionary,
+    priceId: visionary.priceId,
     name: "Visionary Pack",
     description:
       "A power user? The Visionary Pack offers 5000 credits for frequent analysis and deep insights.",
-    credits: 5000,
+    credits: visionary.credits,
     price: 14.99,
     basePrice: 21.99,
     discount: 32,
@@ -93,8 +95,11 @@ export default function PricingSection() {
   const router = useRouter();
   const { isLoggedIn } = useSession();
 
-  const handleCheckout = async (priceId: string | null) => {
-    if (priceId === null) {
+  const handleCheckout = async (product: {
+    priceId: string;
+    credits: number;
+  }) => {
+    if (product.priceId === "starter") {
       router.push("/sign-up" as Route);
       return;
     }
@@ -104,22 +109,22 @@ export default function PricingSection() {
       return;
     }
 
-    const url = await checkout({ priceId });
+    const url = await checkout({ product });
     router.push(url as Route);
   };
 
   function CheckoutButton({
-    priceId,
+    product,
     label,
   }: {
-    priceId: string | null;
+    product: { priceId: string; credits: number };
     label: string;
   }) {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleClick = async () => {
       setIsLoading(true);
-      await handleCheckout(priceId);
+      await handleCheckout(product);
       setIsLoading(false);
     };
 
@@ -127,7 +132,6 @@ export default function PricingSection() {
       <LoadingButton
         isLoading={isLoading}
         onClick={handleClick}
-        variant="secondary"
         className="w-full"
       >
         {label}
@@ -136,7 +140,7 @@ export default function PricingSection() {
   }
 
   return (
-    <section className="bg-secondary">
+    <section id="pricing" className="bg-secondary">
       <div className="container flex flex-col gap-14 py-12">
         <div className="space-y-7 text-center">
           <div className="space-y-2">
@@ -202,7 +206,7 @@ export default function PricingSection() {
               </CardContent>
               <CardFooter>
                 <CheckoutButton
-                  priceId={option.priceId}
+                  product={{ priceId: option.priceId, credits: option.credits }}
                   label={
                     option.price === "Free"
                       ? "Start Free Trial"

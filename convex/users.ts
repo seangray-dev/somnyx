@@ -109,6 +109,13 @@ export const getMyUser = query({
   },
 });
 
+export function getFullUser(ctx: QueryCtx | MutationCtx, userId: string) {
+  return ctx.db
+    .query("users")
+    .withIndex("by_userId", (q) => q.eq("userId", userId))
+    .first();
+}
+
 export const updateMyUser = mutation({
   args: { first_name: v.string(), last_name: v.string() },
   async handler(ctx, args) {
@@ -161,9 +168,11 @@ export const getUserCredits = query({
   args: { userId: v.optional(v.string()) },
   async handler(ctx, args) {
     const user = await getUserByUserId(ctx, args.userId!);
+
     if (!user) {
-      throw new ConvexError("could not find user");
+      return;
     }
+
     return user.credits;
   },
 });
@@ -236,12 +245,36 @@ export const isPremium = query({
   },
 });
 
-async function validateCredits(ctx: any, requiredCredits: number) {
-  const user = await ctx.runQuery(api.users.getMyUser);
+export const updateUserCredits = internalMutation({
+  args: {
+    userId: v.string(),
+    amount: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const user = await getFullUser(ctx, args.userId);
+
+    if (!user) throw new Error(`User not found for ID: ${args.userId}`);
+
+    const newCredits = (user.credits || 0) + args.amount;
+    if (newCredits < 0) throw new Error("Insufficient credits.");
+
+    await ctx.db.patch(user._id, { credits: newCredits });
+  },
+});
+
+async function validateCredits(
+  ctx: MutationCtx,
+  requiredCredits: number,
+  userId?: string
+) {
+  const user = userId
+    ? await getFullUser(ctx, userId)
+    : await ctx.runQuery(api.users.getMyUser);
 
   if (!user) throw new Error("User not found.");
-  if (user.credits < requiredCredits) {
-    const creditsNeeded = requiredCredits - user.credits;
+
+  if (user.credits! < requiredCredits) {
+    const creditsNeeded = requiredCredits - user.credits!;
     throw new Error(
       `Insufficient credits. You need ${creditsNeeded} more credits.`
     );
@@ -250,29 +283,13 @@ async function validateCredits(ctx: any, requiredCredits: number) {
   return user;
 }
 
-export const updateUserCredits = internalMutation({
-  args: {
-    userId: v.string(),
-    amount: v.number(),
-  },
-  handler: async (ctx, args) => {
-    const user = await ctx.runQuery(api.users.getMyUser);
-    if (!user) throw new Error("User not found.");
-
-    const newCredits = user.credits! + args.amount;
-    if (newCredits < 0) throw new Error("Insufficient credits.");
-
-    await ctx.db.patch(user._id, { credits: newCredits });
-  },
-});
-
 export const consumeCredits = internalMutation({
-  args: { cost: v.number() },
+  args: { cost: v.number(), userId: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    const user = await validateCredits(ctx, args.cost);
+    const user = await validateCredits(ctx, args.cost, args.userId);
 
     await ctx.runMutation(internal.users.updateUserCredits, {
-      userId: user._id,
+      userId: user.userId,
       amount: -args.cost,
     });
   },

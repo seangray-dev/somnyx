@@ -16,7 +16,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export const checkout = action({
   args: {
-    priceId: v.string(),
+    product: v.object({ priceId: v.string(), credits: v.number() }),
   },
   handler: async (ctx, args) => {
     const user = await ctx.auth.getUserIdentity();
@@ -29,10 +29,12 @@ export const checkout = action({
       throw new ConvexError("you must have a verified email to subscribe");
     }
 
+    console.log("checkout: user:", user);
+
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
-          price: args.priceId,
+          price: args.product.priceId,
           quantity: 1,
           adjustable_quantity: { enabled: true, minimum: 0 },
         },
@@ -40,9 +42,11 @@ export const checkout = action({
       customer_email: user.email,
       metadata: {
         userId: user.subject,
+        credits: args.product.credits,
       },
       mode: "payment",
-      success_url: `https://localhost:3000/success`,
+      // TODO: update URLs
+      success_url: `https://localhost:3000/dashboard`,
       cancel_url: `https://localhost:3000`,
     });
 
@@ -68,40 +72,19 @@ export const fulfill = internalAction({
       };
 
       if (event.type === "checkout.session.completed") {
-        const subscription = await stripe.subscriptions.retrieve(
-          completedEvent.subscription as string
-        );
-
+        console.log("fulfill: metadata:", completedEvent.metadata);
         const userId = completedEvent.metadata.userId;
+        const credits = parseInt(completedEvent.metadata.credits);
 
         console.log({
           type: event.type,
           userId,
+          credits,
         });
 
-        // adjust this to apply credits to user
-        await ctx.runMutation(internal.users.updateSubscription, {
+        await ctx.runMutation(internal.users.updateUserCredits, {
           userId,
-          subscriptionId: subscription.id,
-          endsOn: subscription.current_period_end * 1000,
-        });
-      }
-
-      if (event.type === "invoice.payment_succeeded") {
-        const subscription = await stripe.subscriptions.retrieve(
-          completedEvent.subscription as string
-        );
-
-        const subscriptionId = subscription.items.data[0]?.price.id;
-
-        console.log({
-          type: event.type,
-          subscriptionId,
-        });
-
-        await ctx.runMutation(internal.users.updateSubscriptionBySubId, {
-          subscriptionId,
-          endsOn: subscription.current_period_end * 1000,
+          amount: credits,
         });
       }
 
