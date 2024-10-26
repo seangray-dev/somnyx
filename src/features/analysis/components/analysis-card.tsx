@@ -127,7 +127,7 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
     <Card>
       <CardHeader>
         <CardTitle className="text-3xl">Analysis</CardTitle>
-        <CardDescription className="max-w-[80ch] text-balance text-base">
+        <CardDescription className="text-balance text-base">
           {renderContent()}
         </CardDescription>
       </CardHeader>
