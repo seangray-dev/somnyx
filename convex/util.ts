@@ -37,3 +37,9 @@ export function formatName(
 export const CREDIT_COSTS = {
   ANALYSIS: 100,
 };
+
+export const STRIPE_PRICE_IDS = {
+  insgiht: "price_1QDzJHLT8ZdHoeo7mWVgJRGe",
+  dreamer: "price_1QDzKNLT8ZdHoeo7ZQ8XG7NJ",
+  visionary: "price_1QDzNHLT8ZdHoeo7r36QQ9SU",
+};

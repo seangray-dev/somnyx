@@ -10,7 +10,9 @@
     "build": "next build",
     "start": "concurrently \"npm run dev:frontend\" \"npm rundev:backend\"",
     "lint": "next lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "stripe:listen": "stripe listen --forward-to https://vivid-hornet-727.convex.site/stripe",
+    "stripe:trigger": "stripe trigger payment_intent.succeeded"
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.0.9",

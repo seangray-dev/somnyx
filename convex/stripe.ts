@@ -10,16 +10,17 @@ type Metadata = {
   userId: string;
 };
 
-const stripe = new Stripe(process.env.STRIPE_KEY!, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2024-04-10",
 });
 
 export const checkout = action({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    priceId: v.string(),
+  },
+  handler: async (ctx, args) => {
     const user = await ctx.auth.getUserIdentity();
 
-    console.log(user);
     if (!user) {
       throw new ConvexError("you must be logged in to subscribe");
     }
@@ -29,24 +30,30 @@ export const checkout = action({
     }
 
     const session = await stripe.checkout.sessions.create({
-      line_items: [{ price: process.env.SUBSCRIPTION_PRICE_ID!, quantity: 1 }],
+      line_items: [
+        {
+          price: args.priceId,
+          quantity: 1,
+          adjustable_quantity: { enabled: true, minimum: 0 },
+        },
+      ],
       customer_email: user.email,
       metadata: {
         userId: user.subject,
       },
-      mode: "subscription",
-      success_url: `${process.env.HOST_NAME}/success`,
-      cancel_url: `${process.env.HOST_NAME}`,
+      mode: "payment",
+      success_url: `https://localhost:3000/success`,
+      cancel_url: `https://localhost:3000`,
     });
 
-    return session;
+    return session.url;
   },
 });
 
 export const fulfill = internalAction({
   args: { signature: v.string(), payload: v.string() },
   handler: async (ctx, args) => {
-    const webhookSecret = process.env.STRIPE_WEBHOOKS_SECRET!;
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
     try {
       const event = stripe.webhooks.constructEvent(
         args.payload,
@@ -72,6 +79,7 @@ export const fulfill = internalAction({
           userId,
         });
 
+        // adjust this to apply credits to user
         await ctx.runMutation(internal.users.updateSubscription, {
           userId,
           subscriptionId: subscription.id,

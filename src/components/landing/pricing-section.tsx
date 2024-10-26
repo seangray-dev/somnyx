@@ -1,4 +1,10 @@
+import { Route } from "next";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import { useAction } from "convex/react";
 import { CheckIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   Card,
@@ -8,9 +14,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { api } from "@/convex/_generated/api";
+import { STRIPE_PRICE_IDS } from "@/convex/util";
+import { useSession } from "@/lib/client-auth";
 
+import LoadingButton from "../shared/loading-button";
 import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
 
 const allFeatures = [
   "Unlimited Dream Journaling",
@@ -26,6 +35,7 @@ const starterFeatures = [
 
 const pricingOptions = [
   {
+    priceId: null,
     name: "Starter Pack",
     description:
       "New here? No worries! Our free trial gives you 300 credits to get started and explore dream analysis.",
@@ -36,6 +46,7 @@ const pricingOptions = [
     features: starterFeatures,
   },
   {
+    priceId: STRIPE_PRICE_IDS.insgiht,
     name: "Insight Pack",
     description:
       "Need quick insights? This package offers 700 credits to keep your dreams on track.",
@@ -46,6 +57,7 @@ const pricingOptions = [
     features: allFeatures,
   },
   {
+    priceId: STRIPE_PRICE_IDS.dreamer,
     name: "Dreamer Pack",
     description:
       "Ready to commit? The Dreamer Pack gives you 3000 credits for consistent tracking.",
@@ -56,6 +68,7 @@ const pricingOptions = [
     features: allFeatures,
   },
   {
+    priceId: STRIPE_PRICE_IDS.visionary,
     name: "Visionary Pack",
     description:
       "A power user? The Visionary Pack offers 5000 credits for frequent analysis and deep insights.",
@@ -76,6 +89,52 @@ const formatPrice = (price: number | string) => {
 };
 
 export default function PricingSection() {
+  const checkout = useAction(api.stripe.checkout);
+  const router = useRouter();
+  const { isLoggedIn } = useSession();
+
+  const handleCheckout = async (priceId: string | null) => {
+    if (priceId === null) {
+      router.push("/sign-up" as Route);
+      return;
+    }
+
+    if (!isLoggedIn) {
+      toast.error("You must be logged in to make a purchase.");
+      return;
+    }
+
+    const url = await checkout({ priceId });
+    router.push(url as Route);
+  };
+
+  function CheckoutButton({
+    priceId,
+    label,
+  }: {
+    priceId: string | null;
+    label: string;
+  }) {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleClick = async () => {
+      setIsLoading(true);
+      await handleCheckout(priceId);
+      setIsLoading(false);
+    };
+
+    return (
+      <LoadingButton
+        isLoading={isLoading}
+        onClick={handleClick}
+        variant="secondary"
+        className="w-full"
+      >
+        {label}
+      </LoadingButton>
+    );
+  }
+
   return (
     <section className="bg-secondary">
       <div className="container flex flex-col gap-14 py-12">
@@ -142,12 +201,14 @@ export default function PricingSection() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button disabled variant="secondary" className="w-full">
-                  Coming Soon!
-                  {/* {option.price === "Free"
-                    ? "Start Free Trial"
-                    : `Buy ${option.credits} credits`} */}
-                </Button>
+                <CheckoutButton
+                  priceId={option.priceId}
+                  label={
+                    option.price === "Free"
+                      ? "Start Free Trial"
+                      : `Buy ${option.credits} credits`
+                  }
+                />
               </CardFooter>
             </Card>
           ))}
