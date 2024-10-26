@@ -3,6 +3,7 @@
 import { ConvexError, v } from "convex/values";
 import Stripe from "stripe";
 
+import { DOMAIN } from "../src/config/app";
 import { internal } from "./_generated/api";
 import { action, internalAction } from "./_generated/server";
 
@@ -45,9 +46,8 @@ export const checkout = action({
         credits: args.product.credits,
       },
       mode: "payment",
-      // TODO: update URLs
-      success_url: `https://localhost:3000/dashboard`,
-      cancel_url: `https://localhost:3000`,
+      success_url: `${DOMAIN}/dashboard`,
+      cancel_url: DOMAIN,
     });
 
     return session.url;
