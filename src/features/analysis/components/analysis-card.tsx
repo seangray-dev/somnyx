@@ -120,7 +120,11 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
       );
     }
 
-    return <div className="text-muted-foreground">{analysis?.summary}</div>;
+    return (
+      <div className="max-w-[80ch] text-muted-foreground">
+        {analysis?.summary}
+      </div>
+    );
   };
 
   return (
