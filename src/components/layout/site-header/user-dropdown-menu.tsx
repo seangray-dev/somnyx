@@ -55,7 +55,7 @@ export default function UserDropdownMenu() {
             {isLoading ? (
               <Skeleton className="h-4 w-16" />
             ) : (
-              <span>{credits} Credits</span>
+              <span>{credits ? credits : "0"} Credits</span>
             )}
           </div>
         </DropdownMenuLabel>
