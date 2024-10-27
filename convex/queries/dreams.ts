@@ -178,3 +178,23 @@ export const getMostFrequentEmotion = query({
     };
   },
 });
+
+export const getAvailbleMonthsForInsights = query({
+  handler: async (ctx) => {
+    const userId = await getUserId(ctx);
+    const currentMonth = new Date().getMonth();
+    const dreams = await ctx.db
+      .query("dreams")
+      .withIndex("by_userId", (q) => q.eq("userId", userId!))
+      .collect();
+
+    const months = dreams.map((dream) => {
+      const month = new Date(dream.date).getMonth();
+      return month === currentMonth
+        ? `${month + 1}-${new Date().getFullYear()}`
+        : `${month + 1}-${new Date(dream.date).getFullYear()}`;
+    });
+
+    return months;
+  },
+});
