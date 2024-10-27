@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { env } from "process";
 import Stripe from "stripe";
 
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,7 @@ interface SuccessPageProps {
 export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   const sessionId = searchParams.session_id;
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  const stripe = new Stripe(env.STRIPE_SECRET_KEY!, {
     apiVersion: "2024-04-10",
   });
 
