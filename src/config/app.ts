@@ -1,7 +1,7 @@
 import { env } from "process";
 
 export const appplicationName = "somnyx";
-export const baseUrl = "https://somnyx.vercel.app";
+export const baseUrl = "https://somnyx.app";
 
 export const DOMAIN =
   env.NODE_ENV === "production" ? baseUrl : "https://localhost:3000";

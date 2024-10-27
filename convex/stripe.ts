@@ -1,6 +1,6 @@
 "use node";
 
-import { ConvexError, v } from "convex/values";
+import { v } from "convex/values";
 import Stripe from "stripe";
 
 import { DOMAIN } from "../src/config/app";
@@ -23,14 +23,12 @@ export const checkout = action({
     const user = await ctx.auth.getUserIdentity();
 
     if (!user) {
-      throw new ConvexError("you must be logged in to subscribe");
+      return undefined;
     }
 
     if (!user.emailVerified) {
-      throw new ConvexError("you must have a verified email to subscribe");
+      return undefined;
     }
-
-    console.log("checkout: user:", user);
 
     const session = await stripe.checkout.sessions.create({
       line_items: [
@@ -64,8 +62,6 @@ export const fulfill = internalAction({
         args.signature,
         webhookSecret
       );
-
-      console.log(event);
 
       const completedEvent = event.data.object as Stripe.Checkout.Session & {
         metadata: Metadata;
