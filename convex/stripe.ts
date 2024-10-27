@@ -44,7 +44,7 @@ export const checkout = action({
         credits: args.product.credits,
       },
       mode: "payment",
-      success_url: `${DOMAIN}/dashboard`,
+      success_url: `${DOMAIN}/order/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: DOMAIN,
     });
 

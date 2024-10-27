@@ -13,7 +13,18 @@ const convex = new ConvexReactClient(env.NEXT_PUBLIC_CONVEX_URL!);
 export function ContextProvider({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <ClerkProvider publishableKey={env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}>
+      <ClerkProvider
+        publishableKey={env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
+        afterSignOutUrl={"/"}
+        signInUrl="/sign-in"
+        signUpUrl="/sign-up"
+        signInFallbackRedirectUrl={
+          env.NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL
+        }
+        signUpFallbackRedirectUrl={
+          env.NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL
+        }
+      >
         <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
           {children}
         </ConvexProviderWithClerk>
