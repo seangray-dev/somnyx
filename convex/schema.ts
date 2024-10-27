@@ -59,4 +59,9 @@ export default defineSchema({
   })
     .index("by_dreamId", ["dreamId"])
     .index("by_userId", ["userId"]),
+
+  deleteAccountFeedback: defineTable({
+    reasons: v.optional(v.array(v.string())),
+    feedback: v.optional(v.string()),
+  }),
 });

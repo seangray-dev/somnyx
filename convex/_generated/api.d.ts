@@ -18,6 +18,7 @@ import type * as email_util from "../email/util.js";
 import type * as email_welcome from "../email/welcome.js";
 import type * as http from "../http.js";
 import type * as mutations_analysis from "../mutations/analysis.js";
+import type * as mutations_deleteAccountFeedback from "../mutations/deleteAccountFeedback.js";
 import type * as mutations_dreams from "../mutations/dreams.js";
 import type * as mutations_openai from "../mutations/openai.js";
 import type * as mutations_users from "../mutations/users.js";
@@ -45,6 +46,7 @@ declare const fullApi: ApiFromModules<{
   "email/welcome": typeof email_welcome;
   http: typeof http;
   "mutations/analysis": typeof mutations_analysis;
+  "mutations/deleteAccountFeedback": typeof mutations_deleteAccountFeedback;
   "mutations/dreams": typeof mutations_dreams;
   "mutations/openai": typeof mutations_openai;
   "mutations/users": typeof mutations_users;
