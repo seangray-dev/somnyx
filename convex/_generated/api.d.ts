@@ -20,6 +20,7 @@ import type * as http from "../http.js";
 import type * as mutations_analysis from "../mutations/analysis.js";
 import type * as mutations_deleteAccountFeedback from "../mutations/deleteAccountFeedback.js";
 import type * as mutations_dreams from "../mutations/dreams.js";
+import type * as mutations_insights from "../mutations/insights.js";
 import type * as mutations_openai from "../mutations/openai.js";
 import type * as mutations_users from "../mutations/users.js";
 import type * as mutations from "../mutations.js";
@@ -48,6 +49,7 @@ declare const fullApi: ApiFromModules<{
   "mutations/analysis": typeof mutations_analysis;
   "mutations/deleteAccountFeedback": typeof mutations_deleteAccountFeedback;
   "mutations/dreams": typeof mutations_dreams;
+  "mutations/insights": typeof mutations_insights;
   "mutations/openai": typeof mutations_openai;
   "mutations/users": typeof mutations_users;
   mutations: typeof mutations;

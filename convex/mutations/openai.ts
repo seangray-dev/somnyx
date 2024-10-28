@@ -6,6 +6,7 @@ import { z } from "zod";
 import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import { internalAction } from "../_generated/server";
+import { SYSTEM_PROMPT } from "../util";
 
 const openai = new OpenAI();
 
@@ -21,8 +22,12 @@ const Themes = z.object({
   themes: z.array(z.string()),
 });
 
-const DreamTitle = z.object({
-  title: z.string().max(20),
+const Insight = z.object({
+  summary: z.string(),
+  emotionalPatterns: z.string(),
+  recurringThemes: z.string(),
+  symbolicMeaning: z.string(),
+  actionableReflection: z.string(),
 });
 
 export const generateDreamTitle = internalAction({
@@ -181,11 +186,7 @@ export const generateAnalysis = internalAction({
       messages: [
         {
           role: "system",
-          content: `You are an expert Dream Interpreter, you are expected to assist users in delving into the symbolic language of their dreams. You should possess a comprehensive understanding of prominent psychological and cross-cultural theories of dream interpretation, as well as the potential emotional and situational triggers of common dream motifs. 
-          
-          Precision in extracting details of the dream scenario, the dreamer's feeling during and after the dream, and the dream symbols are all crucial elements. Be sensitive to the user's emotions and psychological state, providing interpretations that are empathetic, insightful, and respectful.
-          
-          Your ultimate goal is to guide users towards a broader consciousness of their subconscious, aiding them in illuminating possible hidden messages, emotions, or situations reflected through their dreams. Remember, as a Dream Interpreter, you are a guide to self-discovery, unfolding the symbolic narratives of the dreamers' night-time landscapes.`,
+          content: SYSTEM_PROMPT,
         },
         {
           role: "user",
@@ -205,6 +206,105 @@ export const generateAnalysis = internalAction({
       dreamId,
       userId,
       analysis,
+    });
+  },
+});
+
+export const generateInsight = internalAction({
+  // TODO: Refactor the arguments to reduce payload (_id, _creationTime, title, isPublic, userId)
+  args: {
+    dreams: v.array(
+      v.object({
+        _id: v.id("dreams"),
+        _creationTime: v.optional(v.number()),
+        isPublic: v.optional(v.boolean()),
+        title: v.optional(v.string()),
+        userId: v.string(),
+        date: v.string(),
+        emotions: v.array(v.id("emotions")),
+        role: v.optional(v.id("roles")),
+        people: v.optional(v.array(v.string())),
+        places: v.optional(v.array(v.string())),
+        things: v.optional(v.array(v.string())),
+        themes: v.optional(v.array(v.string())),
+        details: v.string(),
+      })
+    ),
+    userId: v.string(),
+  },
+  async handler(ctx, args) {
+    const formattedDreams = await Promise.all(
+      args.dreams.map(async (dream) => {
+        const {
+          date,
+          emotions: emotionIds,
+          role: roleId,
+          people = [],
+          places = [],
+          things = [],
+          themes = [],
+          details,
+        } = dream;
+
+        // Fetch emotions and role details for the dream
+        const emotions = await ctx.runQuery(
+          internal.queries.emotions.getEmotionsByDreamIdInternal,
+          { id: dream._id }
+        );
+
+        const role = await ctx.runQuery(
+          internal.queries.roles.getRoleByIdInternal,
+          {
+            id: dream.role as Id<"roles">,
+          }
+        );
+
+        // Format dream into a string for the prompt
+        return `
+        Dream Date: ${date}
+        Role: ${role?.name || "N/A"}
+        Emotions: ${
+          emotions.length ? emotions.map((e) => e?.name).join(", ") : "None"
+        }
+        People: ${people.length ? people.join(", ") : "None"}
+        Places: ${places.length ? places.join(", ") : "None"}
+        Things: ${things.length ? things.join(", ") : "None"}
+        Themes: ${themes.length ? themes.join(", ") : "None"}
+        Details: ${details}
+        `;
+      })
+    );
+
+    const userPrompt = `
+      Dreams: ${formattedDreams.join("\n\n")}
+    `;
+
+    const response = await openai.beta.chat.completions.parse({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: SYSTEM_PROMPT,
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+      response_format: zodResponseFormat(Insight, "insight"),
+    });
+
+    const insight = response.choices[0].message.parsed;
+
+    if (!insight) {
+      throw new Error("Failed to generate insight");
+    }
+
+    // Save the generated insight
+    await ctx.runMutation(internal.mutations.insights.addNewInsight, {
+      userId: args.userId,
+      monthYear: "",
+      insight,
     });
   },
 });

@@ -64,4 +64,16 @@ export default defineSchema({
     reasons: v.optional(v.array(v.string())),
     feedback: v.optional(v.string()),
   }),
+
+  insights: defineTable({
+    userId: v.string(),
+    monthYear: v.string(),
+    insight: v.object({
+      summary: v.string(),
+      emotionalPatterns: v.string(),
+      recurringThemes: v.string(),
+      symbolicMeaning: v.string(),
+      actionableReflection: v.string(),
+    }),
+  }).index("by_userId", ["userId"]),
 });

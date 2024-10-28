@@ -65,6 +65,25 @@ export const getDreamByIdInternal = internalQuery({
   },
 });
 
+export const getDreamsByMonth = internalQuery({
+  args: { userId: v.string(), month: v.string() },
+  handler: async (ctx, { userId, month }) => {
+    const [monthNumber, year] = month.split("-").map(Number);
+
+    const startDate = new Date(year, monthNumber - 1, 1).toISOString();
+    const endDate = new Date(year, monthNumber, 0, 23, 59, 59).toISOString();
+
+    const dreams = await ctx.db
+      .query("dreams")
+      .withIndex("by_userId_and_date", (q) =>
+        q.eq("userId", userId).gte("date", startDate).lte("date", endDate)
+      )
+      .collect();
+
+    return dreams;
+  },
+});
+
 export const hasAccessToDream = query({
   args: { dreamId: v.id("dreams"), userId: v.string() },
   handler: async (ctx, args) => {
@@ -182,19 +201,24 @@ export const getMostFrequentEmotion = query({
 export const getAvailbleMonthsForInsights = query({
   handler: async (ctx) => {
     const userId = await getUserId(ctx);
-    const currentMonth = new Date().getMonth();
+    const currentDate = new Date();
+    const currentMonthYear = `${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
+
     const dreams = await ctx.db
       .query("dreams")
       .withIndex("by_userId", (q) => q.eq("userId", userId!))
       .collect();
 
-    const months = dreams.map((dream) => {
-      const month = new Date(dream.date).getMonth();
-      return month === currentMonth
-        ? `${month + 1}-${new Date().getFullYear()}`
-        : `${month + 1}-${new Date(dream.date).getFullYear()}`;
-    });
+    const monthsSet = new Set(
+      dreams.map((dream) => {
+        const dreamDate = new Date(dream.date);
+        const monthYear = `${dreamDate.getMonth() + 1}-${dreamDate.getFullYear()}`;
+        return monthYear;
+      })
+    );
 
-    return months;
+    monthsSet.add(currentMonthYear);
+
+    return Array.from(monthsSet);
   },
 });

@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "convex/react";
 import { format, isLastDayOfMonth, isSameMonth, parse } from "date-fns";
 import { LockIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -32,27 +33,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { api } from "@/convex/_generated/api";
+import { CREDIT_COSTS } from "@/convex/util";
 
 import useAvailableMonths from "./api/use-available-months";
 
 const formSchema = z.object({
-  month: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
+  monthYear: z.string(),
 });
 
 export default function InsightsForm() {
   const [open, setOpen] = useState(false);
+  const generateInsight = useMutation(api.mutations.generateInsight);
   const { data: months, isLoading } = useAvailableMonths();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      month: "",
+      monthYear: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      await generateInsight({ month: values.monthYear });
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   const formatMonthYear = (monthYear: string) => {
@@ -88,7 +94,7 @@ export default function InsightsForm() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
-              name="month"
+              name="monthYear"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Month</FormLabel>
@@ -132,7 +138,7 @@ export default function InsightsForm() {
               )}
             />
             <Button className="w-full" type="submit">
-              Get My Insights
+              Generate Insight ({CREDIT_COSTS.INSIGHT} Credits)
             </Button>
           </form>
         </Form>
