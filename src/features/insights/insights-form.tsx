@@ -89,7 +89,10 @@ export default function InsightsForm() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>New Insight</Button>
+        <Button size={"lg"} variant="outline" className="w-full capitalize">
+          Generate insight
+          <br className="sm:hidden" /> for different month
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
