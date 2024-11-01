@@ -69,11 +69,15 @@ export default defineSchema({
     userId: v.string(),
     monthYear: v.string(),
     insight: v.object({
-      summary: v.string(),
-      emotionalPatterns: v.string(),
-      recurringThemes: v.string(),
-      symbolicMeaning: v.string(),
-      actionableReflection: v.string(),
+      summary: v.optional(v.string()),
+      patterns: v.optional(v.string()),
+      recurringThemes: v.optional(v.string()),
+      personalReccomendations: v.optional(v.string()),
+      emotionalJourney: v.optional(v.string()),
+      // Delete fields
+      emotionalPatterns: v.optional(v.string()),
     }),
-  }).index("by_userId", ["userId"]),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_userId_and_monthYear", ["userId", "monthYear"]),
 });

@@ -24,10 +24,10 @@ const Themes = z.object({
 
 const Insight = z.object({
   summary: z.string(),
-  emotionalPatterns: z.string(),
+  patterns: z.string(),
   recurringThemes: z.string(),
-  symbolicMeaning: z.string(),
-  actionableReflection: z.string(),
+  personalReccomendations: z.string(),
+  emotionalJourney: z.string(),
 });
 
 export const generateDreamTitle = internalAction({

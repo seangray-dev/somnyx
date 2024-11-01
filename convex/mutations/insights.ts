@@ -38,10 +38,10 @@ export const addNewInsight = internalMutation({
     monthYear: v.string(),
     insight: v.object({
       summary: v.string(),
-      emotionalPatterns: v.string(),
+      patterns: v.string(),
       recurringThemes: v.string(),
-      symbolicMeaning: v.string(),
-      actionableReflection: v.string(),
+      personalReccomendations: v.string(),
+      emotionalJourney: v.string(),
     }),
   },
   handler: async (ctx, args) => {

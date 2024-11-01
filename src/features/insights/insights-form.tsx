@@ -7,8 +7,10 @@ import { useMutation } from "convex/react";
 import { format, isLastDayOfMonth, isSameMonth, parse } from "date-fns";
 import { LockIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
+import LoadingButton from "@/components/shared/loading-button";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -39,13 +41,14 @@ import { CREDIT_COSTS } from "@/convex/util";
 import useAvailableMonths from "./api/use-available-months";
 
 const formSchema = z.object({
-  monthYear: z.string(),
+  monthYear: z.string().min(1, "Please select a month"),
 });
 
 export default function InsightsForm() {
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const generateInsight = useMutation(api.mutations.generateInsight);
-  const { data: months, isLoading } = useAvailableMonths();
+  const { data: months } = useAvailableMonths();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,9 +58,14 @@ export default function InsightsForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      setIsLoading(true);
       await generateInsight({ month: values.monthYear });
+      toast.success("Insight generated successfully!");
+      setOpen(false);
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -108,6 +116,7 @@ export default function InsightsForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      {/* TODO: Disable month if already generated  */}
                       {months?.map((monthYear) => {
                         const isCurrent = isCurrentMonth(monthYear);
                         const disabled =
@@ -137,9 +146,13 @@ export default function InsightsForm() {
                 </FormItem>
               )}
             />
-            <Button className="w-full" type="submit">
+            <LoadingButton
+              isLoading={isLoading}
+              className="w-full"
+              type="submit"
+            >
               Generate Insight ({CREDIT_COSTS.INSIGHT} Credits)
-            </Button>
+            </LoadingButton>
           </form>
         </Form>
       </DialogContent>

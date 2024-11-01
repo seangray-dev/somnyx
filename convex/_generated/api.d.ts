@@ -27,6 +27,7 @@ import type * as mutations from "../mutations.js";
 import type * as queries_analysis from "../queries/analysis.js";
 import type * as queries_dreams from "../queries/dreams.js";
 import type * as queries_emotions from "../queries/emotions.js";
+import type * as queries_insights from "../queries/insights.js";
 import type * as queries_roles from "../queries/roles.js";
 import type * as queries from "../queries.js";
 import type * as stripe from "../stripe.js";
@@ -56,6 +57,7 @@ declare const fullApi: ApiFromModules<{
   "queries/analysis": typeof queries_analysis;
   "queries/dreams": typeof queries_dreams;
   "queries/emotions": typeof queries_emotions;
+  "queries/insights": typeof queries_insights;
   "queries/roles": typeof queries_roles;
   queries: typeof queries;
   stripe: typeof stripe;

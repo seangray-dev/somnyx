@@ -222,3 +222,31 @@ export const getAvailbleMonthsForInsights = query({
     return Array.from(monthsSet);
   },
 });
+
+export const getDreamCountByMonth = query({
+  async handler(ctx) {
+    const userId = await getUserId(ctx);
+
+    const dreams = await ctx.db
+      .query("dreams")
+      .withIndex("by_userId_and_date", (q) => q.eq("userId", userId!))
+      .collect();
+
+    const dreamCountsByMonth = dreams.reduce(
+      (acc, dream) => {
+        const dreamDate = new Date(dream.date);
+        const monthYear = `${String(dreamDate.getMonth() + 1).padStart(2, "0")}-${dreamDate.getFullYear()}`;
+
+        if (!acc[monthYear]) {
+          acc[monthYear] = 0;
+        }
+        acc[monthYear] += 1;
+
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
+    return dreamCountsByMonth;
+  },
+});
