@@ -20,7 +20,6 @@ export default function CurrentMonthInsightsPrompt() {
   const currentMonth = format(today, "MMMM yyyy");
   const endOfCurrentMonth = endOfMonth(today);
   const daysRemaining = differenceInDays(endOfCurrentMonth, today);
-  const insightUnavailable = daysRemaining !== 0;
 
   return (
     <Card className="flex flex-col">
@@ -34,7 +33,7 @@ export default function CurrentMonthInsightsPrompt() {
           and personal growth for {currentMonth}
         </CardDescription>
       </CardHeader>
-      {insightUnavailable && (
+      {daysRemaining !== 0 && (
         <CardContent>
           <Badge
             variant={"secondary"}
@@ -51,11 +50,15 @@ export default function CurrentMonthInsightsPrompt() {
       <CardFooter className="flex flex-col gap-2 capitalize">
         <Button
           size={"lg"}
-          className="w-full cursor-not-allowed"
-          disabled={insightUnavailable}
+          className="w-full capitalize"
+          disabled={daysRemaining !== 0}
         >
-          Generate {currentMonth} insight <br className="sm:hidden" />(
-          {CREDIT_COSTS.INSIGHT} credits)
+          <div>
+            <span>
+              Generate {currentMonth} <br className="sm:hidden" /> insight{" "}
+            </span>
+            <span>({CREDIT_COSTS.INSIGHT} credits)</span>
+          </div>
         </Button>
         <InsightsForm />
       </CardFooter>

@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 
-import { format, isLastDayOfMonth, subMonths } from "date-fns";
+import { isLastDayOfMonth } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 
+import useAvailableMonths from "./api/use-available-months";
 import CurrentMonthInsightsPrompt from "./current-month-insights-prompt";
 import InsightsCard from "./insights-card";
 
@@ -18,16 +19,16 @@ export default function Insights() {
   const today = new Date();
   const showCurrentMonth = isLastDayOfMonth(today);
 
-  const monthsToDisplay = Array.from({ length: totalMonths }, (_, index) => {
-    const monthsToSubtract = showCurrentMonth ? index : index + 1;
-    return format(subMonths(new Date(today), monthsToSubtract), "MM-yyyy");
-  });
+  const { data: availableMonths, isLoading } = useAvailableMonths();
+
+  const monthsToDisplay = availableMonths?.slice(0, totalMonths) ?? [];
+  const hasMoreMonths = availableMonths
+    ? totalMonths < Math.min(availableMonths.length, MAX_MONTHS)
+    : false;
 
   const handleLoadMore = () => {
     setTotalMonths((prev) => Math.min(prev + MONTHS_PER_LOAD, MAX_MONTHS));
   };
-
-  const hasMoreMonths = totalMonths < MAX_MONTHS;
 
   return (
     <div className="container flex-1 space-y-6">
@@ -40,7 +41,13 @@ export default function Insights() {
       </div>
       {hasMoreMonths && (
         <div className="flex justify-center">
-          <Button size="lg" className="w-full" onClick={handleLoadMore}>
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full sm:w-auto"
+            onClick={handleLoadMore}
+            disabled={isLoading}
+          >
             Load more insights
           </Button>
         </div>

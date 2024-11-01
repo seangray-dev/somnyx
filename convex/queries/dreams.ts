@@ -1,5 +1,6 @@
 import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
+import { format } from "date-fns";
 
 import { Id } from "../_generated/dataModel";
 import { internalQuery, query } from "../_generated/server";
@@ -202,7 +203,7 @@ export const getAvailbleMonthsForInsights = query({
   handler: async (ctx) => {
     const userId = await getUserId(ctx);
     const currentDate = new Date();
-    const currentMonthYear = `${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
+    const currentMonthYear = format(currentDate, "MM-yyyy");
 
     const dreams = await ctx.db
       .query("dreams")
@@ -212,14 +213,13 @@ export const getAvailbleMonthsForInsights = query({
     const monthsSet = new Set(
       dreams.map((dream) => {
         const dreamDate = new Date(dream.date);
-        const monthYear = `${dreamDate.getMonth() + 1}-${dreamDate.getFullYear()}`;
-        return monthYear;
+        return format(dreamDate, "MM-yyyy");
       })
     );
 
     monthsSet.add(currentMonthYear);
 
-    return Array.from(monthsSet);
+    return Array.from(monthsSet).sort((a, b) => b.localeCompare(a));
   },
 });
 
