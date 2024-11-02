@@ -17,7 +17,7 @@ export default function RecentDreams() {
     <section className="flex flex-1 flex-col">
       <div className="container flex flex-col gap-6">
         <div>
-          <h2 className="text-lg sm:text-2xl">Recent Dreams</h2>
+          <h2 className="text-3xl font-bold">Recent Dreams</h2>
         </div>
 
         {isLoading ? (
