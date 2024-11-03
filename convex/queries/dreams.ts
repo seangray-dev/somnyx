@@ -158,7 +158,7 @@ export const getDreamsInCurrentMonthCount = query({
   },
 });
 
-export const getMostFrequentEmotion = query({
+export const getEmotionFrequencies = query({
   handler: async (ctx) => {
     const userId = await getUserId(ctx);
     const dreams = await ctx.db
@@ -166,36 +166,32 @@ export const getMostFrequentEmotion = query({
       .withIndex("by_userId", (q) => q.eq("userId", userId!))
       .collect();
 
-    const emotions = dreams.map((dream) => dream.emotions).flat();
+    const emotionIds = dreams.map((dream) => dream.emotions).flat();
+    
+    if (emotionIds.length === 0) return [];
 
-    if (emotions.length === 0) {
-      return null; // Return null if no emotions
-    }
+    const emotionCounts = emotionIds.reduce((acc, emotionId) => {
+      const key = emotionId.toString();
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
 
-    const emotionCounts = emotions.reduce(
-      (acc, emotion) => {
-        const emotionKey = emotion.toString(); // Convert Id<"emotions"> to string
-        acc[emotionKey] = (acc[emotionKey] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>
+    const uniqueEmotionIds = Object.keys(emotionCounts);
+    const emotions = await Promise.all(
+      uniqueEmotionIds.map(id => 
+        ctx.db.get(id as Id<"emotions">)
+      )
     );
 
-    const mostFrequentEmotionId = Object.entries(emotionCounts).reduce(
-      (acc, curr) => (acc[1] < curr[1] ? curr : acc),
-      ["", 0] // Initial value
-    )[0];
-
-    // Fetch the emotion details from the emotions table
-    const mostFrequentEmotion = await ctx.db.get(
-      mostFrequentEmotionId as Id<"emotions">
-    );
-
-    return {
-      emotionName: mostFrequentEmotion?.name,
-      emoji: mostFrequentEmotion?.emoji,
-      count: emotionCounts[mostFrequentEmotionId],
-    };
+    // Combine emotion details with counts
+    return emotions
+      .filter(emotion => emotion !== null) 
+      .map(emotion => ({
+        name: emotion!.name,
+        emoji: emotion!.emoji,
+        value: emotionCounts[emotion!._id.toString()],
+      }))
+      .sort((a, b) => b.value - a.value); 
   },
 });
 
