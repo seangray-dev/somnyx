@@ -10,7 +10,12 @@ export default function RecentDreams() {
   const { data: recentDreams, isLoading } = useRecentDreams();
 
   if (!isLoading && (!recentDreams || recentDreams.length === 0)) {
-    return <NoDreams />;
+    return (
+      <>
+        <h2 className="text-3xl font-bold container">Recent Dreams</h2>
+        <NoDreams />
+      </>
+    );
   }
 
   return (
