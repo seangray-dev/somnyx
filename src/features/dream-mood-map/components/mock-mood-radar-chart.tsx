@@ -41,7 +41,7 @@ export default function MockMoodRadarChart() {
         <div className="relative">
           <ChartContainer
             config={chartConfig}
-            className="mx-auto max-h-[250px] blur-[2px]"
+            className="mx-auto max-h-[350px] blur-[2px]"
           >
             <RadarChart data={mockData}>
               <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
