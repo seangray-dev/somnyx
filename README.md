@@ -1,6 +1,7 @@
 # SOMNYX
 
 ## TODO
+
 - [ ] Issue with signing up not redirecting... stuck on clerk page
 - [ ] change relatvie date to actual date (in dream card)
 - [ ] Sorting dreams by date the dream happened - Recent Dreams + Journal

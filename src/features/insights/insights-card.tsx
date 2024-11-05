@@ -33,10 +33,12 @@ export default function InsightsCard({ monthYear }: { monthYear: string }) {
   const hasNoDreams = dreamCount === 0;
 
   const CardContent = (
-    <Card className={cn(
-      "transition-all duration-150 hover:bg-secondary",
-      hasNoDreams && "opacity-50 hover:bg-background cursor-not-allowed"
-    )}>
+    <Card
+      className={cn(
+        "transition-all duration-150 hover:bg-secondary",
+        hasNoDreams && "cursor-not-allowed opacity-50 hover:bg-background"
+      )}
+    >
       <CardHeader>
         <div className="flex items-center justify-between gap-2">
           <div>
@@ -73,8 +75,6 @@ export default function InsightsCard({ monthYear }: { monthYear: string }) {
   }
 
   return (
-    <Link href={{ pathname: `/insights/${monthYear}` }}>
-      {CardContent}
-    </Link>
+    <Link href={{ pathname: `/insights/${monthYear}` }}>{CardContent}</Link>
   );
 }
