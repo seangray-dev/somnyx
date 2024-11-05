@@ -158,43 +158,6 @@ export const getDreamsInCurrentMonthCount = query({
   },
 });
 
-export const getEmotionFrequencies = query({
-  handler: async (ctx) => {
-    const userId = await getUserId(ctx);
-    const dreams = await ctx.db
-      .query("dreams")
-      .withIndex("by_userId", (q) => q.eq("userId", userId!))
-      .collect();
-
-    const emotionIds = dreams.map((dream) => dream.emotions).flat();
-    
-    if (emotionIds.length === 0) return [];
-
-    const emotionCounts = emotionIds.reduce((acc, emotionId) => {
-      const key = emotionId.toString();
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const uniqueEmotionIds = Object.keys(emotionCounts);
-    const emotions = await Promise.all(
-      uniqueEmotionIds.map(id => 
-        ctx.db.get(id as Id<"emotions">)
-      )
-    );
-
-    // Combine emotion details with counts
-    return emotions
-      .filter(emotion => emotion !== null) 
-      .map(emotion => ({
-        name: emotion!.name,
-        emoji: emotion!.emoji,
-        dreams: emotionCounts[emotion!._id.toString()],
-      }))
-      .sort((a, b) => b.dreams - a.dreams); 
-  },
-});
-
 export const getAvailbleMonthsForInsights = query({
   handler: async (ctx) => {
     const userId = await getUserId(ctx);

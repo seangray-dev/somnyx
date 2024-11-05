@@ -15,15 +15,15 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
+import useEmotionFrequencies from "@/features/store/emotions";
 
-import useEmotionFrequencies from "../api/use-emotion-frequencies";
 import { chartConfig } from "./chart-config";
 import MockMoodRadarChart from "./mock-mood-radar-chart";
 
 export default function MoodRadarChart() {
-  const { data: emotions, isLoading } = useEmotionFrequencies();
+  const { data: emotionCounts, isLoading } = useEmotionFrequencies();
 
-  if (!emotions || emotions.length === 0) {
+  if (!emotionCounts || emotionCounts.length === 0) {
     return <MockMoodRadarChart />;
   }
 
@@ -43,7 +43,7 @@ export default function MoodRadarChart() {
             config={chartConfig}
             className="mx-auto max-h-[350px]"
           >
-            <RadarChart data={emotions}>
+            <RadarChart data={emotionCounts}>
               <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
               <PolarAngleAxis dataKey="name" />
               <PolarGrid />
