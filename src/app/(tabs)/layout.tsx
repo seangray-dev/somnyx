@@ -11,7 +11,7 @@ export default function TabsLayout({
     <div className="flex min-h-screen flex-col">
       <DashboardHeader />
       <Stats />
-      <div className="flex flex-1 flex-col pb-28 pt-16">{children}</div>
+      <div className="flex flex-1 flex-col pb-28 pt-8">{children}</div>
       <Tabs />
     </div>
   );

@@ -41,7 +41,7 @@ export default function MoodRadarChart() {
         ) : (
           <ChartContainer
             config={chartConfig}
-            className="mx-auto max-h-[250px]"
+            className="mx-auto max-h-[350px]"
           >
             <RadarChart data={emotions}>
               <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
