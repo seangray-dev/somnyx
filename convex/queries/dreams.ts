@@ -189,9 +189,9 @@ export const getEmotionFrequencies = query({
       .map(emotion => ({
         name: emotion!.name,
         emoji: emotion!.emoji,
-        value: emotionCounts[emotion!._id.toString()],
+        dreams: emotionCounts[emotion!._id.toString()],
       }))
-      .sort((a, b) => b.value - a.value); 
+      .sort((a, b) => b.dreams - a.dreams); 
   },
 });
 
