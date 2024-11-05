@@ -23,7 +23,10 @@ import MockMoodRadarChart from "./mock-mood-radar-chart";
 export default function MoodRadarChart() {
   const { data: emotionCounts, isLoading } = useEmotionFrequencies();
 
-  if (!emotionCounts || emotionCounts.length === 0) {
+  if (
+    !emotionCounts ||
+    emotionCounts.every((emotion) => emotion.dreams === 0)
+  ) {
     return <MockMoodRadarChart />;
   }
 

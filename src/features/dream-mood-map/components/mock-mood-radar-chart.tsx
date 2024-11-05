@@ -1,5 +1,6 @@
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
 
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -41,7 +42,7 @@ export default function MockMoodRadarChart() {
         <div className="relative">
           <ChartContainer
             config={chartConfig}
-            className="mx-auto max-h-[350px] blur-[2px]"
+            className="pointer-events-none mx-auto max-h-[350px] blur-[2px]"
           >
             <RadarChart data={mockData}>
               <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
@@ -58,9 +59,12 @@ export default function MockMoodRadarChart() {
               />
             </RadarChart>
           </ChartContainer>
-          <p className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-muted-foreground">
+          <Badge
+            variant={"secondary"}
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm"
+          >
             Log some dreams to see your dream mood map.
-          </p>
+          </Badge>
         </div>
       </CardContent>
     </Card>
