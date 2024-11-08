@@ -6,7 +6,7 @@ import { isLastDayOfMonth } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 
-import useAvailableMonths from "./api/use-available-months";
+import useAvailableMonths from "../api/use-available-months";
 import CurrentMonthInsightsPrompt from "./current-month-insights-prompt";
 import InsightsCard from "./insights-card";
 

@@ -38,7 +38,7 @@ import {
 import { api } from "@/convex/_generated/api";
 import { CREDIT_COSTS } from "@/convex/util";
 
-import useAvailableMonths from "./api/use-available-months";
+import useAvailableMonths from "../api/use-available-months";
 
 const formSchema = z.object({
   monthYear: z.string().min(1, "Please select a month"),
@@ -59,7 +59,7 @@ export default function InsightsForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsLoading(true);
-      await generateInsight({ month: values.monthYear });
+      await generateInsight({ monthYear: values.monthYear });
       toast.success("Insight generated successfully!");
       setOpen(false);
     } catch (error) {
