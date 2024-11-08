@@ -1,7 +1,9 @@
-export default async function InsightsPage({
+import InsightsPage from "@/features/insights/components/page";
+
+export default async function Insights({
   params,
 }: {
   params: { monthYear: string };
 }) {
-  return <div>page</div>;
+  return <InsightsPage monthYear={params.monthYear} />;
 }

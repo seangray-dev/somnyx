@@ -2,7 +2,6 @@ import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { format } from "date-fns";
 
-import { Id } from "../_generated/dataModel";
 import { internalQuery, query } from "../_generated/server";
 import { getUserId } from "../util";
 
@@ -67,9 +66,9 @@ export const getDreamByIdInternal = internalQuery({
 });
 
 export const getDreamsByMonth = internalQuery({
-  args: { userId: v.string(), month: v.string() },
-  handler: async (ctx, { userId, month }) => {
-    const [monthNumber, year] = month.split("-").map(Number);
+  args: { userId: v.string(), monthYear: v.string() },
+  handler: async (ctx, { userId, monthYear }) => {
+    const [monthNumber, year] = monthYear.split("-").map(Number);
 
     const startDate = new Date(year, monthNumber - 1, 1).toISOString();
     const endDate = new Date(year, monthNumber, 0, 23, 59, 59).toISOString();

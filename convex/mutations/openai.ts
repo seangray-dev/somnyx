@@ -24,10 +24,146 @@ const Themes = z.object({
 
 const Insight = z.object({
   summary: z.string(),
-  patterns: z.string(),
-  recurringThemes: z.string(),
-  personalReccomendations: z.string(),
-  emotionalJourney: z.string(),
+  // Emotional Analysis (leveraging the emotion tags with emojis)
+  emotionalInsights: z.object({
+    dominantEmotions: z.array(
+      z.object({
+        emotion: z.string(),
+        // emoji: z.string(),
+        frequency: z.number(),
+        percentage: z.number(),
+        associatedThemes: z.array(z.string()),
+      })
+    ),
+    emotionalTrends: z.object({
+      weeklyProgression: z.array(
+        z.object({
+          week: z.string(),
+          primaryEmotions: z.array(z.string()),
+          trend: z.string(),
+        })
+      ),
+      insights: z.string(),
+    }),
+    emotionalTriggers: z.array(
+      z.object({
+        trigger: z.string(),
+        associatedEmotions: z.array(z.string()),
+        frequency: z.number(),
+      })
+    ),
+  }),
+
+  // Role Analysis (based on user-selected roles)
+  rolePatterns: z.object({
+    primaryRoles: z.array(
+      z.object({
+        role: z.string(),
+        frequency: z.number(),
+        description: z.string(),
+        associatedEmotions: z.array(z.string()),
+        significantPatterns: z.string(),
+      })
+    ),
+    roleInsights: z.string(),
+  }),
+
+  // Social Dynamics (from people field)
+  socialDynamics: z.object({
+    recurringCharacters: z.array(
+      z.object({
+        name: z.string(),
+        frequency: z.number(),
+        associatedEmotions: z.array(z.string()),
+        contextsAppearing: z.array(z.string()),
+      })
+    ),
+    relationshipPatterns: z.string(),
+    socialThemes: z.array(z.string()),
+  }),
+
+  // Setting Analysis (from places field)
+  settingAnalysis: z.object({
+    commonLocations: z.array(
+      z.object({
+        place: z.string(),
+        frequency: z.number(),
+        associatedEmotions: z.array(z.string()),
+        symbolism: z.string(),
+      })
+    ),
+    environmentalPatterns: z.string(),
+    settingTransitions: z.string(), // How settings change within/across dreams
+  }),
+
+  // Symbol Analysis (from things field)
+  symbolism: z.object({
+    recurringSymbols: z.array(
+      z.object({
+        symbol: z.string(),
+        frequency: z.number(),
+        contexts: z.array(z.string()),
+        interpretation: z.string(),
+        associatedEmotions: z.array(z.string()),
+      })
+    ),
+    symbolPatterns: z.string(),
+    uniqueSymbols: z.array(z.string()), // One-off but significant symbols
+  }),
+
+  // Thematic Analysis (derived from all fields)
+  thematicAnalysis: z.object({
+    majorThemes: z.array(
+      z.object({
+        theme: z.string(),
+        frequency: z.number(),
+        relatedSymbols: z.array(z.string()),
+        relatedEmotions: z.array(z.string()),
+        interpretation: z.string(),
+      })
+    ),
+    themeProgression: z.string(),
+    recurrentPatterns: z.array(z.string()),
+  }),
+
+  // Personal Growth Insights
+  personalGrowth: z.object({
+    keyInsights: z.array(z.string()),
+    challengesIdentified: z.array(
+      z.object({
+        challenge: z.string(),
+        relatedPatterns: z.array(z.string()),
+        suggestedActions: z.array(z.string()),
+      })
+    ),
+    growthOpportunities: z.array(
+      z.object({
+        area: z.string(),
+        evidence: z.array(z.string()),
+        recommendations: z.array(z.string()),
+      })
+    ),
+    actionableSteps: z.array(z.string()),
+  }),
+
+  // Temporal Patterns
+  temporalPatterns: z.object({
+    timeBasedPatterns: z.array(
+      z.object({
+        pattern: z.string(),
+        frequency: z.number(),
+        significance: z.string(),
+      })
+    ),
+    monthlyProgression: z.string(),
+    dateCorrelations: z.array(
+      z.object({
+        date: z.string(),
+        significance: z.string(),
+        patterns: z.array(z.string()),
+      })
+    ),
+  }),
 });
 
 export const generateDreamTitle = internalAction({
@@ -231,6 +367,7 @@ export const generateInsight = internalAction({
       })
     ),
     userId: v.string(),
+    monthYear: v.string(),
   },
   async handler(ctx, args) {
     const formattedDreams = await Promise.all(
@@ -303,7 +440,7 @@ export const generateInsight = internalAction({
     // Save the generated insight
     await ctx.runMutation(internal.mutations.insights.addNewInsight, {
       userId: args.userId,
-      monthYear: "",
+      monthYear: args.monthYear,
       insight,
     });
   },
