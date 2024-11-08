@@ -14,8 +14,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
-import useDreamCountByMonth from "../api/use-dream-count-by-month";
-import useInsightGenerated from "../api/use-insight-generated";
+import useDreamCountByMonth from "../../api/use-dream-count-by-month";
+import useInsightGenerated from "../../api/use-insight-generated";
 
 type InsightsCardProps = {
   monthYear: string;
