@@ -62,13 +62,29 @@ export type TemporalPatterns = {
   frequencyPatterns: string[];
 };
 
+export type PersonalGrowth = {
+  keyInsights: string[];
+  challengesIdentified: {
+    challenge: string;
+    relatedPatterns: string[];
+    suggestedActions: string[];
+  }[];
+  growthOpportunities: {
+    area: string;
+    evidence: string[];
+    recommendations: string[];
+  }[];
+  actionableSteps: string[];
+};
+
 export type MonthlyInsight = {
   summary: string;
+  monthYear: string;
   emotionalInsights: EmotionalInsight;
+  personalGrowth: PersonalGrowth;
   dreamThemes: DreamThemes;
   symbolism: DreamSymbol[];
   dreamPatterns: DreamPatterns;
   recommendations: Recommendations;
   temporalPatterns: TemporalPatterns;
-  monthYear: string;
 };
