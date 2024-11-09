@@ -77,14 +77,49 @@ export type PersonalGrowth = {
   actionableSteps: string[];
 };
 
+export type RolePatterns = {
+  primaryRoles: {
+    role: string;
+    frequency: number;
+    description: string;
+    associatedEmotions: string[];
+    significantPatterns: string;
+  }[];
+  roleInsights: string;
+};
+
+export type SettingAnalysis = {
+  commonLocations: {
+    place: string;
+    frequency: number;
+    associatedEmotions: string[];
+    symbolism: string;
+  }[];
+  environmentalPatterns: string;
+  settingTransitions: string;
+};
+
+export type SocialDynamics = {
+  recurringCharacters: {
+    name: string;
+    frequency: number;
+    associatedEmotions: string[];
+    contextsAppearing: string[];
+  }[];
+  relationshipPatterns: string;
+  socialThemes: string[];
+};
+
+export type PatternsInsights = {
+  rolePatterns: RolePatterns;
+  settingAnalysis: SettingAnalysis;
+  socialDynamics: SocialDynamics;
+};
+
 export type MonthlyInsight = {
   summary: string;
   monthYear: string;
   emotionalInsights: EmotionalInsight;
   personalGrowth: PersonalGrowth;
-  dreamThemes: DreamThemes;
-  symbolism: DreamSymbol[];
-  dreamPatterns: DreamPatterns;
-  recommendations: Recommendations;
-  temporalPatterns: TemporalPatterns;
+  patternsInsights: PatternsInsights;
 };

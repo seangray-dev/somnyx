@@ -4,8 +4,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import useFetchInsight from "../../api/use-fetch-insight";
 import EmotionalInsights from "./emotional-insights";
-import Summary from "./summary";
 import GrowthInsights from "./growth-insights";
+import Summary from "./summary";
+import PatternInsights from "./pattern-insights";
 
 export default function InsightsPage({ monthYear }: { monthYear: string }) {
   const { data: insight, isLoading } = useFetchInsight(monthYear);
@@ -14,7 +15,20 @@ export default function InsightsPage({ monthYear }: { monthYear: string }) {
     return null;
   }
 
-  const { summary, emotionalInsights, personalGrowth } = insight.insight;
+  const {
+    summary,
+    emotionalInsights,
+    personalGrowth,
+    rolePatterns,
+    settingAnalysis,
+    socialDynamics,
+  } = insight.insight;
+
+  const patternsInsights = {
+    rolePatterns,
+    settingAnalysis,
+    socialDynamics,
+  };
 
   return (
     <div className="container flex flex-col gap-4">
@@ -39,6 +53,9 @@ export default function InsightsPage({ monthYear }: { monthYear: string }) {
         </TabsContent>
         <TabsContent value="growth">
           <GrowthInsights personalGrowth={personalGrowth} />
+        </TabsContent>
+        <TabsContent value="patterns">
+          <PatternInsights patternsInsights={patternsInsights} />
         </TabsContent>
       </Tabs>
     </div>
