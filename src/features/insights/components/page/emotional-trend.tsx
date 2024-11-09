@@ -25,7 +25,7 @@ export default function EmotionalTrend({
         {weeklyProgression.map((week) => (
           <Card key={week.week}>
             <CardHeader>
-              <CardTitle>{week.week}</CardTitle>
+              <CardTitle className="text-xl">{week.week}</CardTitle>
               <CardDescription>
                 Emotions: {week.primaryEmotions.join(", ")}
               </CardDescription>

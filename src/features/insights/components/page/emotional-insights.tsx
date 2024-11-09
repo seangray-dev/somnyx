@@ -12,10 +12,10 @@ export default function EmotionalInsights({
     emotionalInsights;
 
   return (
-    <div className="flex flex-col gap-4">
+    <section className="flex flex-col gap-4">
       <DominantEmotions dominantEmotions={dominantEmotions} />
       <EmotionalTrend emotionalTrends={emotionalTrends} />
       <EmotionalTriggers emotionalTrigger={emotionalTriggers} />
-    </div>
+    </section>
   );
 }
