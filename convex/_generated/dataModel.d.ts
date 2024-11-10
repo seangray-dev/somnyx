@@ -1,7 +1,6 @@
 /* prettier-ignore-start */
 
 /* eslint-disable */
-
 /**
  * Generated data model types.
  *
@@ -10,14 +9,14 @@
  * To regenerate, run `npx convex dev`.
  * @module
  */
+
 import type {
   DataModelFromSchemaDefinition,
   DocumentByName,
-  SystemTableNames,
   TableNamesInDataModel,
+  SystemTableNames,
 } from "convex/server";
 import type { GenericId } from "convex/values";
-
 import schema from "../schema.js";
 
 /**
