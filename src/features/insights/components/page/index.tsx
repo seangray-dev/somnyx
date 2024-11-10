@@ -5,8 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useFetchInsight from "../../api/use-fetch-insight";
 import EmotionalInsights from "./emotional-insights";
 import GrowthInsights from "./growth-insights";
-import Summary from "./summary";
 import PatternInsights from "./pattern-insights";
+import Summary from "./summary";
+import ThemesInsightsTab from "./themes-insights";
 
 export default function InsightsPage({ monthYear }: { monthYear: string }) {
   const { data: insight, isLoading } = useFetchInsight(monthYear);
@@ -22,12 +23,19 @@ export default function InsightsPage({ monthYear }: { monthYear: string }) {
     rolePatterns,
     settingAnalysis,
     socialDynamics,
+    symbolism,
+    thematicAnalysis,
   } = insight.insight;
 
   const patternsInsights = {
     rolePatterns,
     settingAnalysis,
     socialDynamics,
+  };
+
+  const themesInsights = {
+    symbolism,
+    thematicAnalysis,
   };
 
   return (
@@ -56,6 +64,9 @@ export default function InsightsPage({ monthYear }: { monthYear: string }) {
         </TabsContent>
         <TabsContent value="patterns">
           <PatternInsights patternsInsights={patternsInsights} />
+        </TabsContent>
+        <TabsContent value="themes">
+          <ThemesInsightsTab themesInsights={themesInsights} />
         </TabsContent>
       </Tabs>
     </div>

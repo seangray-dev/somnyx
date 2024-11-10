@@ -116,10 +116,42 @@ export type PatternsInsights = {
   socialDynamics: SocialDynamics;
 };
 
+export type ThematicAnalysis = {
+  majorThemes: {
+    theme: string;
+    frequency: number;
+    relatedSymbols: string[];
+    relatedEmotions: string[];
+    interpretation: string;
+  }[];
+  themeProgression: string;
+  recurrentPatterns: string[];
+};
+
+export type RecurringSymbol = {
+  symbol: string;
+  frequency: number;
+  contexts: string[];
+  interpretation: string;
+  associatedEmotions: string[];
+};
+
+export type Symbolism = {
+  recurringSymbols: RecurringSymbol[];
+  symbolPatterns: string;
+  uniqueSymbols: string[];
+};
+
+export type ThemesInsights = {
+  symbolism: Symbolism;
+  thematicAnalysis: ThematicAnalysis;
+};
+
 export type MonthlyInsight = {
   summary: string;
   monthYear: string;
   emotionalInsights: EmotionalInsight;
   personalGrowth: PersonalGrowth;
   patternsInsights: PatternsInsights;
+  themesInsights: ThemesInsights;
 };
