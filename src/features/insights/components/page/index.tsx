@@ -25,12 +25,14 @@ export default function InsightsPage({ monthYear }: { monthYear: string }) {
     socialDynamics,
     symbolism,
     thematicAnalysis,
+    temporalPatterns,
   } = insight.insight;
 
   const patternsInsights = {
     rolePatterns,
     settingAnalysis,
     socialDynamics,
+    temporalPatterns,
   };
 
   const themesInsights = {

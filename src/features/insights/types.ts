@@ -57,11 +57,6 @@ export type Recommendations = {
   actionableSteps: string[];
 };
 
-export type TemporalPatterns = {
-  timeBasedInsights: string;
-  frequencyPatterns: string[];
-};
-
 export type PersonalGrowth = {
   keyInsights: string[];
   challengesIdentified: {
@@ -110,10 +105,25 @@ export type SocialDynamics = {
   socialThemes: string[];
 };
 
+export type TemporalPatterns = {
+  timeBasedPatterns: {
+    pattern: string;
+    frequency: number;
+    significance: string;
+  }[];
+  monthlyProgression: string;
+  dateCorrelations: {
+    date: string;
+    significance: string;
+    patterns: string[];
+  }[];
+};
+
 export type PatternsInsights = {
   rolePatterns: RolePatterns;
   settingAnalysis: SettingAnalysis;
   socialDynamics: SocialDynamics;
+  temporalPatterns: TemporalPatterns;
 };
 
 export type ThematicAnalysis = {
