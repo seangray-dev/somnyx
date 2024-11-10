@@ -5,14 +5,13 @@ import { usePathname } from "next/navigation";
 
 import Logo from "@/components/shared/logo";
 
+import { shouldShowLayout } from "../hidden-paths";
 import { legalLinks, resourcesLinks } from "./footer-links";
 
 export default function SiteFooter() {
   const pathname = usePathname();
 
-  const hiddenPaths = ["/dashboard", "/journal", "/settings"];
-
-  if (hiddenPaths.includes(pathname) || pathname.startsWith("/dreams/")) {
+  if (!shouldShowLayout(pathname)) {
     return null;
   }
 
