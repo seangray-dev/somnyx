@@ -13,7 +13,8 @@
 - [x] Delete Account and related data (settings page)
   - [ ] Feedback for reason on deleting account
 - [ ] Update the share link to use the new domain - look into using a service
-- [ ] Deep Analysis Feature - after x amount of dreams (or per month basis)
+- [x] Deep Analysis Feature
+  - [ ] add loading states and placeholder for when insight hasn't been generated yet
 - [ ] Error + 404 pages
 - [ ] PWA setup and notifications
 - [ ] Favicon, logo
@@ -21,7 +22,7 @@
 - [ ] Landing Page
 - [ ] Legal Pages
 - [ ] Contact + Support Page
-- [ ] Domain Purchase
+- [x] Domain Purchase
 - [ ] Analytics (posthog, plausible)
 - [ ] Error Management? (Sentry)
 - [ ] Deploy to production (convex, clerk)
