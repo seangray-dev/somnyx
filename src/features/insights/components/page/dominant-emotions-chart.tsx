@@ -17,10 +17,11 @@ export default function DominantEmotionsChart({
 }: {
   dominantEmotions: DominantEmotion[];
 }) {
+  // chart only has 5 colours, so we need to cycle through them
   const chartData = dominantEmotions.map((emotion, index) => ({
     emotion: emotion.emotion,
     frequency: emotion.frequency,
-    fill: `hsl(var(--chart-${index + 1}))`,
+    fill: `hsl(var(--chart-${(index % 4) + 1}))`,
   }));
 
   const chartConfig = chartData.reduce((config, item) => {
