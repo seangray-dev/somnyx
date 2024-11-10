@@ -61,7 +61,7 @@ export default function MockMoodRadarChart() {
           </ChartContainer>
           <Badge
             variant={"secondary"}
-            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm"
+            className="pointer-events-none absolute left-1/2 top-1/2 flex w-full -translate-x-1/2 -translate-y-1/2 justify-center text-balance text-center text-xs sm:w-fit"
           >
             Log some dreams to see your dream mood map.
           </Badge>
