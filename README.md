@@ -13,8 +13,10 @@
 - [x] Delete Account and related data (settings page)
   - [ ] Feedback for reason on deleting account
 - [ ] Update the share link to use the new domain - look into using a service
+- [ ] Has sufficient credits hook / query
 - [x] Deep Analysis Feature
   - [ ] add loading states and placeholder for when insight hasn't been generated yet
+  - [ ] how to handle if a user adds a dream to the month after the insight has been generated?
 - [ ] Error + 404 pages
 - [ ] PWA setup and notifications
 - [ ] Favicon, logo
