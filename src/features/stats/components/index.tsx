@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useSession } from "@/lib/client-auth";
 
 import DreamsInCurrentMonthCount from "./dreams-in-current-month-count";
-import MostFrequentEmotion from "./most-frequent-emotion";
 import TotalDreamsCount from "./total-dreams-count";
 
 export default function Stats() {
@@ -17,12 +16,11 @@ export default function Stats() {
   }
 
   return (
-    <div className="border-b bg-secondary py-4 font-medium text-secondary-foreground">
-      <div className="container flex flex-col justify-around gap-2 sm:flex-row sm:items-center">
+    <section className="bg-secondary">
+      <div className="container flex flex-col justify-around gap-2 py-4 font-medium sm:flex-row">
         <TotalDreamsCount />
         <DreamsInCurrentMonthCount />
-        <MostFrequentEmotion />
       </div>
-    </div>
+    </section>
   );
 }

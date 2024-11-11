@@ -6,6 +6,7 @@ import { z } from "zod";
 import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import { internalAction } from "../_generated/server";
+import { SYSTEM_PROMPT } from "../util";
 
 const openai = new OpenAI();
 
@@ -21,8 +22,148 @@ const Themes = z.object({
   themes: z.array(z.string()),
 });
 
-const DreamTitle = z.object({
-  title: z.string().max(20),
+const Insight = z.object({
+  summary: z.string(),
+  // Emotional Analysis (leveraging the emotion tags with emojis)
+  emotionalInsights: z.object({
+    dominantEmotions: z.array(
+      z.object({
+        emotion: z.string(),
+        // emoji: z.string(),
+        frequency: z.number(),
+        percentage: z.number(),
+        associatedThemes: z.array(z.string()),
+      })
+    ),
+    emotionalTrends: z.object({
+      weeklyProgression: z.array(
+        z.object({
+          week: z.string(),
+          primaryEmotions: z.array(z.string()),
+          trend: z.string(),
+        })
+      ),
+      insights: z.string(),
+    }),
+    emotionalTriggers: z.array(
+      z.object({
+        trigger: z.string(),
+        associatedEmotions: z.array(z.string()),
+        frequency: z.number(),
+      })
+    ),
+  }),
+
+  // Role Analysis (based on user-selected roles)
+  rolePatterns: z.object({
+    primaryRoles: z.array(
+      z.object({
+        role: z.string(),
+        frequency: z.number(),
+        description: z.string(),
+        associatedEmotions: z.array(z.string()),
+        significantPatterns: z.string(),
+      })
+    ),
+    roleInsights: z.string(),
+  }),
+
+  // Social Dynamics (from people field)
+  socialDynamics: z.object({
+    recurringCharacters: z.array(
+      z.object({
+        name: z.string(),
+        frequency: z.number(),
+        associatedEmotions: z.array(z.string()),
+        contextsAppearing: z.array(z.string()),
+      })
+    ),
+    relationshipPatterns: z.string(),
+    socialThemes: z.array(z.string()),
+  }),
+
+  // Setting Analysis (from places field)
+  settingAnalysis: z.object({
+    commonLocations: z.array(
+      z.object({
+        place: z.string(),
+        frequency: z.number(),
+        associatedEmotions: z.array(z.string()),
+        symbolism: z.string(),
+      })
+    ),
+    environmentalPatterns: z.string(),
+    settingTransitions: z.string(), // How settings change within/across dreams
+  }),
+
+  // Symbol Analysis (from things field)
+  symbolism: z.object({
+    recurringSymbols: z.array(
+      z.object({
+        symbol: z.string(),
+        frequency: z.number(),
+        contexts: z.array(z.string()),
+        interpretation: z.string(),
+        associatedEmotions: z.array(z.string()),
+      })
+    ),
+    symbolPatterns: z.string(),
+    uniqueSymbols: z.array(z.string()), // One-off but significant symbols
+  }),
+
+  // Thematic Analysis (derived from all fields)
+  thematicAnalysis: z.object({
+    majorThemes: z.array(
+      z.object({
+        theme: z.string(),
+        frequency: z.number(),
+        relatedSymbols: z.array(z.string()),
+        relatedEmotions: z.array(z.string()),
+        interpretation: z.string(),
+      })
+    ),
+    themeProgression: z.string(),
+    recurrentPatterns: z.array(z.string()),
+  }),
+
+  // Personal Growth Insights
+  personalGrowth: z.object({
+    keyInsights: z.array(z.string()),
+    challengesIdentified: z.array(
+      z.object({
+        challenge: z.string(),
+        relatedPatterns: z.array(z.string()),
+        suggestedActions: z.array(z.string()),
+      })
+    ),
+    growthOpportunities: z.array(
+      z.object({
+        area: z.string(),
+        evidence: z.array(z.string()),
+        recommendations: z.array(z.string()),
+      })
+    ),
+    actionableSteps: z.array(z.string()),
+  }),
+
+  // Temporal Patterns
+  temporalPatterns: z.object({
+    timeBasedPatterns: z.array(
+      z.object({
+        pattern: z.string(),
+        frequency: z.number(),
+        significance: z.string(),
+      })
+    ),
+    monthlyProgression: z.string(),
+    dateCorrelations: z.array(
+      z.object({
+        date: z.string(),
+        significance: z.string(),
+        patterns: z.array(z.string()),
+      })
+    ),
+  }),
 });
 
 export const generateDreamTitle = internalAction({
@@ -181,11 +322,7 @@ export const generateAnalysis = internalAction({
       messages: [
         {
           role: "system",
-          content: `You are an expert Dream Interpreter, you are expected to assist users in delving into the symbolic language of their dreams. You should possess a comprehensive understanding of prominent psychological and cross-cultural theories of dream interpretation, as well as the potential emotional and situational triggers of common dream motifs. 
-          
-          Precision in extracting details of the dream scenario, the dreamer's feeling during and after the dream, and the dream symbols are all crucial elements. Be sensitive to the user's emotions and psychological state, providing interpretations that are empathetic, insightful, and respectful.
-          
-          Your ultimate goal is to guide users towards a broader consciousness of their subconscious, aiding them in illuminating possible hidden messages, emotions, or situations reflected through their dreams. Remember, as a Dream Interpreter, you are a guide to self-discovery, unfolding the symbolic narratives of the dreamers' night-time landscapes.`,
+          content: SYSTEM_PROMPT,
         },
         {
           role: "user",
@@ -205,6 +342,106 @@ export const generateAnalysis = internalAction({
       dreamId,
       userId,
       analysis,
+    });
+  },
+});
+
+export const generateInsight = internalAction({
+  // TODO: Refactor the arguments to reduce payload (_id, _creationTime, title, isPublic, userId)
+  args: {
+    dreams: v.array(
+      v.object({
+        _id: v.id("dreams"),
+        _creationTime: v.optional(v.number()),
+        isPublic: v.optional(v.boolean()),
+        title: v.optional(v.string()),
+        userId: v.string(),
+        date: v.string(),
+        emotions: v.array(v.id("emotions")),
+        role: v.optional(v.id("roles")),
+        people: v.optional(v.array(v.string())),
+        places: v.optional(v.array(v.string())),
+        things: v.optional(v.array(v.string())),
+        themes: v.optional(v.array(v.string())),
+        details: v.string(),
+      })
+    ),
+    userId: v.string(),
+    monthYear: v.string(),
+  },
+  async handler(ctx, args) {
+    const formattedDreams = await Promise.all(
+      args.dreams.map(async (dream) => {
+        const {
+          date,
+          emotions: emotionIds,
+          role: roleId,
+          people = [],
+          places = [],
+          things = [],
+          themes = [],
+          details,
+        } = dream;
+
+        // Fetch emotions and role details for the dream
+        const emotions = await ctx.runQuery(
+          internal.queries.emotions.getEmotionsByDreamIdInternal,
+          { id: dream._id }
+        );
+
+        const role = await ctx.runQuery(
+          internal.queries.roles.getRoleByIdInternal,
+          {
+            id: dream.role as Id<"roles">,
+          }
+        );
+
+        // Format dream into a string for the prompt
+        return `
+        Dream Date: ${date}
+        Role: ${role?.name || "N/A"}
+        Emotions: ${
+          emotions.length ? emotions.map((e) => e?.name).join(", ") : "None"
+        }
+        People: ${people.length ? people.join(", ") : "None"}
+        Places: ${places.length ? places.join(", ") : "None"}
+        Things: ${things.length ? things.join(", ") : "None"}
+        Themes: ${themes.length ? themes.join(", ") : "None"}
+        Details: ${details}
+        `;
+      })
+    );
+
+    const userPrompt = `
+      Dreams: ${formattedDreams.join("\n\n")}
+    `;
+
+    const response = await openai.beta.chat.completions.parse({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: SYSTEM_PROMPT,
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+      response_format: zodResponseFormat(Insight, "insight"),
+    });
+
+    const insight = response.choices[0].message.parsed;
+
+    if (!insight) {
+      throw new Error("Failed to generate insight");
+    }
+
+    // Save the generated insight
+    await ctx.runMutation(internal.mutations.insights.addNewInsight, {
+      userId: args.userId,
+      monthYear: args.monthYear,
+      insight,
     });
   },
 });

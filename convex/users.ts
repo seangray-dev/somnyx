@@ -1,6 +1,5 @@
 import { ConvexError, v } from "convex/values";
 
-import { api, internal } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
 import {
   MutationCtx,
@@ -269,7 +268,7 @@ async function validateCredits(
 ) {
   const user = userId
     ? await getFullUser(ctx, userId)
-    : await ctx.runQuery(api.users.getMyUser);
+    : await getUserByUserId(ctx, (await getUserId(ctx)) as string);
 
   if (!user) throw new Error("User not found.");
 
@@ -288,9 +287,8 @@ export const consumeCredits = internalMutation({
   handler: async (ctx, args) => {
     const user = await validateCredits(ctx, args.cost, args.userId);
 
-    await ctx.runMutation(internal.users.updateUserCredits, {
-      userId: user.userId,
-      amount: -args.cost,
+    await ctx.db.patch(user._id, {
+      credits: user.credits! - args.cost,
     });
   },
 });

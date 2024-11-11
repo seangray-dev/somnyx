@@ -1,3 +1,5 @@
+/* prettier-ignore-start */
+
 /* eslint-disable */
 /**
  * Generated `api` utility.
@@ -20,13 +22,16 @@ import type * as http from "../http.js";
 import type * as mutations_analysis from "../mutations/analysis.js";
 import type * as mutations_deleteAccountFeedback from "../mutations/deleteAccountFeedback.js";
 import type * as mutations_dreams from "../mutations/dreams.js";
+import type * as mutations_insights from "../mutations/insights.js";
 import type * as mutations_openai from "../mutations/openai.js";
 import type * as mutations_users from "../mutations/users.js";
 import type * as mutations from "../mutations.js";
 import type * as queries_analysis from "../queries/analysis.js";
 import type * as queries_dreams from "../queries/dreams.js";
 import type * as queries_emotions from "../queries/emotions.js";
+import type * as queries_insights from "../queries/insights.js";
 import type * as queries_roles from "../queries/roles.js";
+import type * as queries_scheduler from "../queries/scheduler.js";
 import type * as queries from "../queries.js";
 import type * as stripe from "../stripe.js";
 import type * as users from "../users.js";
@@ -48,13 +53,16 @@ declare const fullApi: ApiFromModules<{
   "mutations/analysis": typeof mutations_analysis;
   "mutations/deleteAccountFeedback": typeof mutations_deleteAccountFeedback;
   "mutations/dreams": typeof mutations_dreams;
+  "mutations/insights": typeof mutations_insights;
   "mutations/openai": typeof mutations_openai;
   "mutations/users": typeof mutations_users;
   mutations: typeof mutations;
   "queries/analysis": typeof queries_analysis;
   "queries/dreams": typeof queries_dreams;
   "queries/emotions": typeof queries_emotions;
+  "queries/insights": typeof queries_insights;
   "queries/roles": typeof queries_roles;
+  "queries/scheduler": typeof queries_scheduler;
   queries: typeof queries;
   stripe: typeof stripe;
   users: typeof users;
@@ -68,3 +76,5 @@ export declare const internal: FilterApi<
   typeof fullApi,
   FunctionReference<any, "internal">
 >;
+
+/* prettier-ignore-end */

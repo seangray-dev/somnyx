@@ -6,6 +6,7 @@ import Logo from "@/components/shared/logo";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useSession } from "@/lib/client-auth";
 
+import { shouldShowLayout } from "../hidden-paths";
 import HeaderActions from "./header-actions";
 
 export default function SiteHeader() {
@@ -13,15 +14,7 @@ export default function SiteHeader() {
   const { isLoggedIn } = useSession();
   const isDesktop = useMediaQuery("(min-width: 640px)");
 
-  // Hidden for logged-in users on mobile
-  const hiddenPaths = ["/dashboard", "/journal", "/settings"];
-
-  // Hide header only for logged-in users on mobile, otherwise always show the header
-  if (
-    isLoggedIn &&
-    !isDesktop &&
-    (hiddenPaths.includes(pathname) || pathname.startsWith("/dreams/"))
-  ) {
+  if (isLoggedIn && !isDesktop && !shouldShowLayout(pathname)) {
     return null;
   }
 

@@ -10,14 +10,19 @@ export default function RecentDreams() {
   const { data: recentDreams, isLoading } = useRecentDreams();
 
   if (!isLoading && (!recentDreams || recentDreams.length === 0)) {
-    return <NoDreams />;
+    return (
+      <>
+        <h2 className="container text-3xl font-bold">Recent Dreams</h2>
+        <NoDreams />
+      </>
+    );
   }
 
   return (
     <section className="flex flex-1 flex-col">
       <div className="container flex flex-col gap-6">
         <div>
-          <h2 className="text-lg sm:text-2xl">Recent Dreams</h2>
+          <h2 className="text-3xl font-bold">Recent Dreams</h2>
         </div>
 
         {isLoading ? (

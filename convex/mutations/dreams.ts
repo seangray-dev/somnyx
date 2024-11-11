@@ -39,6 +39,7 @@ export const addNewDream = mutation({
     // Generate title and themes (these are free features)
     await ctx.scheduler.runAfter(
       0,
+      // @ts-ignore
       internal.mutations.openai.generateDreamTitle,
       { dreamId, details: args.details, emotions: args.emotions }
     );
