@@ -1,10 +1,13 @@
 "use client";
 
+import { Loader2Icon } from "lucide-react";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import useFetchInsight from "../../api/use-fetch-insight";
 import EmotionalInsights from "./emotional-insights";
 import GrowthInsights from "./growth-insights";
+import NoInsight from "./no-insight";
 import PatternInsights from "./pattern-insights";
 import Summary from "./summary";
 import ThemesInsightsTab from "./themes-insights";
@@ -12,8 +15,17 @@ import ThemesInsightsTab from "./themes-insights";
 export default function InsightsPage({ monthYear }: { monthYear: string }) {
   const { data: insight, isLoading } = useFetchInsight(monthYear);
 
-  if (isLoading || !insight) {
-    return null;
+  if (isLoading) {
+    return (
+      <div className="container flex flex-1 flex-col items-center justify-center gap-4">
+        <Loader2Icon size={32} className="animate-spin" />
+        <div>Loading Insight</div>
+      </div>
+    );
+  }
+
+  if (!insight) {
+    return <NoInsight monthYear={monthYear} />;
   }
 
   const {

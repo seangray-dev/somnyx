@@ -31,6 +31,7 @@ import type * as queries_dreams from "../queries/dreams.js";
 import type * as queries_emotions from "../queries/emotions.js";
 import type * as queries_insights from "../queries/insights.js";
 import type * as queries_roles from "../queries/roles.js";
+import type * as queries_scheduler from "../queries/scheduler.js";
 import type * as queries from "../queries.js";
 import type * as stripe from "../stripe.js";
 import type * as users from "../users.js";
@@ -61,6 +62,7 @@ declare const fullApi: ApiFromModules<{
   "queries/emotions": typeof queries_emotions;
   "queries/insights": typeof queries_insights;
   "queries/roles": typeof queries_roles;
+  "queries/scheduler": typeof queries_scheduler;
   queries: typeof queries;
   stripe: typeof stripe;
   users: typeof users;

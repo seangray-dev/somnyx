@@ -1,13 +1,14 @@
 import { v } from "convex/values";
 
 import { internal } from "../_generated/api";
+import { Id } from "../_generated/dataModel";
 import { internalMutation, mutation } from "../_generated/server";
 import { getMyUser } from "../users";
 import { CREDIT_COSTS } from "../util";
 
 export const generateInsight = mutation({
   args: { monthYear: v.string() },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<Id<"_scheduled_functions">> => {
     const user = await getMyUser(ctx, {});
 
     if (!user) throw new Error("You must be logged in.");
@@ -25,11 +26,17 @@ export const generateInsight = mutation({
       }
     );
 
-    await ctx.scheduler.runAfter(0, internal.mutations.openai.generateInsight, {
-      dreams,
-      userId: user.userId,
-      monthYear: args.monthYear,
-    });
+    const functionId = await ctx.scheduler.runAfter(
+      0,
+      internal.mutations.openai.generateInsight,
+      {
+        dreams,
+        userId: user.userId,
+        monthYear: args.monthYear,
+      }
+    );
+
+    return functionId;
   },
 });
 
