@@ -53,7 +53,7 @@ export default function NoInsight({ monthYear }: { monthYear: string }) {
         height={100}
       />
       <div>
-        It looks like you don't have an insight for{" "}
+        It looks like you don&apos;t have an insight for{" "}
         <span className="font-bold">{formattedMonthYear}</span> yet.
       </div>
       <div className="w-full">
