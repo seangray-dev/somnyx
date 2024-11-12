@@ -8,7 +8,7 @@
     "dev:frontend": "next dev --experimental-https",
     "dev:backend": "convex dev --typecheck=disable",
     "build": "next build",
-    "start": "concurrently \"npm run dev:frontend\" \"npm rundev:backend\"",
+    "start": "next start",
     "lint": "next lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "stripe:listen": "stripe listen --forward-to https://vivid-hornet-727.convex.site/stripe",
