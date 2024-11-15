@@ -1,35 +1,19 @@
-import Link from "next/link";
-
-import { SparklesIcon } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import CTAButton from "./CTA-button";
 
 export default function HeroSection() {
   return (
     <section className="container py-28 lg:py-48">
       <div className="flex flex-col items-center justify-center space-y-6 text-center">
-        <div className="space-y-2">
-          <h1 className="font-lora text-balance text-5xl font-bold tracking-tighter xl:text-6xl/none">
-            Somnyx
+        <div className="space-y-3">
+          <h1 className="text-balance text-3xl font-bold tracking-tighter md:text-4xl lg:text-5xl xl:text-6xl/none">
+            Never Let Another Dream Slip Away
           </h1>
-          <div className="text-balance text-muted-foreground md:text-xl">
-            Derived from <em>somnus</em> (Latin for <em>sleep</em>) and{" "}
-            <em>Nyx</em> (Greek goddess of the <em>night</em>
-            ). Somnyx is your elegant space to <em>capture</em> and{" "}
-            <em>explore</em> the hidden world of dreams.
-          </div>
+          <p className="max-w-[80ch] text-balance text-muted-foreground md:text-xl">
+            Turn your morning dream fragments into meaningful insights with
+            AI-powered interpretation, before those precious moments fade away.
+          </p>
         </div>
-        <div className="flex flex-col gap-2">
-          <Button asChild>
-            <Link
-              href={{ pathname: "/dashboard" }}
-              className="flex items-center gap-2"
-            >
-              <SparklesIcon size={16} />
-              <span>Analyze Your Dreams</span>
-            </Link>
-          </Button>
-        </div>
+        <CTAButton />
       </div>
     </section>
   );

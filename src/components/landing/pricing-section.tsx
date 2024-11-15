@@ -167,7 +167,10 @@ export default function PricingSection() {
         </div>
         <div className="flex flex-col gap-8 md:grid md:grid-cols-2 xl:grid-cols-4">
           {pricingOptions.map((option) => (
-            <Card key={option.name} className="flex flex-col">
+            <Card
+              key={option.name}
+              className="mx-auto flex max-w-[60ch] flex-col"
+            >
               <CardHeader>
                 <CardTitle className="font-bold">{option.name}</CardTitle>
                 <CardDescription className="text-pretty font-medium">
