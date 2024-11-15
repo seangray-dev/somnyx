@@ -27,7 +27,7 @@ export default function HowItWorksSection() {
   ];
 
   return (
-    <section className="py-28">
+    <section id="how-it-works" className="py-28">
       <div className="container flex flex-col gap-10">
         <div className="mx-auto max-w-[80ch] space-y-4 text-center">
           <h2 className="text-balance text-3xl font-bold tracking-tighter xl:text-4xl/none">

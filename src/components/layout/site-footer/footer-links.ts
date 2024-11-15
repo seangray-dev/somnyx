@@ -1,7 +1,8 @@
 export const resourcesLinks = [
   { label: "Contact", href: "/contact" },
+  { label: "Pricing", href: "/#pricing" },
   { label: "Blog", href: "/blog" },
-  { label: "FAQs", href: "#" },
+  { label: "FAQs", href: "/#faq" },
 ];
 
 export const legalLinks = [

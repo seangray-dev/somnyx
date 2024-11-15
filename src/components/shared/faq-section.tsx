@@ -40,7 +40,7 @@ export default function FAQSection() {
   ];
 
   return (
-    <section className="container py-28">
+    <section id="faq" className="container py-28">
       <div className="flex flex-col items-center gap-10 md:gap-20">
         <div className="mx-auto max-w-[80ch] space-y-4 text-center">
           <h5 className="text-balance text-3xl font-bold tracking-tighter md:text-4xl">

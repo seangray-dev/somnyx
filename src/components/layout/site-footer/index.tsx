@@ -24,7 +24,8 @@ export default function SiteFooter() {
             {resourcesLinks.map((link) => (
               <Link
                 className="hover:text-foreground hover:underline"
-                href={{ pathname: link.href }}
+                // @ts-expect-error
+                href={link.href}
                 key={link.href}
               >
                 {link.label}
