@@ -2,7 +2,7 @@ import { BookPlus, Download, Stars } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import CTAButton from "./cta-button";
+import CtaButton from "./cta-button";
 
 export default function HowItWorksSection() {
   const steps = [
@@ -61,7 +61,7 @@ export default function HowItWorksSection() {
             </Card>
           ))}
         </div>
-        <CTAButton />
+        <CtaButton />
       </div>
     </section>
   );
