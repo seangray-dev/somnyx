@@ -4,7 +4,7 @@ import { SparklesIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-export default function CtaButton() {
+export default function ButtonCTA() {
   return (
     <Button asChild>
       <Link

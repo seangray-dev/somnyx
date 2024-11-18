@@ -2,9 +2,8 @@ import { BookPlus, Download, Stars } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import CtaButton from "./cta-button";
-
 export default function HowItWorksSection() {
+import ButtonCTA from "./button-cta";
   const steps = [
     {
       title: "Sign Up",
@@ -61,7 +60,7 @@ export default function HowItWorksSection() {
             </Card>
           ))}
         </div>
-        <CtaButton />
+        <ButtonCTA />
       </div>
     </section>
   );

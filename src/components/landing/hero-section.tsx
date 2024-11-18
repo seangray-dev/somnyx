@@ -1,4 +1,4 @@
-import CtaButton from "./cta-button";
+import ButtonCTA from "./button-cta";
 
 export default function HeroSection() {
   return (
@@ -13,7 +13,7 @@ export default function HeroSection() {
             AI-powered interpretation, before those precious moments fade away.
           </p>
         </div>
-        <CtaButton />
+        <ButtonCTA />
       </div>
     </section>
   );
