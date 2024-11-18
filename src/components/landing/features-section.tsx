@@ -40,7 +40,10 @@ export default function FeaturesSection() {
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {features.map((feature) => (
-            <Card className="mx-auto max-w-[60ch] text-center">
+            <Card
+              key={feature.title}
+              className="mx-auto max-w-[60ch] text-center"
+            >
               <CardHeader className="flex flex-col items-center justify-center gap-4">
                 <div className="flex items-center justify-center">
                   <div className="rounded-full border-l-primary bg-gradient-to-l from-primary/50 to-transparent p-4 dark:border-l-2">

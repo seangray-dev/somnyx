@@ -2,7 +2,7 @@ import { BookPlus, Download, Stars } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import CTAButton from "./CTA-button";
+import CTAButton from "./cta-button";
 
 export default function HowItWorksSection() {
   const steps = [
@@ -41,7 +41,10 @@ export default function HowItWorksSection() {
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {steps.map((step) => (
-            <Card className="mx-auto max-w-[60ch] bg-secondary text-center">
+            <Card
+              key={step.title}
+              className="mx-auto max-w-[60ch] bg-secondary text-center"
+            >
               <CardHeader className="flex flex-col items-center justify-center gap-4">
                 <div className="flex items-center justify-center">
                   <div className="rounded-full border-l-primary bg-gradient-to-l from-primary/50 to-transparent p-4 dark:border-l-2">

@@ -47,8 +47,8 @@ export default function FAQSection() {
             Frequently Asked Questions
           </h5>
           <p className="text-balance text-muted-foreground">
-            Here are some common questions we've answered to make your dream
-            journaling experience smooth and informed.
+            Here are some common questions we&apos;ve answered to make your
+            dream journaling experience smooth and informed.
           </p>
         </div>
         <div className="w-full">

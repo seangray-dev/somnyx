@@ -1,4 +1,4 @@
-import CTAButton from "./CTA-button";
+import CTAButton from "./cta-button";
 
 export default function HeroSection() {
   return (
