@@ -30,12 +30,16 @@ export default function BlogPage() {
   const posts = getAllPosts();
 
   return (
-    <section className="container py-6">
-      <div className="pb-6 sm:space-y-2">
-        <h1 className="text-3xl font-bold sm:text-5xl">Somnyx Blog</h1>
-        <p className="text-muted-foreground">Explore our latest blog posts.</p>
+    <section>
+      <div className="bg-secondary py-20 sm:space-y-2">
+        <div className="container flex flex-col gap-4 text-center">
+          <h1 className="text-3xl font-bold sm:text-5xl">Somnyx Blog</h1>
+          <p className="mx-auto max-w-[80ch] text-balance text-muted-foreground">
+            Guides, articles, and tips to get the most out of dream journaling.
+          </p>
+        </div>
       </div>
-      <ul className="flex flex-col gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="container flex flex-col gap-4 pt-12 sm:grid sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => (
           <li key={post.slug}>
             <BlogPostCard {...post} />
