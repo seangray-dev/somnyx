@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Somnyx is a platform for exploring and analyzing dreams.",
     start_url: "/",
     display: "standalone",
-    background_color: "#fff",
-    theme_color: "#fff",
+    background_color: "#030712",
+    theme_color: "#030712",
     icons: [
       {
         src: "/favicon.ico",
