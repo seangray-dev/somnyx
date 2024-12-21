@@ -17,10 +17,9 @@ export default defineSchema({
     .index("by_subscriptionId", ["subscriptionId"]),
 
   rateLimits: defineTable({
-    key: v.string(),
-    count: v.number(),
+    ipAddress: v.string(),
     expires: v.number(),
-  }).index("by_key", ["key"]),
+  }).index("by_ip", ["ipAddress"]),
 
   emotions: defineTable({
     name: v.string(),
@@ -213,4 +212,12 @@ export default defineSchema({
   })
     .index("by_userId", ["userId"])
     .index("by_userId_and_monthYear", ["userId", "monthYear"]),
+
+  messages: defineTable({
+    body: v.string(),
+    author: v.string(),
+    isComplete: v.boolean(),
+    conversationId: v.string(),
+    createdAt: v.number(),
+  }).index("by_conversation", ["conversationId"]),
 });
