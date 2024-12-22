@@ -123,39 +123,6 @@ http.route({
   handler: httpAction(async (ctx, request) => {
     try {
       const body = await request.json();
-      const forwardedFor = request.headers.get("x-forwarded-for");
-      const ipAddress = forwardedFor
-        ? forwardedFor.split(",")[0].trim()
-        : "unknown";
-
-      // Check rate limit
-      const usage = await ctx.runQuery(internal.queries.rateLimits.get, {
-        ipAddress,
-      });
-
-      if (usage?.expires && usage.expires > Date.now()) {
-        return new Response(
-          JSON.stringify({
-            error: "Rate limit exceeded. Please try again tomorrow.",
-          }),
-          {
-            status: 429,
-            headers: {
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": "*",
-              Vary: "origin",
-            },
-          }
-        );
-      }
-
-      // Set or update rate limit
-      const tomorrow = Date.now() + 24 * 60 * 60 * 1000;
-      await ctx.runMutation(internal.mutations.rateLimits.upsert, {
-        ipAddress,
-        expires: tomorrow,
-      });
-
       const messageId: Id<"messages"> = body.messageId;
       const messages: Doc<"messages">[] = body.messages;
 
@@ -163,9 +130,9 @@ http.route({
       const { readable, writable } = new TransformStream();
       const writer = writable.getWriter();
       const textEncoder = new TextEncoder();
+      let content = "";
 
       const streamData = async () => {
-        let content = "";
         try {
           const openai = new OpenAI({
             apiKey: process.env.OPENAI_API_KEY,
@@ -231,6 +198,10 @@ http.route({
 
       // Start streaming
       void streamData();
+
+      await ctx.runAction(internal.mutations.openai.determineDreamThemesFree, {
+        details: content,
+      });
 
       return new Response(readable, {
         headers: {

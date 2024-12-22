@@ -445,3 +445,72 @@ export const generateInsight = internalAction({
     });
   },
 });
+
+export const determineDreamThemesFree = internalAction({
+  args: {
+    details: v.string(),
+  },
+  async handler(ctx, args) {
+    const userPrompt = `Details: ${args.details}`;
+
+    const response = await openai.beta.chat.completions.parse({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a dream analyis expert. Given the following details, and emotions associated with the dream, determine the themes present in the dream - use only one word (keywords for programmatic SEO related to dreams). 1-2 themes maximum. Do not return special characters, only letters",
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+      response_format: zodResponseFormat(Themes, "themes"),
+      temperature: 0.8,
+    });
+
+    let themes = response.choices[0].message.parsed?.themes;
+
+    if (!themes || themes.length === 0) {
+      throw new Error("Failed to generate themes");
+    }
+
+    if (themes.length > 2) {
+      themes = themes.slice(0, 2);
+    }
+
+    const commonThemes = await Promise.all(
+      themes.map(async (theme) => {
+        const commonTheme = await ctx.runQuery(
+          internal.queries.commonThemes.getCommonThemes,
+          {
+            name: theme,
+          }
+        );
+
+        if (commonTheme) {
+          await ctx.runMutation(
+            internal.mutations.commonThemes.incrementCommonThemeCount,
+            {
+              name: theme,
+            }
+          );
+
+          return commonTheme;
+        } else {
+          await ctx.runMutation(
+            internal.mutations.commonThemes.addNewCommonTheme,
+            {
+              name: theme,
+            }
+          );
+
+          return theme;
+        }
+      })
+    );
+
+    return;
+  },
+});
