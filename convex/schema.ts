@@ -16,11 +16,6 @@ export default defineSchema({
     .index("by_email", ["email"])
     .index("by_subscriptionId", ["subscriptionId"]),
 
-  rateLimits: defineTable({
-    ipAddress: v.string(),
-    expires: v.number(),
-  }).index("by_ip", ["ipAddress"]),
-
   emotions: defineTable({
     name: v.string(),
     emoji: v.string(),
@@ -220,4 +215,13 @@ export default defineSchema({
     conversationId: v.string(),
     createdAt: v.number(),
   }).index("by_conversation", ["conversationId"]),
+
+  commonThemes: defineTable({
+    name: v.string(),
+    count: v.number(),
+  })
+    .index("by_name", ["name"])
+    .searchIndex("search_name", {
+      searchField: "name",
+    }),
 });

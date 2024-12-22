@@ -1,6 +1,6 @@
-import Chat from "@/components/dream-meaning/chat";
 import { default as DreamMeaningFaqSection } from "@/components/dream-meaning/faq-section";
 import FooterCtaSection from "@/components/dream-meaning/footer-cta-section";
+import Analysis from "@/features/free-analysis/components/analysis";
 
 export default function page() {
   return (
@@ -25,8 +25,9 @@ export default function page() {
           </p>
         </div>
       </section>
-      {/* UserInput (Include voice to text input) + Response (Chat like feel - streaming) */}
-      <Chat />
+      <section className="container mx-auto flex max-w-3xl flex-col gap-6 pb-28">
+        <Analysis />
+      </section>
 
       <div></div>
       {/* Top Themes (Static pages generated) - links to dream-meaning/[theme] */}

@@ -7,7 +7,7 @@ import { MicIcon, StopCircleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function SpeechToTextButton({
-  onTranscript = (text: string) => {},
+  onTranscript = (text: string) => { },
 }: {
   onTranscript?: (text: string) => void;
 }) {

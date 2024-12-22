@@ -16,6 +16,8 @@ export const env = createEnv({
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
     STRIPE_CONNECT_WEBHOOK_SECRET: z.string().min(1),
     OPENAI_API_KEY: z.string().min(1),
+    REDIS_URL: z.string().min(1),
+    REDIS_TOKEN: z.string().min(1),
   },
   onValidationError: (error: ZodError) => {
     console.error(

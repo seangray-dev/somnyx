@@ -2,36 +2,36 @@
 
 import { useEffect, useState } from "react";
 
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { ArrowUpIcon } from "lucide-react";
+import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { env } from "@/config/env/client";
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
+import SpeechToTextButton from "@/features/free-analysis/components/speech-to-text-button";
 import { cn } from "@/lib/utils";
 
-import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
-import SpeechToTextButton from "./speech-to-text-button";
+import useMessagesQuery from "../api/use-messages-query";
 
-export default function DreamInput() {
-  const [conversationId, setConversationId] = useState<string>("");
-
-  useEffect(() => {
-    const storedId = localStorage.getItem("dreamConversationId");
-    const newId = storedId || crypto.randomUUID();
-    if (!storedId) {
-      localStorage.setItem("dreamConversationId", newId);
-    }
-    setConversationId(newId);
-  }, []);
-
-  const messages = useQuery(api.queries.message.list, { conversationId }) ?? [];
+export default function Analysis() {
+  const { data: messages, conversationId } = useMessagesQuery();
   const sendMessage = useMutation(api.mutations.message.send);
   const [newMessageText, setNewMessageText] = useState("");
   const [streamedMessage, setStreamedMessage] = useState("");
   const [streamedMessageId, setStreamedMessageId] =
     useState<Id<"messages"> | null>(null);
+
+  useEffect(() => {
+    const message = messages.find((m) => m._id === streamedMessageId);
+    if (message !== undefined && message.isComplete) {
+      // Clear what we streamed in favor of the complete message
+      setStreamedMessageId(null);
+      setStreamedMessage("");
+    }
+  }, [messages, setStreamedMessage, setStreamedMessageId]);
 
   const handleTranscript = (text: string) => {
     setNewMessageText((prev) => {
@@ -59,18 +59,12 @@ export default function DreamInput() {
       });
 
       if (!response.ok) {
-        console.error(
-          "Error response:",
-          response.status,
-          await response.text()
-        );
-        return;
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const responseBody = response.body;
       if (responseBody === null) {
-        console.error("No response body");
-        return;
+        throw new Error("No response body");
       }
 
       const reader = responseBody.getReader();
@@ -84,34 +78,41 @@ export default function DreamInput() {
       }
     } catch (error) {
       console.error("Error in handleGptResponse:", error);
+      toast.error("An error occurred while interpreting your dream.");
     }
   }
 
-  // Don't render until we have a conversationId
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // Check rate limit first
+
+    try {
+      const result = await sendMessage({
+        body: newMessageText,
+        author: "user",
+        conversationId,
+      });
+      setNewMessageText("");
+
+      if (result !== null) {
+        const messageId = result.messageId;
+        setStreamedMessageId(messageId);
+        await handleGptResponse((text) => {
+          setStreamedMessage((p) => p + text);
+        }, result);
+      }
+    } catch (error) {
+      console.error("Send message error:", error);
+      toast.error("Failed to send your dream. Please try again.");
+    }
+  };
+
   if (!conversationId) return null;
 
   return (
     <div className="flex flex-col gap-6">
-      <form
-        className="relative"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          const result = await sendMessage({
-            body: newMessageText,
-            author: "user",
-            conversationId,
-          });
-          setNewMessageText("");
-
-          if (result !== null) {
-            const messageId = result.messageId;
-            setStreamedMessageId(messageId);
-            await handleGptResponse((text) => {
-              setStreamedMessage((p) => p + text);
-            }, result);
-          }
-        }}
-      >
+      <form onSubmit={handleSubmit} className="relative">
         <Textarea
           name="message"
           rows={6}
@@ -128,30 +129,30 @@ export default function DreamInput() {
         </div>
       </form>
 
-      {messages.map((message) => {
-        const messageText =
-          streamedMessageId === message._id ? streamedMessage : message.body;
-        return (
-          <div
-            key={message._id}
+      {messages.map((message) => (
+        <div
+          key={message._id}
+          className={cn(
+            "flex flex-col items-start",
+            message.author === "user" ? "items-end" : ""
+          )}
+        >
+          <article
             className={cn(
-              "flex flex-col items-start",
-              message.author === "user" ? "items-end" : ""
+              "group flex max-w-prose justify-start text-pretty rounded px-3 py-2",
+              message.author === "user"
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary"
             )}
           >
-            <article
-              className={cn(
-                "group flex max-w-prose justify-start text-pretty rounded px-3 py-2",
-                message.author === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary"
-              )}
-            >
-              <p>{messageText}</p>
-            </article>
-          </div>
-        );
-      })}
+            <p>
+              {message._id === streamedMessageId
+                ? streamedMessage
+                : message.body}
+            </p>
+          </article>
+        </div>
+      ))}
     </div>
   );
 }
