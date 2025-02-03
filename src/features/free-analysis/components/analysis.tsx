@@ -108,8 +108,6 @@ export default function Analysis() {
     }
   };
 
-  if (!conversationId) return null;
-
   return (
     <div className="flex flex-col gap-6">
       <form onSubmit={handleSubmit} className="relative">

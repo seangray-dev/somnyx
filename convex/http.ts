@@ -1,6 +1,7 @@
 import { httpRouter } from "convex/server";
 import OpenAI from "openai";
 
+import { createRateLimit } from "../src/lib/rate-limit";
 import { internal } from "./_generated/api";
 import { Doc, Id } from "./_generated/dataModel";
 import { httpAction } from "./_generated/server";
@@ -123,8 +124,18 @@ http.route({
   handler: httpAction(async (ctx, request) => {
     try {
       const body = await request.json();
+      const { conversationId } = body;
       const messageId: Id<"messages"> = body.messageId;
       const messages: Doc<"messages">[] = body.messages;
+
+      const rateLimit = createRateLimit(1, 24 * 60 * 60);
+      const { success } = await rateLimit.limit(conversationId);
+
+      if (!success) {
+        return new Response("Please wait 24 hours between dream analyses", {
+          status: 429,
+        });
+      }
 
       // Create streaming response
       const { readable, writable } = new TransformStream();
