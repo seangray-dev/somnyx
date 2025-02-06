@@ -1,9 +1,37 @@
 import { v } from "convex/values";
 
-import { internal } from "../_generated/api";
 import { internalMutation, mutation } from "../_generated/server";
 
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000; // in milliseconds
+
+export const cleanupExpiredMessages = internalMutation({
+  handler: async (ctx) => {
+    // Get all messages older than 24 hours
+    const expiredMessages = await ctx.db
+      .query("messages")
+      .filter((q) => q.lt(q.field("createdAt"), Date.now() - TWENTY_FOUR_HOURS))
+      .collect();
+
+    // Group messages by conversation for efficient cleanup
+    const conversationIds = new Set(
+      expiredMessages.map((message) => message.conversationId)
+    );
+
+    // Delete all expired messages in batches to avoid timeout
+    for (const message of expiredMessages) {
+      await ctx.db.delete(message._id);
+    }
+
+    console.log(
+      `Cleaned up ${expiredMessages.length} expired messages from ${conversationIds.size} conversations`
+    );
+
+    return {
+      deletedCount: expiredMessages.length,
+      conversationCount: conversationIds.size,
+    };
+  },
+});
 
 export const send = mutation({
   args: {
@@ -21,15 +49,6 @@ export const send = mutation({
       createdAt: Date.now(),
     });
 
-    // Schedule deletion for user message
-    await ctx.scheduler.runAfter(
-      TWENTY_FOUR_HOURS,
-      internal.mutations.message.destruct,
-      {
-        messageId: userMessageId,
-      }
-    );
-
     // Create AI message placeholder
     const aiMessageId = await ctx.db.insert("messages", {
       body: "...",
@@ -38,14 +57,6 @@ export const send = mutation({
       isComplete: false,
       createdAt: Date.now(),
     });
-
-    await ctx.scheduler.runAfter(
-      TWENTY_FOUR_HOURS,
-      internal.mutations.message.destruct,
-      {
-        messageId: aiMessageId,
-      }
-    );
 
     // Get conversation messages
     const messages = await ctx.db
@@ -75,6 +86,9 @@ export const destruct = internalMutation({
     messageId: v.id("messages"),
   },
   handler: async (ctx, { messageId }) => {
+    const message = await ctx.db.get(messageId);
+    if (!message) return;
+
     await ctx.db.delete(messageId);
   },
 });
