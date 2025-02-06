@@ -23,6 +23,7 @@ export const addNewCommonTheme = internalMutation({
     return await ctx.db.insert("commonThemes", {
       name,
       count: 1,
+      updatedAt: Date.now(),
     });
   },
 });
@@ -45,6 +46,7 @@ export const incrementCommonThemeCount = internalMutation({
 
     return await ctx.db.patch(theme._id, {
       count: (theme.count || 0) + 1,
+      updatedAt: Date.now(),
     });
   },
 });

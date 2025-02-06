@@ -219,6 +219,7 @@ export default defineSchema({
   commonThemes: defineTable({
     name: v.string(),
     count: v.number(),
+    updatedAt: v.number(),
   })
     .index("by_name", ["name"])
     .searchIndex("search_name", {
