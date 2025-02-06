@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useMutation } from "convex/react";
-import { ArrowUpIcon } from "lucide-react";
+import { ArrowUpIcon, Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { env } from "@/config/env/client";
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import SpeechToTextButton from "@/features/free-analysis/components/speech-to-text-button";
 import { cn } from "@/lib/utils";
 
 import useMessagesQuery from "../api/use-messages-query";
@@ -23,24 +22,9 @@ export default function Analysis() {
   const [streamedMessage, setStreamedMessage] = useState("");
   const [streamedMessageId, setStreamedMessageId] =
     useState<Id<"messages"> | null>(null);
-
-  useEffect(() => {
-    const message = messages.find((m) => m._id === streamedMessageId);
-    if (message !== undefined && message.isComplete) {
-      // Clear what we streamed in favor of the complete message
-      setStreamedMessageId(null);
-      setStreamedMessage("");
-    }
-  }, [messages, setStreamedMessage, setStreamedMessageId]);
-
-  const handleTranscript = (text: string) => {
-    setNewMessageText((prev) => {
-      if (prev) {
-        return `${prev} ${text}`;
-      }
-      return text;
-    });
-  };
+  const [isRecording, setIsRecording] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleGptResponse(
     onUpdate: (update: string) => void,
@@ -85,7 +69,11 @@ export default function Analysis() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Check rate limit first
+    if (isSubmitting || isRecording || !newMessageText.trim()) {
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
       const result = await sendMessage({
@@ -105,24 +93,53 @@ export default function Analysis() {
     } catch (error) {
       console.error("Send message error:", error);
       toast.error("Failed to send your dream. Please try again.");
+      setIsSubmitting(false);
     }
   };
 
+  useEffect(() => {
+    return () => {
+      setIsSubmitting(false);
+      setStreamedMessageId(null);
+      setStreamedMessage("");
+      setIsRecording(false);
+    };
+  }, []);
+
+  const isButtonDisabled =
+    !newMessageText.trim() || isRecording || isSubmitting;
+
   return (
     <div className="flex flex-col gap-6">
-      <form onSubmit={handleSubmit} className="relative">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
         <Textarea
+          ref={textareaRef}
           name="message"
           rows={6}
           value={newMessageText}
           onChange={(e) => setNewMessageText(e.target.value)}
           placeholder="Describe your dream..."
           className="resize-none"
+          disabled={isSubmitting}
         />
-        <div className="absolute bottom-2 right-2 flex gap-1">
-          <SpeechToTextButton onTranscript={handleTranscript} />
-          <Button type="submit" size="icon" disabled={!newMessageText.trim()}>
-            <ArrowUpIcon size={18} />
+        <div className="flex justify-end gap-2">
+          {/* <SpeechToTextButton
+            onTranscript={handleTranscript}
+            isRecording={isRecording}
+            onRecordingChange={setIsRecording}
+            disabled={isSubmitting}
+          /> */}
+          <Button
+            type="submit"
+            size="icon"
+            disabled={isButtonDisabled}
+            className="relative"
+          >
+            {isSubmitting ? (
+              <Loader2Icon size={18} className="animate-spin" />
+            ) : (
+              <ArrowUpIcon size={18} />
+            )}
           </Button>
         </div>
       </form>
@@ -144,7 +161,7 @@ export default function Analysis() {
             )}
           >
             <p>
-              {message._id === streamedMessageId
+              {message._id === streamedMessageId && !message.isComplete
                 ? streamedMessage
                 : message.body}
             </p>
