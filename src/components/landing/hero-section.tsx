@@ -1,9 +1,19 @@
 import { ChevronsDown } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+
 import ButtonCTA from "./button-cta";
 import DreamScene from "./dream-scene";
 
 export default function HeroSection() {
+  const scrollToNextSection = () => {
+    const heroHeight = window.innerHeight - 70;
+    window.scrollTo({
+      top: heroHeight,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <section className="relative flex min-h-[calc(100vh-70px)] items-center justify-center overflow-hidden">
       <DreamScene />
@@ -22,10 +32,16 @@ export default function HeroSection() {
         </div>
       </div>
       {/* Scroll Indicator */}
-      <div className="pointer-events-none absolute left-1/2 top-[calc(100vh-120px)] -translate-x-1/2">
-        <div className="animate-scroll-bounce text-foreground/60">
+      <div className="animate-scroll-bounce absolute left-1/2 top-[calc(100vh-120px)] -translate-x-1/2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-foreground/60 transition-colors hover:text-foreground/80"
+          onClick={scrollToNextSection}
+        >
           <ChevronsDown size={32} strokeWidth={1.5} />
-        </div>
+          <span className="sr-only">Scroll to next section</span>
+        </Button>
       </div>
     </section>
   );
