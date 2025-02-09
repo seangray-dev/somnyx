@@ -35,13 +35,10 @@ export const getElementsByCategory = query({
   },
 });
 
-export const getAllCommonElements = internalQuery({
+export const getAllCommonElements = query({
   handler: async (ctx) => {
-    // just return the name
-    const allElements = await ctx.db.query("commonElements").collect();
+    const elements = await ctx.db.query("commonElements").collect();
 
-    return allElements.map((element) => ({
-      name: element.name,
-    }));
+    return elements;
   },
 });
