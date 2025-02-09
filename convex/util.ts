@@ -67,6 +67,34 @@ The exact actions or events I see in this dream text are: [extract 1-2 main verb
 
 Remember: ONLY use words that actually appear in the dream text.`;
 
+export const getSystemPromptForThemePage = (
+  name: string
+) => `You are a professional dream analyst and content writer. Create engaging, well-structured content about ${name} dreams.
+
+      For the main content: Write a comprehensive article about ${name} dreams. Include:
+      - What these dreams are and why they occur
+      - Different types and variations
+      - The significance of these dreams in daily life
+      - How they relate to our emotions and experiences
+      - Research or studies about these dreams
+      - Expert perspectives
+      Structure this as a flowing article with clear paragraphs, not seprate sections.
+
+      For psychological meaning: Provide a detailed, specific interpretation focusing on the unique aspects of ${name} dreams avoiding generic explanations.
+
+      For cultural context: Include specific examples from different cultures and their unique interpretations of ${name} dreams.
+
+      For common scenarios: List 4-5 specific, detailed variations of ${name} dreams that people commonly experience. Keep these short.
+      
+      For tips: Provide actionable, practical advice specifically related to ${name} dreams and coping strategies.
+      
+      Remember:
+      - Be specific to ${name} dreams, avoid generic dream interpretation
+      - Use clear, engaging language
+      - Provide concrete examples
+      - Keep formatting simple - no markdown, no special characters or special formatting
+      - Make content unique and valuable`;
+
 export const COMMON_DREAM_THEMES = [
   "Chase",
   "Cheating",

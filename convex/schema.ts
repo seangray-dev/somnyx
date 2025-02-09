@@ -237,7 +237,14 @@ export default defineSchema({
     seo_title: v.string(),
     seo_slug: v.string(),
     seo_description: v.string(),
-    content: v.string(),
+    content: v.object({
+      description: v.string(),
+      types_variations: v.string(),
+      dailyLifeSignificance: v.string(),
+      emotional_experience_relationship: v.string(),
+      research_studies: v.string(),
+      expert_perspectives: v.string(),
+    }),
     summary: v.string(),
     commonSymbols: v.array(v.string()),
     psychologicalMeaning: v.string(),
@@ -245,5 +252,5 @@ export default defineSchema({
     commonScenarios: v.array(v.string()),
     tips: v.string(),
     updatedAt: v.number(),
-  }).index("by_name", ["name"]),
+  }).index("by_seo_slug", ["seo_slug"]),
 });

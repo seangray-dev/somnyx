@@ -6,7 +6,7 @@ import { z } from "zod";
 import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import { internalAction } from "../_generated/server";
-import { SYSTEM_PROMPT } from "../util";
+import { SYSTEM_PROMPT, getSystemPromptForThemePage } from "../util";
 import { ThemePage } from "../zodSchemas";
 
 const openai = new OpenAI();
@@ -532,6 +532,7 @@ export const initThemePages = internalAction({
   async handler(ctx) {
     try {
       const commonElements = await ctx.runQuery(
+        // @ts-ignore
         internal.queries.commonElements.getAllCommonElements
       );
 
@@ -556,23 +557,10 @@ export const initThemePages = internalAction({
             continue;
           }
 
-          const systemPrompt = `You are a copywriting and dream analysis expert. Create comprehensive blog content about ${element.name} dreams.
-                      
-          Include:
-          - SEO-friendly title and description
-          - Main Content
-          - Brief summary
-          - Common symbols
-          - Psychological interpretation / meaning
-          - Cultural context / perspectives
-          - Common Scenarios
-          - Tips for understanding these dreams and dealing with them.
-          
-          Do not include any special characters. No markdown. 
-          `;
+          const systemPrompt = getSystemPromptForThemePage(element.name);
 
           const response = await openai.beta.chat.completions.parse({
-            model: "gpt-4o-mini",
+            model: "gpt-4o",
             messages: [
               {
                 role: "system",
@@ -603,7 +591,7 @@ export const initThemePages = internalAction({
           await ctx.runMutation(internal.mutations.themePages.createThemePage, {
             name: element.name,
             seo_title: page.seo_title,
-            seo_slug: element.name,
+            seo_slug: element.name.toLowerCase(),
             seo_description:
               page.seo_description ||
               `Learn about ${element.name} dreams and their meaning`,

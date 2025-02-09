@@ -9,7 +9,7 @@ export const getThemePageByName = internalQuery({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("themePages")
-      .withIndex("by_name", (q) => q.eq("name", args.name))
+      .withIndex("by_seo_slug", (q) => q.eq("seo_slug", args.name))
       .first();
   },
 });
@@ -21,7 +21,7 @@ export const getThemePageByNamePublic = query({
   handler: async (ctx, args) => {
     const themePage = await ctx.db
       .query("themePages")
-      .withIndex("by_name", (q) => q.eq("name", args.name))
+      .withIndex("by_seo_slug", (q) => q.eq("seo_slug", args.name))
       .first();
 
     if (!themePage) {

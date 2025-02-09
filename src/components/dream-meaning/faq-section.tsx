@@ -74,7 +74,7 @@ export default function DreamMeaningFaqSection() {
               <AccordionItem
                 key={faq.question}
                 value={faq.question}
-                className="rounded-xl border bg-gradient-to-tr from-transparent via-transparent to-secondary/50 p-8 text-left"
+                className="rounded-xl border bg-gradient-to-tr from-transparent via-transparent to-secondary/50 p-8 text-left text-pretty"
               >
                 <AccordionTrigger className="text-left font-sans font-medium">
                   {faq.question}
