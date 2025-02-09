@@ -1,4 +1,4 @@
-export * from "./queries/commonThemes";
+export * from "./queries/commonElements";
 export * from "./queries/dreams";
 export * from "./queries/emotions";
 export * from "./queries/message";

@@ -25,7 +25,7 @@ http.route({
   method: "POST",
   handler: httpAction(async (ctx, request) => {
     const signature: string = request.headers.get("stripe-signature") as string;
-
+    // @ts-ignore
     const result = await ctx.runAction(internal.stripe.fulfill, {
       signature,
       payload: await request.text(),
@@ -210,9 +210,10 @@ http.route({
       // Start streaming
       void streamData();
 
-      await ctx.runAction(internal.mutations.openai.determineDreamThemesFree, {
-        details: content,
-      });
+      // ! Disable for now
+      // await ctx.runAction(internal.mutations.openai.determineDreamThemesFree, {
+      //   details: content,
+      // });
 
       return new Response(readable, {
         headers: {

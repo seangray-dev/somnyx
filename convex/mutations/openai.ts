@@ -7,6 +7,7 @@ import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import { internalAction } from "../_generated/server";
 import { SYSTEM_PROMPT } from "../util";
+import { ThemePage } from "../zodSchemas";
 
 const openai = new OpenAI();
 
@@ -20,6 +21,17 @@ const Analysis = z.object({
 
 const Themes = z.object({
   themes: z.array(z.string()),
+});
+
+const DreamElement = z.object({
+  name: z.string(),
+  category: z.string(),
+  confidence: z.number(),
+});
+
+const CommonElements = z.object({
+  themes: z.array(DreamElement),
+  symbols: z.array(DreamElement),
 });
 
 const Insight = z.object({
@@ -174,6 +186,7 @@ export const generateDreamTitle = internalAction({
   },
   async handler(ctx, args) {
     const emotions = await ctx.runQuery(
+      // @ts-ignore
       internal.queries.emotions.getEmotionsByIdsInternal,
       { ids: args.emotions }
     );
@@ -446,71 +459,180 @@ export const generateInsight = internalAction({
   },
 });
 
-export const determineDreamThemesFree = internalAction({
-  args: {
-    details: v.string(),
-  },
-  async handler(ctx, args) {
-    const userPrompt = `Details: ${args.details}`;
+// export const determineDreamThemesFree = internalAction({
+//   args: {
+//     details: v.string(),
+//   },
+//   async handler(ctx, args) {
+//     const userPrompt = `Details: ${args.details}`;
 
-    const response = await openai.beta.chat.completions.parse({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a dream analyis expert. Given the following details, and emotions associated with the dream, determine the themes present in the dream - use only one word (keywords for programmatic SEO related to dreams). 1-2 themes maximum. Do not return special characters, only letters",
-        },
-        {
-          role: "user",
-          content: userPrompt,
-        },
-      ],
-      response_format: zodResponseFormat(Themes, "themes"),
-      temperature: 0.8,
-    });
+//     const response = await openai.beta.chat.completions.parse({
+//       model: "gpt-4o-mini",
+//       messages: [
+//         {
+//           role: "system",
+//           content: SYSTEM_PROMPT_THEMES,
+//         },
+//         {
+//           role: "user",
+//           content: userPrompt,
+//         },
+//       ],
+//       response_format: zodResponseFormat(CommonElements, "commonElements"),
+//       temperature: 0.1,
+//     });
 
-    let themes = response.choices[0].message.parsed?.themes;
+//     console.info(response);
 
-    if (!themes || themes.length === 0) {
-      throw new Error("Failed to generate themes");
-    }
+//     try {
+//       const commonElements = response.choices[0].message.parsed;
 
-    if (themes.length > 2) {
-      themes = themes.slice(0, 2);
-    }
+//       if (!commonElements) {
+//         console.warn("No common elements found in response");
+//         return;
+//       }
 
-    const commonThemes = await Promise.all(
-      themes.map(async (theme) => {
-        const commonTheme = await ctx.runQuery(
-          internal.queries.commonThemes.getCommonThemes,
-          {
-            name: theme,
+//       const { themes, symbols } = commonElements;
+
+//       if (!themes || !symbols) {
+//         console.warn("No themes or symbols found in response");
+//         return;
+//       }
+
+//       for (const symbol of symbols) {
+//         if (symbol.confidence >= 0.7) {
+//           await ctx.runMutation(internal.mutations.commonElements.upsertDreamElement, {
+//             name: symbol.name.toLowerCase(),
+//             type: "symbol",
+//             category: symbol.category.toLowerCase(),
+//             confidence: symbol.confidence,
+//           });
+//         }
+//       }
+//       for (const theme of themes) {
+//         if (theme.confidence >= 0.7) {
+//           await ctx.runMutation(internal.mutations.commonElements.upsertDreamElement, {
+//               name: theme.name.toLowerCase(),
+//               type: "theme",
+//               category: theme.category.toLowerCase(),
+//               confidence: theme.confidence,
+//             });
+//           }
+//         }
+
+//       return;
+//     } catch (error) {
+//       console.error(error);
+//       throw new Error("Failed to generate common elements");
+//     }
+//   },
+// });
+
+export const initThemePages = internalAction({
+  async handler(ctx) {
+    try {
+      const commonElements = await ctx.runQuery(
+        internal.queries.commonElements.getAllCommonElements
+      );
+
+      // Better error handling for empty results
+      if (!commonElements || commonElements.length === 0) {
+        console.error("[InitThemePages]: No common elements found");
+        return;
+      }
+
+      for (const element of commonElements) {
+        try {
+          // Check if theme page already exists
+          const existingPage = await ctx.runQuery(
+            internal.queries.themePages.getThemePageByName,
+            { name: element.name }
+          );
+
+          if (existingPage) {
+            console.warn(
+              `[InitThemePages]: Theme page for "${element.name}" already exists, skipping`
+            );
+            continue;
           }
-        );
 
-        if (commonTheme) {
-          await ctx.runMutation(
-            internal.mutations.commonThemes.incrementCommonThemeCount,
-            {
-              name: theme,
-            }
+          const systemPrompt = `You are a copywriting and dream analysis expert. Create comprehensive blog content about ${element.name} dreams.
+                      
+          Include:
+          - SEO-friendly title and description
+          - Main Content
+          - Brief summary
+          - Common symbols
+          - Psychological interpretation / meaning
+          - Cultural context / perspectives
+          - Common Scenarios
+          - Tips for understanding these dreams and dealing with them.
+          
+          Do not include any special characters. No markdown. 
+          `;
+
+          const response = await openai.beta.chat.completions.parse({
+            model: "gpt-4o-mini",
+            messages: [
+              {
+                role: "system",
+                content: systemPrompt,
+              },
+              {
+                role: "user",
+                content: `Generate detailed content for ${element.name} dreams.`,
+              },
+            ],
+            response_format: zodResponseFormat(ThemePage, "themePage"),
+            temperature: 0.7,
+          });
+
+          const page = response.choices[0].message.parsed;
+
+          if (!page) {
+            throw new Error(`No page content generated for ${element.name}`);
+          }
+
+          // Validate required fields
+          if (!page.seo_title || !page.content || !page.summary) {
+            throw new Error(
+              `Missing required fields in generated content for ${element.name}`
+            );
+          }
+
+          await ctx.runMutation(internal.mutations.themePages.createThemePage, {
+            name: element.name,
+            seo_title: page.seo_title,
+            seo_slug: element.name,
+            seo_description:
+              page.seo_description ||
+              `Learn about ${element.name} dreams and their meaning`,
+            content: page.content,
+            summary: page.summary,
+            commonSymbols: page.commonSymbols || [],
+            psychologicalMeaning: page.psychologicalMeaning || "",
+            culturalContext: page.culturalContext || "",
+            commonScenarios: page.commonScenarios || [],
+            tips: page.tips || "",
+            updatedAt: Date.now(),
+          });
+
+          // Add delay to avoid rate limits
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        } catch (error) {
+          console.error(
+            `[InitThemePages]: Error processing ${element.name}:`,
+            error
           );
-
-          return commonTheme;
-        } else {
-          await ctx.runMutation(
-            internal.mutations.commonThemes.addNewCommonTheme,
-            {
-              name: theme,
-            }
-          );
-
-          return theme;
+          // Continue with next element instead of stopping completely
+          continue;
         }
-      })
-    );
+      }
 
-    return;
+      return { success: true };
+    } catch (error) {
+      console.error("[InitThemePages]: Fatal error:", error);
+      throw error;
+    }
   },
 });

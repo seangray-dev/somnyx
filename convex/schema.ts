@@ -216,13 +216,34 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_conversation", ["conversationId"]),
 
-  commonThemes: defineTable({
+  commonElements: defineTable({
     name: v.string(),
     count: v.number(),
     updatedAt: v.number(),
+    type: v.union(v.literal("symbol"), v.literal("theme")),
+    category: v.string(),
+    confidence: v.number(),
   })
+    .index("by_count", ["count"])
     .index("by_name", ["name"])
+    .index("by_category", ["category"])
+    .index("by_type_and_confidence", ["type", "confidence"])
     .searchIndex("search_name", {
       searchField: "name",
     }),
+
+  themePages: defineTable({
+    name: v.string(),
+    seo_title: v.string(),
+    seo_slug: v.string(),
+    seo_description: v.string(),
+    content: v.string(),
+    summary: v.string(),
+    commonSymbols: v.array(v.string()),
+    psychologicalMeaning: v.string(),
+    culturalContext: v.string(),
+    commonScenarios: v.array(v.string()),
+    tips: v.string(),
+    updatedAt: v.number(),
+  }).index("by_name", ["name"]),
 });
