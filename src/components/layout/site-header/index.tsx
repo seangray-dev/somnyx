@@ -39,7 +39,9 @@ export default function SiteHeader() {
               href="/dream-dictionary"
               className={cn(
                 "text-sm font-medium transition-colors hover:text-primary hover:underline",
-                pathname === "/dream-dictionary" && "text-primary underline"
+                (pathname === "/dream-dictionary" ||
+                  pathname.startsWith("/dream-meaning/")) &&
+                  "text-primary underline"
               )}
             >
               Dream Dictionary
