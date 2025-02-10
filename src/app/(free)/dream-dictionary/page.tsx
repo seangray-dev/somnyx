@@ -143,7 +143,7 @@ export default function Page() {
               </div>
             ) : (
               <p className="text-center text-muted-foreground">
-                No results found for "{inputValue}"
+                No results found for &quot;{inputValue}&quot;
               </p>
             )}
           </>
