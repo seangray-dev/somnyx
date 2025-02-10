@@ -50,3 +50,21 @@ export const getThemePageImageUrl = query({
     return await ctx.storage.getUrl(args.storageId);
   },
 });
+
+export const searchThemePages = query({
+  args: {
+    query: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const query = args.query?.toLowerCase().trim();
+
+    if (!query) {
+      return await ctx.db.query("themePages").order("desc").take(20);
+    }
+
+    return await ctx.db
+      .query("themePages")
+      .withSearchIndex("search", (q) => q.search("name", query))
+      .take(20);
+  },
+});

@@ -253,5 +253,10 @@ export default defineSchema({
     tips: v.string(),
     updatedAt: v.number(),
     storageId: v.optional(v.id("_storage")),
-  }).index("by_seo_slug", ["seo_slug"]),
+  })
+    .index("by_seo_slug", ["seo_slug"])
+    .searchIndex("search", {
+      searchField: "name",
+      filterFields: ["summary", "seo_title"],
+    }),
 });
