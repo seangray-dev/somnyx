@@ -27,6 +27,15 @@ export default function SiteHeader() {
         <div className="flex items-center gap-6">
           <div className="hidden items-center gap-6 sm:flex">
             <Link
+              href="/dream-meaning"
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary hover:underline",
+                pathname === "/dream-meaning" && "text-primary underline"
+              )}
+            >
+              Interpret
+            </Link>
+            <Link
               href="/dream-dictionary"
               className={cn(
                 "text-sm font-medium transition-colors hover:text-primary hover:underline",
