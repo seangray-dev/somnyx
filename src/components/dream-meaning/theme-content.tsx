@@ -22,6 +22,7 @@ interface ThemeContentProps {
 
 export default function ThemeContent({ themePage }: ThemeContentProps) {
   const data = usePreloadedQuery(themePage);
+  const imageUrl = useGetThemePageImageUrl(data?.storageId);
 
   if (!data) return null;
 
@@ -34,10 +35,7 @@ export default function ThemeContent({ themePage }: ThemeContentProps) {
     culturalContext,
     commonScenarios,
     tips,
-    storageId,
   } = data;
-
-  const imageUrl = useGetThemePageImageUrl(storageId);
 
   const {
     description,
