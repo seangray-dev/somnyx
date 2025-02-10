@@ -31,3 +31,22 @@ export const getThemePageByNamePublic = query({
     return themePage;
   },
 });
+
+export const getThemePageById = internalQuery({
+  args: {
+    id: v.id("themePages"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
+export const getThemePageImageUrl = query({
+  args: {
+    storageId: v.optional(v.id("_storage")),
+  },
+  handler: async (ctx, args) => {
+    if (!args.storageId) return null;
+    return await ctx.storage.getUrl(args.storageId);
+  },
+});

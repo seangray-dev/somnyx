@@ -56,3 +56,18 @@ export const createThemePage = internalMutation({
     });
   },
 });
+
+export const updateThemePageImage = internalMutation({
+  args: {
+    id: v.id("themePages"),
+    storageId: v.id("_storage"),
+  },
+  handler: async (ctx, args) => {
+    const { id, storageId } = args;
+
+    await ctx.db.patch(id, {
+      storageId,
+      updatedAt: Date.now(),
+    });
+  },
+});

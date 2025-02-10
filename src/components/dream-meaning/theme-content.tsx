@@ -1,9 +1,19 @@
 "use client";
 
+import Image from "next/image";
+
 import { Preloaded, usePreloadedQuery } from "convex/react";
 
 import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { api } from "@/convex/_generated/api";
+import { useGetThemePageImageUrl } from "@/hooks/use-convex-image";
 
 interface ThemeContentProps {
   // @ts-ignore
@@ -24,7 +34,10 @@ export default function ThemeContent({ themePage }: ThemeContentProps) {
     culturalContext,
     commonScenarios,
     tips,
+    storageId,
   } = data;
+
+  const imageUrl = useGetThemePageImageUrl(storageId);
 
   const {
     description,
@@ -36,20 +49,36 @@ export default function ThemeContent({ themePage }: ThemeContentProps) {
   } = content;
 
   return (
-    <>
+    <div>
       <article className="container py-12 md:py-20">
         {/* Hero Section */}
-        <header className="mx-auto max-w-[80ch] space-y-6 text-center">
-          <h1 className="text-4xl font-bold capitalize tracking-tight">
-            {name} Dreams
-          </h1>
-          <p className="text-balance text-lg text-muted-foreground">
-            {summary}
-          </p>
+        <header className="grid items-center gap-8 md:grid-cols-2">
+          <div className="space-y-6 text-center md:text-left">
+            <h1 className="text-4xl font-bold capitalize tracking-tight">
+              {name} Dreams
+            </h1>
+            <p className="text-balance text-lg text-muted-foreground">
+              {summary}
+            </p>
+          </div>
+          {imageUrl ? (
+            <div>
+              <Image
+                src={imageUrl || ""}
+                alt={`Artistic interpretation of ${name} dreams`}
+                width={512}
+                height={512}
+                className="mx-auto size-[512px] rounded-lg object-cover md:mx-0 md:place-self-end"
+                priority
+              />
+            </div>
+          ) : (
+            <div className="mx-auto size-[512px] animate-pulse rounded-lg bg-muted md:mx-0 md:place-self-end"></div>
+          )}
         </header>
 
         {/* Quick Reference Grid */}
-        <section className="mx-auto mt-16 grid max-w-6xl gap-8 rounded-lg bg-muted p-8 md:grid-cols-2">
+        <section className="mx-auto mt-16 grid gap-8 rounded-lg bg-muted p-8 md:grid-cols-2">
           <div className="space-y-3">
             <h2 className="text-xl font-semibold">Common Symbols</h2>
             <ul className="flex flex-wrap gap-2">
@@ -73,7 +102,7 @@ export default function ThemeContent({ themePage }: ThemeContentProps) {
         </section>
 
         {/* Main Content */}
-        <div className="mx-auto mt-16 grid max-w-6xl gap-16">
+        <div className="mx-auto mt-16 grid gap-16">
           {/* Interpretation Section */}
           <section className="grid gap-8 md:grid-cols-2">
             <div className="space-y-4">
@@ -88,50 +117,58 @@ export default function ThemeContent({ themePage }: ThemeContentProps) {
             </div>
           </section>
 
-          {/* Detailed Analysis */}
-          <section className="max-w-[80ch] space-y-4 md:mx-auto">
-            <h3 className="text-2xl font-semibold">Detailed Analysis</h3>
-            <div className="space-y-4 text-pretty">
-              <div>
-                <h4 className="text-lg font-semibold">Description</h4>
-                <p>{description}</p>
+          {/* Article Content */}
+          <section className="grid gap-8 md:grid-cols-2">
+            {/* Understanding Section */}
+            <div>
+              <h3 className="text-2xl font-semibold">
+                Understanding {name} Dreams
+              </h3>
+              <div className="mt-6 space-y-6">
+                <p className="text-pretty leading-relaxed">{description}</p>
+                <p className="text-pretty leading-relaxed">
+                  {types_variations}
+                </p>
+                <p className="text-pretty leading-relaxed">
+                  {dailyLifeSignificance}
+                </p>
               </div>
-              <div>
-                <h4 className="text-lg font-semibold">Types & Variations</h4>
-                <p>{types_variations}</p>
-              </div>
-              <div>
-                <h4 className="text-lg font-semibold">
-                  Daily Life Significance
-                </h4>
-                <p>{dailyLifeSignificance}</p>
-              </div>
-              <div>
-                <h4 className="text-lg font-semibold">
-                  Emotional Experience Relationship
-                </h4>
-                <p>{emotional_experience_relationship}</p>
-              </div>
-              <div>
-                <h4 className="text-lg font-semibold">Research Studies</h4>
-                <p>{research_studies}</p>
-              </div>
-              <div>
-                <h4 className="text-lg font-semibold">Expert Perspectives</h4>
-                <p>{expert_perspectives}</p>
+            </div>
+
+            {/* Impact & Research Section */}
+            <div>
+              <h3 className="text-2xl font-semibold">Impact & Research</h3>
+              <div className="mt-6 space-y-6">
+                <p className="text-pretty leading-relaxed">
+                  {emotional_experience_relationship}
+                </p>
+                <p className="text-pretty leading-relaxed">
+                  {research_studies}
+                </p>
+                <p className="text-pretty leading-relaxed">
+                  {expert_perspectives}
+                </p>
               </div>
             </div>
           </section>
 
           {/* Tips Section */}
-          <section className="mx-auto max-w-[80ch] space-y-4">
-            <h5 className="text-2xl font-semibold">Tips & Recommendations</h5>
-            <div className="rounded-lg bg-muted p-6">
-              <p className="text-pretty leading-relaxed">{tips}</p>
-            </div>
+          <section className="mx-auto max-w-3xl">
+            <Card className="bg-secondary text-secondary-foreground">
+              <CardHeader>
+                <CardTitle>Tips & Recommendations</CardTitle>
+                <CardDescription>
+                  Practical guidance for understanding and working with these
+                  dreams
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-pretty">{tips}</p>
+              </CardContent>
+            </Card>
           </section>
         </div>
       </article>
-    </>
+    </div>
   );
 }

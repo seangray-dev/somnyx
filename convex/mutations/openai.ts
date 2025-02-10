@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
-import { internalAction } from "../_generated/server";
+import { action, internalAction } from "../_generated/server";
 import { SYSTEM_PROMPT, getSystemPromptForThemePage } from "../util";
 import { ThemePage } from "../zodSchemas";
 
@@ -620,6 +620,71 @@ export const initThemePages = internalAction({
       return { success: true };
     } catch (error) {
       console.error("[InitThemePages]: Fatal error:", error);
+      throw error;
+    }
+  },
+});
+
+export const generateThemeImage = action({
+  args: {
+    themePageId: v.id("themePages"),
+  },
+  handler: async (ctx, args) => {
+    // Get the theme page data
+    const themePage = await ctx.runQuery(
+      internal.queries.themePages.getThemePageById,
+      {
+        id: args.themePageId,
+      }
+    );
+
+    if (!themePage) {
+      throw new Error("Theme page not found");
+    }
+
+    // Generate a prompt for the image based on theme content
+    const imagePrompt = `Create a dreamy, ethereal illustration for the theme of "${themePage.name}" in dreams. 
+    The image should be surreal and symbolic, incorporating elements from this description: ${themePage.summary}.
+    Style: Use soft, atmospheric colors with a mix of light and shadow. The composition should be artistic and metaphorical, 
+    suitable for a professional dream interpretation website. Make it mystical and thought-provoking, but not scary or disturbing. Do not include any text in the image.`;
+
+    try {
+      // Generate image using DALL-E 3
+      const response = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: imagePrompt,
+        n: 1,
+        size: "1024x1024",
+        quality: "standard",
+        style: "natural",
+      });
+
+      const imageUrl = response.data[0]?.url;
+
+      if (!imageUrl) {
+        throw new Error("No image generated");
+      }
+
+      // Fetch the image and store it in Convex
+      const imageResponse = await fetch(imageUrl);
+      const blob = await imageResponse.blob();
+      const storageId = await ctx.storage.store(blob);
+
+      // Store the storageId and prompt in the database
+      await ctx.runMutation(
+        internal.mutations.themePages.updateThemePageImage,
+        {
+          id: args.themePageId,
+          storageId,
+        }
+      );
+
+      // Get the URL for the stored image
+      const url = await ctx.storage.getUrl(storageId);
+
+      return { success: true, imageUrl: url, storageId };
+    } catch (error) {
+      console.error("Error generating image:", error);
       throw error;
     }
   },

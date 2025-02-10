@@ -29,7 +29,7 @@ export default function FooterCtaSection({
       <div className="flex flex-col items-center gap-10">
         <div className="mx-auto max-w-[80ch] space-y-4 text-center">
           <h4 className="text-balance text-3xl font-bold tracking-tighter md:text-4xl">
-            Unlock Your Dream's Hidden Meaning in Minutes
+            Unlock Your Dream&apos;s Hidden Meaning in Minutes
           </h4>
           <p className="text-balance text-muted-foreground">{description}</p>
         </div>

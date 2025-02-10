@@ -252,5 +252,6 @@ export default defineSchema({
     commonScenarios: v.array(v.string()),
     tips: v.string(),
     updatedAt: v.number(),
+    storageId: v.optional(v.id("_storage")),
   }).index("by_seo_slug", ["seo_slug"]),
 });
