@@ -42,3 +42,25 @@ export const getAllCommonElements = query({
     return elements;
   },
 });
+
+export const getAnimalSymbols = internalQuery({
+  handler: async (ctx) => {
+    const elements = await ctx.db
+      .query("commonElements")
+      .withIndex("by_category", (q) => q.eq("category", "Animals"))
+      .collect();
+
+    return elements;
+  },
+});
+
+export const getElementSymbols = internalQuery({
+  handler: async (ctx) => {
+    const elements = await ctx.db
+      .query("commonElements")
+      .withIndex("by_category", (q) => q.eq("category", "Elements"))
+      .collect();
+
+    return elements;
+  },
+});

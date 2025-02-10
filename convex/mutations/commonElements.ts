@@ -1,7 +1,11 @@
 import { v } from "convex/values";
 
 import { internalMutation } from "../_generated/server";
-import { COMMON_DREAM_THEMES } from "../util";
+import {
+  COMMON_DREAM_SYMBOLS_ANIMALS,
+  COMMON_DREAM_SYMBOLS_ELEMENTS,
+  COMMON_DREAM_THEMES,
+} from "../util";
 
 export const upsertDreamElement = internalMutation({
   args: {
@@ -53,6 +57,52 @@ export const populateCommonElements = internalMutation({
         confidence: 1,
         updatedAt: Date.now(),
       });
+    }
+  },
+});
+
+export const populateCommonAnimalSymbols = internalMutation({
+  args: {},
+  async handler(ctx) {
+    for (const animal of COMMON_DREAM_SYMBOLS_ANIMALS) {
+      const existing = await ctx.db
+        .query("commonElements")
+        .withIndex("by_name", (q) => q.eq("name", animal))
+        .first();
+
+      if (!existing) {
+        await ctx.db.insert("commonElements", {
+          name: animal,
+          count: 0,
+          type: "symbol",
+          category: "Animals",
+          confidence: 1,
+          updatedAt: Date.now(),
+        });
+      }
+    }
+  },
+});
+
+export const populateElementSymbols = internalMutation({
+  args: {},
+  async handler(ctx) {
+    for (const element of COMMON_DREAM_SYMBOLS_ELEMENTS) {
+      const existing = await ctx.db
+        .query("commonElements")
+        .withIndex("by_name", (q) => q.eq("name", element))
+        .first();
+
+      if (!existing) {
+        await ctx.db.insert("commonElements", {
+          name: element,
+          count: 0,
+          type: "symbol",
+          category: "Elements",
+          confidence: 1,
+          updatedAt: Date.now(),
+        });
+      }
     }
   },
 });

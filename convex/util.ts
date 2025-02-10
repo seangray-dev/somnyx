@@ -67,34 +67,6 @@ The exact actions or events I see in this dream text are: [extract 1-2 main verb
 
 Remember: ONLY use words that actually appear in the dream text.`;
 
-export const getSystemPromptForThemePage = (
-  name: string
-) => `You are a professional dream analyst and content writer. Create engaging, well-structured content about ${name} dreams.
-
-      For the main content: Write a comprehensive article about ${name} dreams. Include:
-      - What these dreams are and why they occur
-      - Different types and variations
-      - The significance of these dreams in daily life
-      - How they relate to our emotions and experiences
-      - Research or studies about these dreams
-      - Expert perspectives
-      Structure this as a flowing article with clear paragraphs, not seprate sections.
-
-      For psychological meaning: Provide a detailed, specific interpretation focusing on the unique aspects of ${name} dreams avoiding generic explanations.
-
-      For cultural context: Include specific examples from different cultures and their unique interpretations of ${name} dreams.
-
-      For common scenarios: List 4-5 specific, detailed variations of ${name} dreams that people commonly experience. Keep these short.
-      
-      For tips: Provide actionable, practical advice specifically related to ${name} dreams and coping strategies.
-      
-      Remember:
-      - Be specific to ${name} dreams, avoid generic dream interpretation
-      - Use clear, engaging language
-      - Provide concrete examples
-      - Keep formatting simple - no markdown, no special characters or special formatting
-      - Make content unique and valuable`;
-
 export const COMMON_DREAM_THEMES = [
   "Chase",
   "Cheating",
@@ -106,3 +78,73 @@ export const COMMON_DREAM_THEMES = [
   "Teeth",
   "Test",
 ];
+
+export const COMMON_DREAM_SYMBOLS_ANIMALS = [
+  "Wolf",
+  "Bird",
+  "Cat",
+  "Dog",
+  "Horse",
+  "Butterfly",
+  "Lion",
+  "Owl",
+  "Spider",
+  "Fish",
+];
+
+export const COMMON_DREAM_SYMBOLS_ELEMENTS = [
+  "Fire",
+  "Water",
+  "Earth",
+  "Air",
+  "Lightning",
+  "Ice",
+  "Metal",
+  "Crystal",
+  "Smoke",
+  "Lava",
+];
+
+export const getSystemPromptForThemePage = (
+  name: string,
+  type: "theme" | "symbol" = "theme"
+) => {
+  const isSymbol = type === "symbol";
+  return `You are a professional dream analyst and content writer. Create engaging, well-structured content about ${name} ${
+    isSymbol ? "symbols" : "dreams"
+  }.
+
+      For the main content: Write a comprehensive article about ${name} ${
+        isSymbol ? "as a dream symbol" : "dreams"
+      }. Include:
+      - ${isSymbol ? "What this symbol represents and its significance" : "What these dreams are and why they occur"}
+      - Different contexts and variations where ${isSymbol ? "this symbol appears" : "these dreams occur"}
+      - The significance in daily life and personal growth
+      - How it relates to our emotions and experiences
+      - Research or studies about ${isSymbol ? "this symbol" : "these dreams"}
+      - Expert perspectives
+      Structure this as a flowing article with clear paragraphs, not separate sections.
+
+      For psychological meaning: Provide a detailed, specific interpretation focusing on the unique aspects of ${name} ${
+        isSymbol ? "as a dream symbol" : "dreams"
+      } avoiding generic explanations.
+
+      For cultural context: Include specific examples from different cultures and their unique interpretations of ${name} ${
+        isSymbol ? "symbolism" : "dreams"
+      }.
+
+      For common scenarios: List 4-5 specific, detailed variations of how ${name} ${
+        isSymbol ? "appears in dreams" : "dreams occur"
+      }. Keep these short.
+      
+      For tips: Provide actionable, practical advice for understanding and working with ${name} ${
+        isSymbol ? "symbols in dreams" : "dreams"
+      }.
+      
+      Remember:
+      - Be specific to ${name}, avoid generic interpretations
+      - Use clear, engaging language
+      - Provide concrete examples
+      - Keep formatting simple - no markdown, no special characters or special formatting
+      - Make content unique and valuable`;
+};
