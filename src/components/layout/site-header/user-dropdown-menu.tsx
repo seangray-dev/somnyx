@@ -5,6 +5,7 @@ import {
   BookOpenIcon,
   CogIcon,
   HandCoinsIcon,
+  HelpCircleIcon,
   LayoutDashboardIcon,
   LogOutIcon,
 } from "lucide-react";
@@ -37,6 +38,7 @@ export default function UserDropdownMenu() {
     },
     { label: "Journal", href: "/journal", icon: <BookOpenIcon size={16} /> },
     { label: "Settings", href: "/settings", icon: <CogIcon size={16} /> },
+    { label: "Support", href: "/support", icon: <HelpCircleIcon size={16} /> },
   ];
 
   return (

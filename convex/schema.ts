@@ -259,4 +259,38 @@ export default defineSchema({
       searchField: "name",
       filterFields: ["summary", "seo_title"],
     }),
+
+  feedback: defineTable({
+    type: v.union(v.literal("feedback"), v.literal("issue")),
+    userId: v.optional(v.string()),
+    title: v.string(),
+    description: v.string(),
+    status: v.union(
+      v.literal("new"),
+      v.literal("in_progress"),
+      v.literal("resolved"),
+      v.literal("closed"),
+      v.literal("N/A")
+    ),
+    deviceInfo: v.optional(
+      v.object({
+        deviceType: v.string(),
+        browser: v.string(),
+        os: v.string(),
+        screenResolution: v.string(),
+      })
+    ),
+    metadata: v.optional(
+      v.object({
+        reportedFromBrowser: v.string(),
+        reportedFromOs: v.string(),
+        reportedFromScreenResolution: v.string(),
+        reportedFromDeviceType: v.string(),
+      })
+    ),
+    updatedAt: v.number(),
+  })
+    .index("by_type", ["type"])
+    .index("by_userId", ["userId"])
+    .index("by_status", ["status"])
 });

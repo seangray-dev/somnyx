@@ -24,6 +24,7 @@ import type * as mutations_analysis from "../mutations/analysis.js";
 import type * as mutations_commonElements from "../mutations/commonElements.js";
 import type * as mutations_deleteAccountFeedback from "../mutations/deleteAccountFeedback.js";
 import type * as mutations_dreams from "../mutations/dreams.js";
+import type * as mutations_feedback from "../mutations/feedback.js";
 import type * as mutations_insights from "../mutations/insights.js";
 import type * as mutations_message from "../mutations/message.js";
 import type * as mutations_openai from "../mutations/openai.js";
@@ -63,6 +64,7 @@ declare const fullApi: ApiFromModules<{
   "mutations/commonElements": typeof mutations_commonElements;
   "mutations/deleteAccountFeedback": typeof mutations_deleteAccountFeedback;
   "mutations/dreams": typeof mutations_dreams;
+  "mutations/feedback": typeof mutations_feedback;
   "mutations/insights": typeof mutations_insights;
   "mutations/message": typeof mutations_message;
   "mutations/openai": typeof mutations_openai;
