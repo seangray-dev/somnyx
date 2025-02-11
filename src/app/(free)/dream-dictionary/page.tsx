@@ -131,7 +131,9 @@ export default function Page() {
                       </p>
                       <div className="pt-2">
                         <Link
-                          href={`/dream-meaning/${page.seo_slug}`}
+                          href={{
+                            pathname: `/dream-dictionary/${page.seo_slug}`,
+                          }}
                           className="text-sm font-medium text-primary hover:underline"
                         >
                           Read more
@@ -168,7 +170,9 @@ export default function Page() {
                             .map(({ name }) => (
                               <Link
                                 key={name}
-                                href={`/dream-meaning/${name.toLowerCase()}`}
+                                href={{
+                                  pathname: `/dream-dictionary/${name.toLowerCase()}`,
+                                }}
                                 className="transition-opacity hover:opacity-80"
                               >
                                 <Badge variant="secondary">{name}</Badge>
@@ -190,7 +194,9 @@ export default function Page() {
                             .map(({ name }) => (
                               <Link
                                 key={name}
-                                href={`/dream-meaning/${name.toLowerCase()}`}
+                                href={{
+                                  pathname: `/dream-dictionary/${name.toLowerCase()}`,
+                                }}
                                 className="transition-opacity hover:opacity-80"
                               >
                                 <Badge>{name}</Badge>

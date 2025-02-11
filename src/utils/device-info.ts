@@ -1,4 +1,6 @@
 export function getBrowserInfo() {
+  if (typeof window === "undefined") return "Unknown";
+
   const userAgent = window.navigator.userAgent;
   const browsers = [
     { name: "Chrome", value: "Chrome" },
@@ -18,6 +20,8 @@ export function getBrowserInfo() {
 }
 
 export function getOSInfo() {
+  if (typeof window === "undefined") return "Unknown";
+
   const userAgent = window.navigator.userAgent;
   const os = [
     { name: "Windows", value: "Windows" },
@@ -36,10 +40,13 @@ export function getOSInfo() {
 }
 
 export function getScreenResolution() {
+  if (typeof window === "undefined") return "Unknown";
   return `${window.screen.width}x${window.screen.height}`;
 }
 
 export function getDeviceType() {
+  if (typeof window === "undefined") return "Unknown";
+
   const userAgent = window.navigator.userAgent;
   if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(userAgent)) {
     return "Tablet";
