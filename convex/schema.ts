@@ -50,6 +50,7 @@ export default defineSchema({
     symbolicInterpretation: v.string(),
     underlyingMessage: v.string(),
     actionableTakeaway: v.string(),
+    imageStorageId: v.optional(v.id("_storage")),
   })
     .index("by_dreamId", ["dreamId"])
     .index("by_userId", ["userId"]),
@@ -292,5 +293,5 @@ export default defineSchema({
   })
     .index("by_type", ["type"])
     .index("by_userId", ["userId"])
-    .index("by_status", ["status"])
+    .index("by_status", ["status"]),
 });

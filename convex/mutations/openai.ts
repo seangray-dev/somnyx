@@ -6,7 +6,11 @@ import { z } from "zod";
 import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import { action, internalAction } from "../_generated/server";
-import { SYSTEM_PROMPT, getSystemPromptForThemePage } from "../util";
+import {
+  SYSTEM_PROMPT,
+  analysisImagePrompt,
+  getSystemPromptForThemePage,
+} from "../util";
 import { ThemePage } from "../zodSchemas";
 
 const openai = new OpenAI();
@@ -351,11 +355,42 @@ export const generateAnalysis = internalAction({
       throw new Error("Failed to generate analysis");
     }
 
-    await ctx.runMutation(internal.mutations.analysis.addNewAnalysis, {
-      dreamId,
-      userId,
-      analysis,
-    });
+    const analysisId = await ctx.runMutation(
+      internal.mutations.analysis.addNewAnalysis,
+      {
+        dreamId,
+        userId,
+        analysis,
+      }
+    );
+
+    // generate image
+    try {
+      const response = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: analysisImagePrompt(userPrompt),
+        n: 1,
+        size: "1024x1024",
+        quality: "standard",
+      });
+
+      const imageUrl = response.data[0]?.url;
+
+      if (!imageUrl) {
+        throw new Error("No image generated");
+      }
+      const imageResponse = await fetch(imageUrl);
+      const imageBlob = await imageResponse.blob();
+      const storageId = await ctx.storage.store(imageBlob);
+
+      await ctx.runMutation(internal.mutations.analysis.addAnalysisImage, {
+        analysisId: analysisId,
+        storageId: storageId,
+      });
+    } catch (err) {
+      console.error("Error generating analysis image:", err);
+      throw err;
+    }
   },
 });
 
@@ -1040,6 +1075,56 @@ export const generateThemeOrSymbolPage = action({
       return { success: true, pageId: result };
     } catch (error: any) {
       console.error("[GenerateThemeOrSymbolPage]: Error:", error);
+      throw error;
+    }
+  },
+});
+
+export const generateDreamImage = internalAction({
+  args: {
+    dreamId: v.id("dreams"),
+    details: v.string(),
+    title: v.string(),
+  },
+  handler: async (ctx, args) => {
+    try {
+      // Generate a prompt for the image based on dream content
+      const imagePrompt = `Create a dreamy, ethereal illustration representing this dream: "${args.title}". 
+      The image should be surreal and symbolic, incorporating elements from this description: ${args.details}.
+      Style: Use soft, atmospheric colors with a mix of light and shadow. The composition should be artistic and metaphorical, 
+      suitable for a professional dream journal. Make it mystical and thought-provoking, but not scary or disturbing. 
+      Do not include any text in the image.`;
+
+      // Generate image using DALL-E 3
+      const response = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: imagePrompt,
+        n: 1,
+        size: "1024x1024",
+        quality: "standard",
+        style: "natural",
+      });
+
+      const imageUrl = response.data[0]?.url;
+
+      if (!imageUrl) {
+        throw new Error("No image generated");
+      }
+
+      // Fetch the image and store it in Convex
+      const imageResponse = await fetch(imageUrl);
+      const blob = await imageResponse.blob();
+      const storageId = await ctx.storage.store(blob);
+
+      // Update the dream with the image storage ID
+      await ctx.runMutation(internal.mutations.dreams.updateDreamImage, {
+        dreamId: args.dreamId,
+        storageId,
+      });
+
+      return { success: true, storageId };
+    } catch (error) {
+      console.error("Error generating dream image:", error);
       throw error;
     }
   },

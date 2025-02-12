@@ -12,3 +12,12 @@ export function useGetThemePageImageUrl(
     null;
   return url;
 }
+
+export function useGetAnalysisImageUrl(
+  storageId: Id<"_storage"> | undefined
+): string | null {
+  const url =
+    // @ts-ignore
+    useQuery(api.queries.analysis.getAnalysisImageUrl, { storageId }) ?? null;
+  return url;
+}

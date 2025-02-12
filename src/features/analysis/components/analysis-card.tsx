@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -22,6 +23,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { CREDIT_COSTS } from "@/convex/util";
 import useDreamAnalysis from "@/features/analysis/api/use-dream-analysis";
 import useUserCredits from "@/features/credits/api/use-user-credits";
+import { useGetAnalysisImageUrl } from "@/hooks/use-convex-image";
 
 type AnalysisProps = {
   dreamId: string;
@@ -64,6 +66,7 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
   });
   const [generateAnalyisLoading, setGenerateAnalyisLoading] = useState(false);
   const { data: userCredits } = useUserCredits();
+  const imageUrl = useGetAnalysisImageUrl(analysis?.imageStorageId);
   const user = useQuery(api.users.getMyUser);
   const hasSufficientCredits = userCredits! >= CREDIT_COSTS.ANALYSIS;
   const neededCredits = CREDIT_COSTS.ANALYSIS - userCredits!;
@@ -130,8 +133,21 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-3xl">Analysis</CardTitle>
-        <CardDescription className="text-balance text-base">
+        {isLoading ? (
+          <div className="mx-auto aspect-square w-full max-w-lg animate-pulse overflow-hidden rounded-lg bg-muted pb-10" />
+        ) : imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt="Analysis"
+            width={500}
+            height={500}
+            className="mx-auto rounded-lg object-cover pb-10"
+          />
+        ) : noAnalysis ? null : (
+          <div className="mx-auto aspect-square w-full max-w-lg animate-pulse overflow-hidden rounded-lg bg-muted" />
+        )}
+        <CardTitle className="mx-auto text-center text-3xl">Analysis</CardTitle>
+        <CardDescription className="mx-auto text-balance text-center text-base">
           {renderContent()}
         </CardDescription>
       </CardHeader>
