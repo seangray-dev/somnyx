@@ -37,7 +37,31 @@ export const getElementsByCategory = query({
 
 export const getAllCommonElements = query({
   handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    const user = identity
+      ? await ctx.db
+          .query("users")
+          .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+          .first()
+      : null;
+
     const elements = await ctx.db.query("commonElements").collect();
+
+    // If user is not admin, filter out elements that don't have published theme pages
+    if (!user?.isAdmin) {
+      const publishedThemePages = await ctx.db
+        .query("themePages")
+        .filter((q) => q.eq(q.field("isPublished"), true))
+        .collect();
+
+      const publishedNames = new Set(
+        publishedThemePages.map((page) => page.name.toLowerCase())
+      );
+
+      return elements.filter((element) =>
+        publishedNames.has(element.name.toLowerCase())
+      );
+    }
 
     return elements;
   },

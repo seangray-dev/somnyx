@@ -87,7 +87,7 @@ const RegenerateImageSection = ({
   hasError: boolean;
 }) => (
   <div className="mx-auto max-w-lg pb-10">
-    <div className="aspect-square size-[384px] w-full animate-pulse overflow-hidden rounded-md bg-muted" />
+    <div className="aspect-square size-[500px] w-full animate-pulse overflow-hidden rounded-lg bg-muted" />
     <div className="mt-4 flex flex-col items-center gap-2">
       <Button
         variant="outline"

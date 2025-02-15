@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 
-import { internalMutation } from "../_generated/server";
+import { internalMutation, mutation } from "../_generated/server";
 
 export const createThemePage = internalMutation({
   args: {
@@ -45,6 +45,7 @@ export const createThemePage = internalMutation({
       seo_title,
       seo_slug,
       seo_description,
+      isPublished: false,
       content,
       summary,
       commonSymbols,
@@ -69,5 +70,49 @@ export const updateThemePageImage = internalMutation({
       storageId,
       updatedAt: Date.now(),
     });
+  },
+});
+
+export const updateThemePagePublishState = internalMutation({
+  args: {
+    id: v.id("themePages"),
+    isPublished: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const { id, isPublished } = args;
+
+    await ctx.db.patch(id, {
+      isPublished,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+export const togglePublishState = mutation({
+  args: {
+    id: v.id("themePages"),
+    isPublished: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+      .first();
+
+    if (!user?.isAdmin) {
+      throw new Error("Unauthorized: Only admins can publish theme pages");
+    }
+
+    const { id, isPublished } = args;
+
+    await ctx.db.patch(id, {
+      isPublished,
+      updatedAt: Date.now(),
+    });
+
+    return { success: true };
   },
 });

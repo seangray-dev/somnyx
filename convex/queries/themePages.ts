@@ -56,22 +56,72 @@ export const searchThemePages = query({
     query: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const query = args.query?.toLowerCase().trim();
+    const identity = await ctx.auth.getUserIdentity();
+    const user = identity
+      ? await ctx.db
+          .query("users")
+          .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+          .first()
+      : null;
 
-    if (!query) {
-      return await ctx.db.query("themePages").order("desc").take(20);
+    const query = args.query?.toLowerCase().trim();
+    let dbQuery = ctx.db.query("themePages");
+
+    // Filter out unpublished pages for non-admin users
+    if (!user?.isAdmin) {
+      dbQuery = dbQuery.filter((q) => q.eq(q.field("isPublished"), true));
     }
 
-    return await ctx.db
-      .query("themePages")
+    if (!query) {
+      return await dbQuery.order("desc").take(20);
+    }
+
+    return await dbQuery
       .withSearchIndex("search", (q) => q.search("name", query))
       .take(20);
   },
 });
 
 export const getAllThemePages = query({
-  args: {},
   handler: async (ctx) => {
-    return await ctx.db.query("themePages").collect();
+    const themePages = await ctx.db.query("themePages").collect();
+    return themePages.length;
+  },
+});
+
+export const getAllThemePagesAdmin = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    const userId = identity?.subject;
+
+    // Only allow admin to access this query
+    // if (userId !== "user_2YCqK8BfgJcxrKxmwEjxCXhL6rF") {
+    //   return null;
+    // }
+
+    const themePages = await ctx.db.query("themePages").order("desc").collect();
+    return themePages;
+  },
+});
+
+export const getPublishedThemePageNames = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    const user = identity
+      ? await ctx.db
+          .query("users")
+          .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+          .first()
+      : null;
+
+    let dbQuery = ctx.db.query("themePages");
+
+    // Filter out unpublished pages for non-admin users
+    if (!user?.isAdmin) {
+      dbQuery = dbQuery.filter((q) => q.eq(q.field("isPublished"), true));
+    }
+
+    const pages = await dbQuery.collect();
+    return pages.map((page) => page.name.toLowerCase());
   },
 });

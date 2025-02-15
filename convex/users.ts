@@ -292,3 +292,56 @@ export const consumeCredits = internalMutation({
     });
   },
 });
+
+export const getTotalUsers = query({
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect();
+    return users.length;
+  },
+});
+
+export const isUserAdmin = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    
+    if (!identity) return false;
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+      .first();
+
+    return user?.isAdmin ?? false;
+  },
+});
+
+export const toggleAdminStatus = mutation({
+  args: { userId: v.string(), isAdmin: v.boolean() },
+  handler: async (ctx, args) => {
+    // Check if current user is admin
+    const currentIdentity = await ctx.auth.getUserIdentity();
+    if (!currentIdentity) throw new Error("Not authenticated");
+
+    const currentUser = await ctx.db
+      .query("users")
+      .withIndex("by_userId", (q) => q.eq("userId", currentIdentity.subject))
+      .first();
+
+    if (!currentUser?.isAdmin) throw new Error("Unauthorized");
+
+    // Update target user's admin status
+    const targetUser = await ctx.db
+      .query("users")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .first();
+
+    if (!targetUser) throw new Error("User not found");
+
+    await ctx.db.patch(targetUser._id, {
+      isAdmin: args.isAdmin,
+      adminSince: args.isAdmin ? Date.now() : undefined,
+    });
+
+    return { success: true };
+  },
+});

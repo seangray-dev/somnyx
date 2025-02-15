@@ -8,6 +8,9 @@ export default defineSchema({
     first_name: v.optional(v.string()),
     last_name: v.optional(v.string()),
     credits: v.optional(v.number()),
+    isAdmin: v.optional(v.boolean()),
+    adminSince: v.optional(v.number()),
+    lastLoginAt: v.optional(v.number()),
     subscriptionId: v.optional(v.string()),
     profileImage: v.optional(v.string()),
     endsOn: v.optional(v.number()),
@@ -238,6 +241,7 @@ export default defineSchema({
     seo_title: v.string(),
     seo_slug: v.string(),
     seo_description: v.string(),
+    isPublished: v.optional(v.boolean()),
     content: v.object({
       description: v.string(),
       types_variations: v.string(),

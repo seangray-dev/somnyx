@@ -2,8 +2,6 @@
 
 import Image from "next/image";
 
-import { Preloaded, usePreloadedQuery } from "convex/react";
-
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -12,19 +10,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { api } from "@/convex/_generated/api";
+import { Doc } from "@/convex/_generated/dataModel";
 import { useGetThemePageImageUrl } from "@/hooks/use-convex-image";
 
 interface ThemeContentProps {
-  // @ts-ignore
-  themePage: Preloaded<typeof api.queries.themePages.getThemePageByNamePublic>;
+  themePage: Doc<"themePages">;
 }
 
 export default function ThemeContent({ themePage }: ThemeContentProps) {
-  const data = usePreloadedQuery(themePage);
-  const imageUrl = useGetThemePageImageUrl(data?.storageId);
-
-  if (!data) return null;
+  const imageUrl = useGetThemePageImageUrl(themePage.storageId);
 
   const {
     name,
@@ -35,7 +29,7 @@ export default function ThemeContent({ themePage }: ThemeContentProps) {
     culturalContext,
     commonScenarios,
     tips,
-  } = data;
+  } = themePage;
 
   const {
     description,

@@ -29,8 +29,11 @@ interface GroupedElements {
 export default function Page() {
   const [inputValue, setInputValue] = useState("");
   const [debouncedValue] = useDebounce(inputValue, 600);
+  const isAdmin = useQuery(api.users.isUserAdmin);
   // @ts-ignore
   const elements = useQuery(api.queries.commonElements.getAllCommonElements);
+  const publishedNames =
+    useQuery(api.queries.themePages.getPublishedThemePageNames) ?? [];
   const themePages =
     useQuery(api.queries.themePages.searchThemePages, {
       query: debouncedValue || undefined,
@@ -43,7 +46,7 @@ export default function Page() {
   const isSearching = inputValue.length > 0;
   const isLoading = isSearching && themePages === null;
 
-  if (!elements) {
+  if (!elements || publishedNames === undefined) {
     return (
       <div className="container py-12">
         <div className="flex items-center justify-center">
@@ -57,6 +60,11 @@ export default function Page() {
   const groupedElements = elements.reduce<GroupedElements>((acc, element) => {
     const category =
       element.category.charAt(0).toUpperCase() + element.category.slice(1);
+
+    // Skip elements that don't have a published page (unless admin)
+    if (!isAdmin && !publishedNames.includes(element.name.toLowerCase())) {
+      return acc;
+    }
 
     if (!acc[category]) {
       acc[category] = { symbols: [], themes: [] };
