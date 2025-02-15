@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { useMutation, useQuery } from "convex/react";
-import { Eye, EyeIcon, EyeOff, EyeOffIcon, Loader2Icon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,7 +20,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 
 export default function AdminDreamDictionaryPagesList() {
   const themePages = useQuery(api.queries.themePages.getAllThemePagesAdmin);
@@ -103,9 +103,9 @@ export default function AdminDreamDictionaryPagesList() {
               <div className="space-y-4">
                 <div className="flex justify-end">
                   <Badge
-                    variant={'outline'}
+                    variant={"outline"}
                     className={cn(
-                      "inline-flex items-center font-medium gap-1",
+                      "inline-flex items-center gap-1 font-medium",
                       page.isPublished
                         ? "bg-success text-success-foreground"
                         : "bg-warning text-warning-foreground"
