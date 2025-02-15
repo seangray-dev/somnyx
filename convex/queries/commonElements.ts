@@ -88,3 +88,17 @@ export const getElementSymbols = internalQuery({
     return elements;
   },
 });
+
+export const getCommonElementByName = internalQuery({
+  args: {
+    name: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const element = await ctx.db
+      .query("commonElements")
+      .withIndex("by_name", (q) => q.eq("name", args.name))
+      .first();
+
+    return element;
+  },
+});

@@ -45,6 +45,26 @@ export const upsertDreamElement = internalMutation({
   },
 });
 
+export const createCommonElement = internalMutation({
+  args: {
+    name: v.string(),
+    type: v.union(v.literal("symbol"), v.literal("theme")),
+    category: v.string(),
+  },
+  async handler(ctx, args) {
+    const id = await ctx.db.insert("commonElements", {
+      name: args.name,
+      type: args.type,
+      category: args.category,
+      count: 0,
+      confidence: 1,
+      updatedAt: Date.now(),
+    });
+
+    return id;
+  },
+});
+
 export const populateCommonElements = internalMutation({
   args: {},
   async handler(ctx) {

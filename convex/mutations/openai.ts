@@ -396,6 +396,87 @@ export const generateAnalysis = internalAction({
   },
 });
 
+export const regenerateAnalysisImage = action({
+  args: {
+    analysisId: v.id("analysis"),
+    dreamId: v.id("dreams"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getUserId(ctx);
+
+    const dream = await ctx.runQuery(
+      internal.queries.dreams.getDreamByIdInternal,
+      {
+        id: args.dreamId,
+        userId: userId,
+      }
+    );
+
+    if (!dream) {
+      throw new Error("Dream not found");
+    }
+
+    const emotions = await ctx.runQuery(
+      internal.queries.emotions.getEmotionsByDreamIdInternal,
+      {
+        id: dream._id,
+      }
+    );
+
+    const role = await ctx.runQuery(
+      internal.queries.roles.getRoleByIdInternal,
+      {
+        id: dream.role as Id<"roles">,
+      }
+    );
+
+    const formattedEmotions = emotions.map((e) => e?.name).join(", ");
+    const people = dream.people?.join(", ") || "N/A";
+    const places = dream.places?.join(", ") || "N/A";
+    const things = dream.things?.join(", ") || "N/A";
+    const roleDescription = role?.name || "Unknown Role";
+    const details = dream.details;
+
+    const userPrompt = `
+      Dream Details:
+      --------------
+      "${details}"
+
+      Emotions Experienced: ${formattedEmotions},
+      Role in the dream: ${roleDescription},
+      People Involved: ${people},
+      Places Involved: ${places},
+      Important Symbols or Things: ${things}
+    `;
+
+    try {
+      const response = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: analysisImagePrompt(userPrompt),
+        n: 1,
+        size: "1024x1024",
+        quality: "standard",
+      });
+
+      const imageUrl = response.data[0]?.url;
+
+      if (!imageUrl) {
+        throw new Error("No image generated");
+      }
+      const imageResponse = await fetch(imageUrl);
+      const imageBlob = await imageResponse.blob();
+      const storageId = await ctx.storage.store(imageBlob);
+
+      await ctx.runMutation(internal.mutations.analysis.addAnalysisImage, {
+        analysisId: args.analysisId,
+        storageId: storageId,
+      });
+    } catch (err) {
+      console.error("Error generating analysis image:", err);
+    }
+  },
+});
+
 export const generateInsight = internalAction({
   // TODO: Refactor the arguments to reduce payload (_id, _creationTime, title, isPublic, userId)
   args: {
@@ -565,407 +646,132 @@ export const generateInsight = internalAction({
 //   },
 // });
 
-export const initThemePages = internalAction({
-  async handler(ctx) {
-    try {
-      const commonElements = await ctx.runQuery(
-        // @ts-ignore
-        internal.queries.commonElements.getAllCommonElements
-      );
+// export const generateThemeOrSymbolPage = action({
+//   args: {
+//     name: v.string(),
+//     type: v.union(v.literal("theme"), v.literal("symbol")),
+//   },
+//   handler: async (
+//     ctx,
+//     args
+//   ): Promise<{
+//     success: boolean;
+//     pageId?: Id<"themePages">;
+//     reason?: string;
+//   }> => {
+//     try {
+//       // Check if page already exists
+//       const existingPage = await ctx.runQuery(
+//         internal.queries.themePages.getThemePageByName,
+//         { name: args.name }
+//       );
 
-      // Better error handling for empty results
-      if (!commonElements || commonElements.length === 0) {
-        console.error("[InitThemePages]: No common elements found");
-        return;
-      }
+//       if (existingPage) {
+//         console.warn(
+//           `[GenerateThemeOrSymbolPage]: Page for "${args.name}" already exists, skipping`
+//         );
+//         return { success: false, reason: "Page already exists" };
+//       }
 
-      for (const element of commonElements) {
-        try {
-          // Check if theme page already exists
-          const existingPage = await ctx.runQuery(
-            internal.queries.themePages.getThemePageByName,
-            { name: element.name }
-          );
+//       const systemPrompt = getSystemPromptForThemePage(args.name, args.type);
 
-          if (existingPage) {
-            console.warn(
-              `[InitThemePages]: Theme page for "${element.name}" already exists, skipping`
-            );
-            continue;
-          }
+//       // Generate page content
+//       const response = await openai.beta.chat.completions.parse({
+//         model: "gpt-4o",
+//         messages: [
+//           {
+//             role: "system",
+//             content: systemPrompt,
+//           },
+//           {
+//             role: "user",
+//             content: `Generate detailed content for ${args.name} ${args.type === "symbol" ? "as a dream symbol" : "dreams"}.`,
+//           },
+//         ],
+//         response_format: zodResponseFormat(ThemePage, "themePage"),
+//         temperature: 0.7,
+//       });
 
-          const systemPrompt = getSystemPromptForThemePage(element.name);
+//       const page = response.choices[0].message.parsed;
 
-          const response = await openai.beta.chat.completions.parse({
-            model: "gpt-4o",
-            messages: [
-              {
-                role: "system",
-                content: systemPrompt,
-              },
-              {
-                role: "user",
-                content: `Generate detailed content for ${element.name} dreams.`,
-              },
-            ],
-            response_format: zodResponseFormat(ThemePage, "themePage"),
-            temperature: 0.7,
-          });
+//       if (!page) {
+//         throw new Error(`No page content generated for ${args.name}`);
+//       }
 
-          const page = response.choices[0].message.parsed;
+//       // Create the page first
+//       const result = await ctx.runMutation(
+//         internal.mutations.themePages.createThemePage,
+//         {
+//           name: args.name,
+//           seo_title: page.seo_title,
+//           seo_slug: args.name.toLowerCase(),
+//           seo_description:
+//             page.seo_description ||
+//             `Learn about ${args.name} ${args.type === "symbol" ? "as a dream symbol" : "dreams"} and their meaning`,
+//           content: page.content,
+//           summary: page.summary,
+//           commonSymbols: page.commonSymbols || [],
+//           psychologicalMeaning: page.psychologicalMeaning || "",
+//           culturalContext: page.culturalContext || "",
+//           commonScenarios: page.commonScenarios || [],
+//           tips: page.tips || "",
+//           updatedAt: Date.now(),
+//           isPublished: false,
+//         }
+//       );
 
-          if (!page) {
-            throw new Error(`No page content generated for ${element.name}`);
-          }
+//       if (!result) {
+//         throw new Error("Failed to create theme page");
+//       }
 
-          // Validate required fields
-          if (!page.seo_title || !page.content || !page.summary) {
-            throw new Error(
-              `Missing required fields in generated content for ${element.name}`
-            );
-          }
+//       // Generate and store image
+//       const imagePrompt = `Create a dreamy, ethereal illustration for the theme of "${args.name}" in dreams.
+//       The image should be surreal and symbolic, incorporating elements from this description: ${page.summary}.
+//       Style: Use soft, atmospheric colors with a mix of light and shadow. The composition should be artistic and metaphorical,
+//       suitable for a professional dream interpretation website. Make it mystical and thought-provoking, but not scary or disturbing.
+//       Include some of these symbolic elements: ${page.commonSymbols.join(", ")}.`;
 
-          await ctx.runMutation(internal.mutations.themePages.createThemePage, {
-            name: element.name,
-            seo_title: page.seo_title,
-            seo_slug: element.name.toLowerCase(),
-            seo_description:
-              page.seo_description ||
-              `Learn about ${element.name} dreams and their meaning`,
-            content: page.content,
-            summary: page.summary,
-            commonSymbols: page.commonSymbols || [],
-            psychologicalMeaning: page.psychologicalMeaning || "",
-            culturalContext: page.culturalContext || "",
-            commonScenarios: page.commonScenarios || [],
-            tips: page.tips || "",
-            updatedAt: Date.now(),
-          });
+//       // Generate image using DALL-E 3
+//       const imageResponse = await openai.images.generate({
+//         model: "dall-e-3",
+//         prompt: imagePrompt,
+//         n: 1,
+//         size: "512x512",
+//         quality: "standard",
+//         style: "natural",
+//       });
 
-          // Add delay to avoid rate limits
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        } catch (error) {
-          console.error(
-            `[InitThemePages]: Error processing ${element.name}:`,
-            error
-          );
-          // Continue with next element instead of stopping completely
-          continue;
-        }
-      }
+//       const imageUrl = imageResponse.data[0]?.url;
 
-      return { success: true };
-    } catch (error) {
-      console.error("[InitThemePages]: Fatal error:", error);
-      throw error;
-    }
-  },
-});
+//       if (imageUrl) {
+//         // Fetch and store the image
+//         const response = await fetch(imageUrl);
+//         const blob = await response.blob();
+//         const storageId = await ctx.storage.store(blob);
 
-export const initThemePagesForAnimals = internalAction({
-  async handler(ctx) {
-    try {
-      const animals = await ctx.runQuery(
-        // @ts-ignore
-        internal.queries.commonElements.getAnimalSymbols
-      );
+//         // Update the theme page with the image
+//         await ctx.runMutation(
+//           internal.mutations.themePages.updateThemePageImage,
+//           {
+//             id: result,
+//             storageId,
+//           }
+//         );
+//       }
 
-      // Better error handling for empty results
-      if (!animals || animals.length === 0) {
-        console.error("[InitThemePages]: No common elements found");
-        return;
-      }
+//       return { success: true, pageId: result };
+//     } catch (error: any) {
+//       console.error("[GenerateThemeOrSymbolPage]: Error:", error);
+//       throw error;
+//     }
+//   },
+// });
 
-      for (const element of animals) {
-        try {
-          // Check if theme page already exists
-          const existingPage = await ctx.runQuery(
-            internal.queries.themePages.getThemePageByName,
-            { name: element.name }
-          );
-
-          if (existingPage) {
-            console.warn(
-              `[InitThemePages]: Theme page for "${element.name}" already exists, skipping`
-            );
-            continue;
-          }
-
-          const systemPrompt = getSystemPromptForThemePage(element.name);
-
-          const response = await openai.beta.chat.completions.parse({
-            model: "gpt-4o",
-            messages: [
-              {
-                role: "system",
-                content: systemPrompt,
-              },
-              {
-                role: "user",
-                content: `Generate detailed content for ${element.name} dreams.`,
-              },
-            ],
-            response_format: zodResponseFormat(ThemePage, "themePage"),
-            temperature: 0.7,
-          });
-
-          const page = response.choices[0].message.parsed;
-
-          if (!page) {
-            throw new Error(`No page content generated for ${element.name}`);
-          }
-
-          // Validate required fields
-          if (!page.seo_title || !page.content || !page.summary) {
-            throw new Error(
-              `Missing required fields in generated content for ${element.name}`
-            );
-          }
-
-          await ctx.runMutation(internal.mutations.themePages.createThemePage, {
-            name: element.name,
-            seo_title: page.seo_title,
-            seo_slug: element.name.toLowerCase(),
-            seo_description:
-              page.seo_description ||
-              `Learn about ${element.name} dreams and their meaning`,
-            content: page.content,
-            summary: page.summary,
-            commonSymbols: page.commonSymbols || [],
-            psychologicalMeaning: page.psychologicalMeaning || "",
-            culturalContext: page.culturalContext || "",
-            commonScenarios: page.commonScenarios || [],
-            tips: page.tips || "",
-            updatedAt: Date.now(),
-          });
-
-          // Add delay to avoid rate limits
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        } catch (error) {
-          console.error(
-            `[InitThemePages]: Error processing ${element.name}:`,
-            error
-          );
-          // Continue with next element instead of stopping completely
-          continue;
-        }
-      }
-
-      return { success: true };
-    } catch (error) {
-      console.error("[InitThemePages]: Fatal error:", error);
-      throw error;
-    }
-  },
-});
-
-export const initThemePagesForElements = internalAction({
-  async handler(ctx) {
-    try {
-      const elements = await ctx.runQuery(
-        internal.queries.commonElements.getElementSymbols
-      );
-
-      if (!elements || elements.length === 0) {
-        console.error("[InitThemePages]: No element symbols found");
-        return;
-      }
-
-      for (const element of elements) {
-        try {
-          // Check if theme page already exists
-          const existingPage = await ctx.runQuery(
-            internal.queries.themePages.getThemePageByName,
-            { name: element.name }
-          );
-
-          if (existingPage) {
-            console.warn(
-              `[InitThemePages]: Theme page for "${element.name}" already exists, skipping`
-            );
-            continue;
-          }
-
-          const systemPrompt = getSystemPromptForThemePage(
-            element.name,
-            "symbol"
-          );
-
-          const response = await openai.beta.chat.completions.parse({
-            model: "gpt-4o",
-            messages: [
-              {
-                role: "system",
-                content: systemPrompt,
-              },
-              {
-                role: "user",
-                content: `Generate detailed content for ${element.name} as an elemental symbol in dreams.`,
-              },
-            ],
-            response_format: zodResponseFormat(ThemePage, "themePage"),
-            temperature: 0.7,
-          });
-
-          const page = response.choices[0].message.parsed;
-
-          if (!page) {
-            throw new Error(`No page content generated for ${element.name}`);
-          }
-
-          // Validate required fields
-          if (!page.seo_title || !page.content || !page.summary) {
-            throw new Error(
-              `Missing required fields in generated content for ${element.name}`
-            );
-          }
-
-          // Create the page
-          const pageId = await ctx.runMutation(
-            internal.mutations.themePages.createThemePage,
-            {
-              name: element.name,
-              seo_title: page.seo_title,
-              seo_slug: element.name.toLowerCase(),
-              seo_description:
-                page.seo_description ||
-                `Learn about ${element.name} as a dream symbol and its meaning`,
-              content: page.content,
-              summary: page.summary,
-              commonSymbols: page.commonSymbols || [],
-              psychologicalMeaning: page.psychologicalMeaning || "",
-              culturalContext: page.culturalContext || "",
-              commonScenarios: page.commonScenarios || [],
-              tips: page.tips || "",
-              updatedAt: Date.now(),
-            }
-          );
-
-          // Generate and store image
-          const imagePrompt = `Create a dreamy, ethereal illustration representing the element "${element.name}" in dreams. 
-          The image should be surreal and symbolic, incorporating elements from this description: ${page.summary}.
-          Style: Use soft, atmospheric colors with a mix of light and shadow. The composition should be artistic and metaphorical, 
-          suitable for a professional dream interpretation website. Make it mystical and thought-provoking, but not scary or disturbing.
-          Include some of these symbolic elements: ${page.commonSymbols.join(", ")}.
-          The element ${element.name} should be the central focus, shown in its most primal and symbolic form.`;
-
-          // Generate image using DALL-E 3
-          const imageResponse = await openai.images.generate({
-            model: "dall-e-3",
-            prompt: imagePrompt,
-            n: 1,
-            size: "512x512",
-            quality: "standard",
-            style: "natural",
-          });
-
-          const imageUrl = imageResponse.data[0]?.url;
-
-          if (imageUrl) {
-            // Fetch and store the image
-            const response = await fetch(imageUrl);
-            const blob = await response.blob();
-            const storageId = await ctx.storage.store(blob);
-
-            // Update the theme page with the image
-            await ctx.runMutation(
-              internal.mutations.themePages.updateThemePageImage,
-              {
-                id: pageId as unknown as Id<"themePages">,
-                storageId,
-              }
-            );
-          }
-
-          // Add delay to avoid rate limits
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        } catch (error) {
-          console.error(
-            `[InitThemePages]: Error processing ${element.name}:`,
-            error
-          );
-          // Continue with next element instead of stopping completely
-          continue;
-        }
-      }
-
-      return { success: true };
-    } catch (error) {
-      console.error("[InitThemePages]: Fatal error:", error);
-      throw error;
-    }
-  },
-});
-
-export const generateThemeImage = internalAction({
-  args: {
-    themePageId: v.id("themePages"),
-  },
-  handler: async (ctx, args) => {
-    // Get the theme page data
-    const themePage = await ctx.runQuery(
-      internal.queries.themePages.getThemePageById,
-      {
-        id: args.themePageId,
-      }
-    );
-
-    if (!themePage) {
-      throw new Error("Theme page not found");
-    }
-
-    // Generate a prompt for the image based on theme content
-    const imagePrompt = `Create a dreamy, ethereal illustration for the theme of "${themePage.name}" in dreams. 
-    The image should be surreal and symbolic, incorporating elements from this description: ${themePage.summary}.
-    Style: Use soft, atmospheric colors with a mix of light and shadow. The composition should be artistic and metaphorical, 
-    suitable for a professional dream interpretation website. Make it mystical and thought-provoking, but not scary or disturbing. Do not include any text in the image.`;
-
-    try {
-      // Generate image using DALL-E 3
-      const response = await openai.images.generate({
-        model: "dall-e-3",
-        prompt: imagePrompt,
-        n: 1,
-        size: "1024x1024",
-        quality: "standard",
-        style: "natural",
-      });
-
-      const imageUrl = response.data[0]?.url;
-
-      if (!imageUrl) {
-        throw new Error("No image generated");
-      }
-
-      // Fetch the image and store it in Convex
-      const imageResponse = await fetch(imageUrl);
-      const blob = await imageResponse.blob();
-      const storageId = await ctx.storage.store(blob);
-
-      // Store the storageId and prompt in the database
-      await ctx.runMutation(
-        internal.mutations.themePages.updateThemePageImage,
-        {
-          id: args.themePageId,
-          storageId,
-        }
-      );
-
-      // Get the URL for the stored image
-      const url = await ctx.storage.getUrl(storageId);
-
-      return { success: true, imageUrl: url, storageId };
-    } catch (error) {
-      console.error("Error generating image:", error);
-      throw error;
-    }
-  },
-});
-
-export const generateThemeOrSymbolPage = action({
+export const generateThemeOrSymbolPageWithElement = action({
   args: {
     name: v.string(),
     type: v.union(v.literal("theme"), v.literal("symbol")),
+    category: v.string(),
   },
   handler: async (
     ctx,
@@ -976,6 +782,33 @@ export const generateThemeOrSymbolPage = action({
     reason?: string;
   }> => {
     try {
+      // Check if element already exists
+      const existingElement = await ctx.runQuery(
+        internal.queries.commonElements.getCommonElementByName,
+        { name: args.name }
+      );
+
+      if (existingElement) {
+        console.warn(
+          `[GenerateThemeOrSymbolPageWithElement]: Element "${args.category}" already exists, skipping`
+        );
+        return { success: false, reason: "Element already exists" };
+      }
+
+      // Create element
+      const element = await ctx.runMutation(
+        internal.mutations.commonElements.createCommonElement,
+        {
+          name: args.name,
+          type: args.type,
+          category: args.category,
+        }
+      );
+
+      if (!element) {
+        throw new Error("Failed to create element");
+      }
+
       // Check if page already exists
       const existingPage = await ctx.runQuery(
         internal.queries.themePages.getThemePageByName,
@@ -984,7 +817,7 @@ export const generateThemeOrSymbolPage = action({
 
       if (existingPage) {
         console.warn(
-          `[GenerateThemeOrSymbolPage]: Page for "${args.name}" already exists, skipping`
+          `[GenerateThemeOrSymbolPageWithElement]: Page for "${args.name}" already exists, skipping`
         );
         return { success: false, reason: "Page already exists" };
       }
@@ -1032,6 +865,7 @@ export const generateThemeOrSymbolPage = action({
           commonScenarios: page.commonScenarios || [],
           tips: page.tips || "",
           updatedAt: Date.now(),
+          isPublished: false,
         }
       );
 
@@ -1047,169 +881,41 @@ export const generateThemeOrSymbolPage = action({
       Include some of these symbolic elements: ${page.commonSymbols.join(", ")}.`;
 
       // Generate image using DALL-E 3
-      const imageResponse = await openai.images.generate({
-        model: "dall-e-3",
-        prompt: imagePrompt,
-        n: 1,
-        size: "1024x1024",
-        quality: "standard",
-        style: "natural",
-      });
+      try {
+        const imageResponse = await openai.images.generate({
+          model: "dall-e-3",
+          prompt: imagePrompt,
+          n: 1,
+          size: "1024x1024",
+          quality: "standard",
+          style: "natural",
+        });
 
-      const imageUrl = imageResponse.data[0]?.url;
+        const imageUrl = imageResponse.data[0]?.url;
 
-      if (imageUrl) {
-        // Fetch and store the image
-        const response = await fetch(imageUrl);
-        const blob = await response.blob();
-        const storageId = await ctx.storage.store(blob);
+        if (imageUrl) {
+          // Fetch and store the image
+          const response = await fetch(imageUrl);
+          const blob = await response.blob();
+          const storageId = await ctx.storage.store(blob);
 
-        // Update the theme page with the image
-        await ctx.runMutation(
-          internal.mutations.themePages.updateThemePageImage,
-          {
-            id: result,
-            storageId,
-          }
-        );
+          // Update the theme page with the image
+          await ctx.runMutation(
+            internal.mutations.themePages.updateThemePageImage,
+            {
+              id: result,
+              storageId,
+            }
+          );
+        }
+      } catch (error: any) {
+        console.error("[GenerateThemeOrSymbolPageWithElement]: Error:", error);
       }
 
       return { success: true, pageId: result };
     } catch (error: any) {
-      console.error("[GenerateThemeOrSymbolPage]: Error:", error);
+      console.error("[GenerateThemeOrSymbolPageWithElement]: Error:", error);
       throw error;
-    }
-  },
-});
-
-export const generateDreamImage = internalAction({
-  args: {
-    analysisId: v.id("analysis"),
-    details: v.string(),
-    title: v.string(),
-  },
-  handler: async (ctx, args) => {
-    try {
-      // Generate a prompt for the image based on dream content
-      const imagePrompt = `Create a dreamy, ethereal illustration representing this dream: "${args.title}". 
-      The image should be surreal and symbolic, incorporating elements from this description: ${args.details}.
-      Style: Use soft, atmospheric colors with a mix of light and shadow. The composition should be artistic and metaphorical, 
-      suitable for a professional dream journal. Make it mystical and thought-provoking, but not scary or disturbing. 
-      Do not include any text in the image.`;
-
-      // Generate image using DALL-E 3
-      const response = await openai.images.generate({
-        model: "dall-e-3",
-        prompt: imagePrompt,
-        n: 1,
-        size: "1024x1024",
-        quality: "standard",
-        style: "natural",
-      });
-
-      const imageUrl = response.data[0]?.url;
-
-      if (!imageUrl) {
-        throw new Error("No image generated");
-      }
-
-      // Fetch the image and store it in Convex
-      const imageResponse = await fetch(imageUrl);
-      const blob = await imageResponse.blob();
-      const storageId = await ctx.storage.store(blob);
-
-      // Update the dream with the image storage ID
-      // @ts-ignore
-      await ctx.runMutation(internal.mutations.analysis.addAnalysisImage, {
-        analysisId: args.analysisId,
-        storageId,
-      });
-
-      return { success: true, storageId };
-    } catch (error) {
-      console.error("Error generating dream image:", error);
-      throw error;
-    }
-  },
-});
-
-export const regenerateAnalysisImage = action({
-  args: {
-    analysisId: v.id("analysis"),
-    dreamId: v.id("dreams"),
-  },
-  handler: async (ctx, args) => {
-    const userId = await getUserId(ctx);
-
-    const dream = await ctx.runQuery(
-      internal.queries.dreams.getDreamByIdInternal,
-      {
-        id: args.dreamId,
-        userId: userId,
-      }
-    );
-
-    if (!dream) {
-      throw new Error("Dream not found");
-    }
-
-    const emotions = await ctx.runQuery(
-      internal.queries.emotions.getEmotionsByDreamIdInternal,
-      {
-        id: dream._id,
-      }
-    );
-
-    const role = await ctx.runQuery(
-      internal.queries.roles.getRoleByIdInternal,
-      {
-        id: dream.role as Id<"roles">,
-      }
-    );
-
-    const formattedEmotions = emotions.map((e) => e?.name).join(", ");
-    const people = dream.people?.join(", ") || "N/A";
-    const places = dream.places?.join(", ") || "N/A";
-    const things = dream.things?.join(", ") || "N/A";
-    const roleDescription = role?.name || "Unknown Role";
-    const details = dream.details;
-
-    const userPrompt = `
-      Dream Details:
-      --------------
-      "${details}"
-
-      Emotions Experienced: ${formattedEmotions},
-      Role in the dream: ${roleDescription},
-      People Involved: ${people},
-      Places Involved: ${places},
-      Important Symbols or Things: ${things}
-    `;
-
-    try {
-      const response = await openai.images.generate({
-        model: "dall-e-3",
-        prompt: analysisImagePrompt(userPrompt),
-        n: 1,
-        size: "1024x1024",
-        quality: "standard",
-      });
-
-      const imageUrl = response.data[0]?.url;
-
-      if (!imageUrl) {
-        throw new Error("No image generated");
-      }
-      const imageResponse = await fetch(imageUrl);
-      const imageBlob = await imageResponse.blob();
-      const storageId = await ctx.storage.store(imageBlob);
-
-      await ctx.runMutation(internal.mutations.analysis.addAnalysisImage, {
-        analysisId: args.analysisId,
-        storageId: storageId,
-      });
-    } catch (err) {
-      console.error("Error generating analysis image:", err);
     }
   },
 });

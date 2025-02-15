@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAction } from "convex/react";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +23,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
@@ -32,22 +35,44 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/convex/_generated/api";
 
-interface FormValues {
-  name: string;
-  type: "theme" | "symbol";
-}
+const formSchema = z.object({
+  name: z.string().min(1, "Name is required").transform((str) => {
+    return str
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  }),
+  type: z.enum(["theme", "symbol"], {
+    required_error: "Type is required",
+  }),
+  category: z
+    .string()
+    .min(1, "Category is required")
+    .transform((str) => {
+      return str
+        .split(" ")
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        )
+        .join(" ");
+    }),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export default function AdminGenerateTheme() {
   const [isGenerating, setIsGenerating] = useState(false);
   const generatePage = useAction(
     // @ts-ignore
-    api.mutations.openai.generateThemeOrSymbolPage
+    api.mutations.openai.generateThemeOrSymbolPageWithElement
   );
 
   const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       type: "theme",
+      category: "",
     },
   });
 
@@ -73,7 +98,7 @@ export default function AdminGenerateTheme() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Generate Theme Page</CardTitle>
+        <CardTitle>Generate Dream Dictionary Page</CardTitle>
         <CardDescription>
           Create a new theme or symbol page with AI-generated content
         </CardDescription>
@@ -93,6 +118,7 @@ export default function AdminGenerateTheme() {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -116,6 +142,23 @@ export default function AdminGenerateTheme() {
                       <SelectItem value="symbol">Symbol</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., Elements, Animals, Common Themes"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />

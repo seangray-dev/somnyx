@@ -39,7 +39,7 @@ export default function AdminPage() {
         <section>
           <h2 className="text-2xl font-bold">Content Management</h2>
           <div className="pt-4 grid gap-6">
-            {/* <AdminGenerateTheme /> */}
+            <AdminGenerateTheme />
             <AdminThemePagesList />
           </div>
         </section>

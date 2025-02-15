@@ -23,6 +23,7 @@ export const createThemePage = internalMutation({
     commonScenarios: v.array(v.string()),
     tips: v.string(),
     updatedAt: v.number(),
+    isPublished: v.optional(v.boolean()),
   },
   async handler(ctx, args) {
     const {
@@ -38,14 +39,15 @@ export const createThemePage = internalMutation({
       commonScenarios,
       tips,
       updatedAt,
+      isPublished = false,
     } = args;
 
-    await ctx.db.insert("themePages", {
+    const id = await ctx.db.insert("themePages", {
       name,
       seo_title,
       seo_slug,
       seo_description,
-      isPublished: false,
+      isPublished,
       content,
       summary,
       commonSymbols,
@@ -55,6 +57,8 @@ export const createThemePage = internalMutation({
       tips,
       updatedAt,
     });
+
+    return id;
   },
 });
 
