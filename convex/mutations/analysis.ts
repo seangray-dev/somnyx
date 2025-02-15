@@ -37,3 +37,17 @@ export const addNewAnalysis = internalMutation({
     return analyisId;
   },
 });
+
+export const addAnalysisImage = internalMutation({
+  args: {
+    analysisId: v.id("analysis"),
+    storageId: v.id("_storage"),
+  },
+  handler: async (ctx, args) => {
+    const { analysisId, storageId } = args;
+
+    await ctx.db.patch(analysisId, {
+      imageStorageId: storageId,
+    });
+  },
+});

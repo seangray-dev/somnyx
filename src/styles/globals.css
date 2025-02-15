@@ -31,6 +31,10 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    --success-foreground: 141.7 76.6% 73.1%;
+    --success: 143.8 61.2% 20.2%;
+    --warning: 30.7 97.2% 72.4%;
+    --warning-foreground: 15.3 74.6% 27.8%;
   }
 
   .dark {

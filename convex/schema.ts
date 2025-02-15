@@ -8,6 +8,9 @@ export default defineSchema({
     first_name: v.optional(v.string()),
     last_name: v.optional(v.string()),
     credits: v.optional(v.number()),
+    isAdmin: v.optional(v.boolean()),
+    adminSince: v.optional(v.number()),
+    lastLoginAt: v.optional(v.number()),
     subscriptionId: v.optional(v.string()),
     profileImage: v.optional(v.string()),
     endsOn: v.optional(v.number()),
@@ -15,12 +18,6 @@ export default defineSchema({
     .index("by_userId", ["userId"])
     .index("by_email", ["email"])
     .index("by_subscriptionId", ["subscriptionId"]),
-
-  rateLimits: defineTable({
-    key: v.string(),
-    count: v.number(),
-    expires: v.number(),
-  }).index("by_key", ["key"]),
 
   emotions: defineTable({
     name: v.string(),
@@ -56,6 +53,7 @@ export default defineSchema({
     symbolicInterpretation: v.string(),
     underlyingMessage: v.string(),
     actionableTakeaway: v.string(),
+    imageStorageId: v.optional(v.id("_storage")),
   })
     .index("by_dreamId", ["dreamId"])
     .index("by_userId", ["userId"]),
@@ -213,4 +211,91 @@ export default defineSchema({
   })
     .index("by_userId", ["userId"])
     .index("by_userId_and_monthYear", ["userId", "monthYear"]),
+
+  messages: defineTable({
+    body: v.string(),
+    author: v.string(),
+    isComplete: v.boolean(),
+    conversationId: v.string(),
+    createdAt: v.number(),
+  }).index("by_conversation", ["conversationId"]),
+
+  commonElements: defineTable({
+    name: v.string(),
+    count: v.number(),
+    updatedAt: v.number(),
+    type: v.union(v.literal("symbol"), v.literal("theme")),
+    category: v.string(),
+    confidence: v.number(),
+  })
+    .index("by_count", ["count"])
+    .index("by_name", ["name"])
+    .index("by_category", ["category"])
+    .index("by_type_and_confidence", ["type", "confidence"])
+    .searchIndex("search_name", {
+      searchField: "name",
+    }),
+
+  themePages: defineTable({
+    name: v.string(),
+    seo_title: v.string(),
+    seo_slug: v.string(),
+    seo_description: v.string(),
+    isPublished: v.optional(v.boolean()),
+    content: v.object({
+      description: v.string(),
+      types_variations: v.string(),
+      dailyLifeSignificance: v.string(),
+      emotional_experience_relationship: v.string(),
+      research_studies: v.string(),
+      expert_perspectives: v.string(),
+    }),
+    summary: v.string(),
+    commonSymbols: v.array(v.string()),
+    psychologicalMeaning: v.string(),
+    culturalContext: v.string(),
+    commonScenarios: v.array(v.string()),
+    tips: v.string(),
+    updatedAt: v.number(),
+    storageId: v.optional(v.id("_storage")),
+  })
+    .index("by_seo_slug", ["seo_slug"])
+    .searchIndex("search", {
+      searchField: "name",
+      filterFields: ["summary", "seo_title"],
+    }),
+
+  feedback: defineTable({
+    type: v.union(v.literal("feedback"), v.literal("issue")),
+    userId: v.optional(v.string()),
+    title: v.string(),
+    description: v.string(),
+    status: v.union(
+      v.literal("new"),
+      v.literal("in_progress"),
+      v.literal("resolved"),
+      v.literal("closed"),
+      v.literal("N/A")
+    ),
+    deviceInfo: v.optional(
+      v.object({
+        deviceType: v.string(),
+        browser: v.string(),
+        os: v.string(),
+        screenResolution: v.string(),
+      })
+    ),
+    metadata: v.optional(
+      v.object({
+        reportedFromBrowser: v.string(),
+        reportedFromOs: v.string(),
+        reportedFromScreenResolution: v.string(),
+        reportedFromDeviceType: v.string(),
+      })
+    ),
+    updatedAt: v.number(),
+  })
+    .index("by_type", ["type"])
+    .index("by_userId", ["userId"])
+    .index("by_status", ["status"]),
 });

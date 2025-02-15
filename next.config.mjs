@@ -14,6 +14,14 @@ const nextConfig = {
   experimental: {
     typedRoutes: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "vivid-hornet-727.convex.cloud",
+      },
+    ],
+  },
 };
 
 const withPWA = nextPwa({

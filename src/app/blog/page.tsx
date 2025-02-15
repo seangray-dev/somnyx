@@ -1,25 +1,9 @@
-import Link from "next/link";
-
-import { formatDate } from "date-fns";
 import fs from "fs";
 import matter from "gray-matter";
 import path from "path";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
-type BlogPost = {
-  title: string;
-  description: string;
-  slug: string;
-  date: string;
-};
+import { BlogPostCard } from "@/features/blog/components/blog-post-card";
+import { BlogPost } from "@/features/blog/types";
 
 // Fetch all blog posts from the /data/blog directory
 function getAllPosts(): BlogPost[] {
@@ -46,36 +30,19 @@ export default function BlogPage() {
   const posts = getAllPosts();
 
   return (
-    <section className="container py-6">
-      <div className="pb-6 sm:space-y-2">
-        <h1 className="text-3xl font-bold sm:text-5xl">Somnyx Blog</h1>
-        <p className="text-muted-foreground">Explore our latest blog posts.</p>
+    <section>
+      <div className="bg-secondary py-20 sm:space-y-2">
+        <div className="container flex flex-col gap-4 text-center">
+          <h1 className="text-3xl font-bold sm:text-5xl">Somnyx Blog</h1>
+          <p className="mx-auto max-w-[80ch] text-balance text-muted-foreground">
+            Guides, articles, and tips to get the most out of dream journaling.
+          </p>
+        </div>
       </div>
-      <ul className="flex flex-col gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="container flex flex-col gap-4 pt-12 sm:grid sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => (
           <li key={post.slug}>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-pretty">{post.title}</CardTitle>
-                <CardDescription className="flex flex-col gap-2 text-pretty">
-                  <span>{post.description}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {formatDate(post.date, "MMMM d, yyyy")}
-                  </span>
-                </CardDescription>
-              </CardHeader>
-
-              <CardFooter className="flex flex-col gap-4">
-                <Link
-                  className="w-full"
-                  href={{ pathname: `/blog/${post.slug}` }}
-                >
-                  <Button variant={"secondary"} size={"sm"} className="w-full">
-                    View
-                  </Button>
-                </Link>
-              </CardFooter>
-            </Card>
+            <BlogPostCard {...post} />
           </li>
         ))}
       </ul>
