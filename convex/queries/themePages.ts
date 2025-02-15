@@ -68,3 +68,10 @@ export const searchThemePages = query({
       .take(20);
   },
 });
+
+export const getAllThemePages = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("themePages").collect();
+  },
+});
