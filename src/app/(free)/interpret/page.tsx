@@ -1,5 +1,5 @@
-import { default as DreamMeaningFaqSection } from "@/components/dream-meaning/faq-section";
-import FooterCtaSection from "@/components/dream-meaning/footer-cta-section";
+import DreamMeaningFaqSection from "@/components/dream-dictionary/faq-section";
+import FooterCtaSection from "@/components/dream-dictionary/footer-cta-section";
 import Analysis from "@/features/free-analysis/components/analysis";
 
 export default function page() {
