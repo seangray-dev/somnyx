@@ -10,6 +10,7 @@ import {
   SYSTEM_PROMPT,
   analysisImagePrompt,
   getSystemPromptForThemePage,
+  getUserId,
 } from "../util";
 import { ThemePage } from "../zodSchemas";
 
@@ -294,6 +295,7 @@ export const generateAnalysis = internalAction({
   async handler(ctx, args) {
     const { dreamId, userId } = args;
     const dream = await ctx.runQuery(
+      // @ts-ignore
       internal.queries.dreams.getDreamByIdInternal,
       {
         id: dreamId,
@@ -1082,7 +1084,7 @@ export const generateThemeOrSymbolPage = action({
 
 export const generateDreamImage = internalAction({
   args: {
-    dreamId: v.id("dreams"),
+    analysisId: v.id("analysis"),
     details: v.string(),
     title: v.string(),
   },
@@ -1117,8 +1119,9 @@ export const generateDreamImage = internalAction({
       const storageId = await ctx.storage.store(blob);
 
       // Update the dream with the image storage ID
-      await ctx.runMutation(internal.mutations.dreams.updateDreamImage, {
-        dreamId: args.dreamId,
+      // @ts-ignore
+      await ctx.runMutation(internal.mutations.analysis.addAnalysisImage, {
+        analysisId: args.analysisId,
         storageId,
       });
 
@@ -1126,6 +1129,87 @@ export const generateDreamImage = internalAction({
     } catch (error) {
       console.error("Error generating dream image:", error);
       throw error;
+    }
+  },
+});
+
+export const regenerateAnalysisImage = action({
+  args: {
+    analysisId: v.id("analysis"),
+    dreamId: v.id("dreams"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getUserId(ctx);
+
+    const dream = await ctx.runQuery(
+      internal.queries.dreams.getDreamByIdInternal,
+      {
+        id: args.dreamId,
+        userId: userId,
+      }
+    );
+
+    if (!dream) {
+      throw new Error("Dream not found");
+    }
+
+    const emotions = await ctx.runQuery(
+      internal.queries.emotions.getEmotionsByDreamIdInternal,
+      {
+        id: dream._id,
+      }
+    );
+
+    const role = await ctx.runQuery(
+      internal.queries.roles.getRoleByIdInternal,
+      {
+        id: dream.role as Id<"roles">,
+      }
+    );
+
+    const formattedEmotions = emotions.map((e) => e?.name).join(", ");
+    const people = dream.people?.join(", ") || "N/A";
+    const places = dream.places?.join(", ") || "N/A";
+    const things = dream.things?.join(", ") || "N/A";
+    const roleDescription = role?.name || "Unknown Role";
+    const details = dream.details;
+
+    const userPrompt = `
+      Dream Details:
+      --------------
+      "${details}"
+
+      Emotions Experienced: ${formattedEmotions},
+      Role in the dream: ${roleDescription},
+      People Involved: ${people},
+      Places Involved: ${places},
+      Important Symbols or Things: ${things}
+    `;
+
+    try {
+      const response = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: analysisImagePrompt(userPrompt),
+        n: 1,
+        size: "1024x1024",
+        quality: "standard",
+      });
+
+      const imageUrl = response.data[0]?.url;
+
+      if (!imageUrl) {
+        throw new Error("No image generated");
+      }
+      const imageResponse = await fetch(imageUrl);
+      const imageBlob = await imageResponse.blob();
+      const storageId = await ctx.storage.store(imageBlob);
+
+      await ctx.runMutation(internal.mutations.analysis.addAnalysisImage, {
+        analysisId: args.analysisId,
+        storageId: storageId,
+      });
+    } catch (err) {
+      console.error("Error generating analysis image:", err);
     }
   },
 });

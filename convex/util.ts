@@ -150,7 +150,15 @@ export const getSystemPromptForThemePage = (
 };
 
 export const analysisImagePrompt = (details: string) => {
-  return `Create a dreamy, ethereal illustration for this dream: "${details}". 
-    The image should be surreal and symbolic, incorporating elements from this description: ${details}.
-    Style: Use soft, atmospheric colors with a mix of light and shadow. The composition should be artistic and metaphorical, suitable for a professional dream interpretation website. Make it mystical and thought-provoking, but not scary or disturbing. Do not include any text in the image.`;
+  return `Create a symbolic, abstract artistic interpretation that captures the essence of this dream in a safe, non-explicit way. 
+  The image should be dreamlike and metaphorical, using:
+  - Soft, ethereal colors and lighting
+  - Abstract shapes and forms
+  - Natural elements like clouds, water, or stars
+  - Symbolic representations rather than literal scenes
+  - Gentle, calming imagery
+  Style: Artistic, surreal, and non-threatening. Focus on mood and atmosphere rather than specific details.
+  The overall tone should be peaceful and contemplative.
+  
+  Dream essence to interpret: "${details}"`;
 };

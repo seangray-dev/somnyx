@@ -4,12 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
-import { useMutation, useQuery } from "convex/react";
-import { SparklesIcon } from "lucide-react";
+import { useAction, useMutation, useQuery } from "convex/react";
+import { RefreshCcwIcon, SparklesIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import Loader from "@/components/shared/loader";
 import LoadingButton from "@/components/shared/loading-button";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -24,6 +25,7 @@ import { CREDIT_COSTS } from "@/convex/util";
 import useDreamAnalysis from "@/features/analysis/api/use-dream-analysis";
 import useUserCredits from "@/features/credits/api/use-user-credits";
 import { useGetAnalysisImageUrl } from "@/hooks/use-convex-image";
+import { cn } from "@/lib/utils";
 
 type AnalysisProps = {
   dreamId: string;
@@ -56,6 +58,59 @@ const renderSection = (
   </div>
 );
 
+const ImageSkeleton = () => (
+  <div className="mx-auto max-w-lg pb-10">
+    <div className="aspect-square size-[500px] w-full animate-pulse overflow-hidden rounded-lg bg-muted" />
+  </div>
+);
+
+const AnalysisImage = ({ url }: { url: string }) => (
+  <div className="mx-auto max-w-lg pb-10">
+    <Image
+      src={url}
+      alt="Analysis"
+      width={500}
+      height={500}
+      className="w-full rounded-lg object-cover"
+      priority
+    />
+  </div>
+);
+
+const RegenerateImageSection = ({
+  onRegenerate,
+  isRegenerating,
+  hasError,
+}: {
+  onRegenerate: () => void;
+  isRegenerating: boolean;
+  hasError: boolean;
+}) => (
+  <div className="mx-auto max-w-lg pb-10">
+    <div className="aspect-square size-[500px] w-full animate-pulse overflow-hidden rounded-lg bg-muted" />
+    <div className="mt-4 flex flex-col items-center gap-2">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onRegenerate}
+        disabled={isRegenerating}
+        className="gap-2"
+      >
+        <RefreshCcwIcon
+          size={16}
+          className={cn(isRegenerating && "animate-spin")}
+        />
+        {isRegenerating ? "Regenerating..." : "Regenerate Image"}
+      </Button>
+      {hasError && (
+        <p className="text-sm text-destructive">
+          There was an issue generating the image. Please try again.
+        </p>
+      )}
+    </div>
+  </div>
+);
+
 export default function AnalysisCard({ dreamId }: AnalysisProps) {
   const {
     data: analysis,
@@ -65,12 +120,17 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
     dreamId,
   });
   const [generateAnalyisLoading, setGenerateAnalyisLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const { data: userCredits } = useUserCredits();
   const imageUrl = useGetAnalysisImageUrl(analysis?.imageStorageId);
   const user = useQuery(api.users.getMyUser);
   const hasSufficientCredits = userCredits! >= CREDIT_COSTS.ANALYSIS;
   const neededCredits = CREDIT_COSTS.ANALYSIS - userCredits!;
   const generateAnalyis = useMutation(api.mutations.generateAnalysis);
+  const [isRegeneratingImage, setIsRegeneratingImage] = useState(false);
+  const regenerateImage = useAction(
+    api.mutations.openai.regenerateAnalysisImage
+  );
 
   const handleGenerateAnalysis = async () => {
     setGenerateAnalyisLoading(true);
@@ -79,6 +139,23 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
       userId: user?.userId!,
     });
     setGenerateAnalyisLoading(false);
+  };
+
+  const handleRegenerateImage = async () => {
+    try {
+      setIsRegeneratingImage(true);
+      setImageError(false);
+      await regenerateImage({
+        dreamId: dreamId as Id<"dreams">,
+        analysisId: analysis?._id as Id<"analysis">,
+      });
+      toast.success("Image generation started");
+    } catch (error) {
+      setImageError(true);
+      toast.error("Failed to regenerate image");
+    } finally {
+      setIsRegeneratingImage(false);
+    }
   };
 
   const renderContent = () => {
@@ -130,22 +207,32 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
     );
   };
 
+  const renderImageSection = () => {
+    if (isLoading) {
+      return <ImageSkeleton />;
+    }
+
+    if (imageUrl) {
+      return <AnalysisImage url={imageUrl} />;
+    }
+
+    if (!imageUrl && !noAnalysis) {
+      return (
+        <RegenerateImageSection
+          onRegenerate={handleRegenerateImage}
+          isRegenerating={isRegeneratingImage}
+          hasError={imageError}
+        />
+      );
+    }
+
+    return null;
+  };
+
   return (
     <Card>
       <CardHeader>
-        {isLoading ? (
-          <div className="mx-auto aspect-square w-full max-w-lg animate-pulse overflow-hidden rounded-lg bg-muted pb-10" />
-        ) : imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt="Analysis"
-            width={500}
-            height={500}
-            className="mx-auto rounded-lg object-cover pb-10"
-          />
-        ) : noAnalysis ? null : (
-          <div className="mx-auto aspect-square w-full max-w-lg animate-pulse overflow-hidden rounded-lg bg-muted" />
-        )}
+        {renderImageSection()}
         <CardTitle className="mx-auto text-center text-3xl">Analysis</CardTitle>
         <CardDescription className="mx-auto text-balance text-center text-base">
           {renderContent()}
