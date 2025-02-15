@@ -60,7 +60,7 @@ const renderSection = (
 
 const ImageSkeleton = () => (
   <div className="mx-auto max-w-lg pb-10">
-    <div className="aspect-square size-[500px] w-full animate-pulse overflow-hidden rounded-lg bg-muted" />
+    <div className="aspect-square size-[500px] w-full animate-pulse overflow-hidden rounded-sm bg-muted" />
   </div>
 );
 
@@ -69,9 +69,9 @@ const AnalysisImage = ({ url }: { url: string }) => (
     <Image
       src={url}
       alt="Analysis"
-      width={500}
-      height={500}
-      className="w-full rounded-lg object-cover"
+      width={512}
+      height={512}
+      className="w-full rounded-sm object-cover"
       priority
     />
   </div>
@@ -87,7 +87,7 @@ const RegenerateImageSection = ({
   hasError: boolean;
 }) => (
   <div className="mx-auto max-w-lg pb-10">
-    <div className="aspect-square size-[500px] w-full animate-pulse overflow-hidden rounded-lg bg-muted" />
+    <div className="aspect-square size-[384px] w-full animate-pulse overflow-hidden rounded-md bg-muted" />
     <div className="mt-4 flex flex-col items-center gap-2">
       <Button
         variant="outline"
