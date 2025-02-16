@@ -27,7 +27,8 @@ export default function SiteFooter() {
               {navigation.product.map((item) => (
                 <Link
                   key={item.name}
-                  href={{ pathname: item.href }}
+                  // @ts-expect-error
+                  href={item.href}
                   className="hover:text-foreground hover:underline"
                 >
                   {item.name}
