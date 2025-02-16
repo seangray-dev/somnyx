@@ -1,6 +1,6 @@
 import { env } from "process";
 
-export const applicationName = "somnyx";
+export const applicationName = "Somnyx";
 export const baseUrl = "https://somnyx.app";
 
 export const DOMAIN =
@@ -50,10 +50,11 @@ export const SEO = {
         "Discover patterns and meanings in your dreams with AI-powered emotional and thematic analysis.",
     },
     dreamDictionary: {
-      title: "Dream Symbol Dictionary",
+      title: "Dream Dictionary",
       description:
         "Explore common dream symbols and their meanings in our comprehensive dream dictionary.",
     },
+
     interpret: {
       title: "Free Dream Interpretation",
       description:

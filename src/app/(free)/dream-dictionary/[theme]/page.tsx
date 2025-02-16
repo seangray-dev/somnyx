@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import { preloadQuery } from "convex/nextjs";
+import { fetchQuery, preloadQuery } from "convex/nextjs";
 
 import ThemePageContent from "@/components/dream-dictionary/theme-page";
 import { SEO } from "@/config/app";
@@ -22,19 +22,41 @@ export default async function ThemePage({
   return <ThemePageContent preloadedThemePage={preloadedThemePage} />;
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: { theme: string };
+}): Promise<Metadata> {
   // TODO: Dynamic metadata for theme pages - title, description, image,
+  const theme = await fetchQuery(
+    // @ts-ignore
+    api.queries.themePages.getThemePageByNamePublic,
+    {
+      name: params.theme.toLowerCase(),
+    }
+  );
+
+  // TODO: Fallbacks - images, etc.
+  if (!theme) {
+    return {
+      title: SEO.pages.dreamDictionary.title,
+      description: SEO.pages.dreamDictionary.description,
+    };
+  }
+
+  const { name, seo_description } = theme;
+  const title = `${SEO.pages.dreamDictionary.title} - ${name}`;
 
   return {
-    title: SEO.pages.dreamDictionary.title,
-    description: SEO.pages.dreamDictionary.description,
+    title,
+    description: seo_description,
     openGraph: {
-      title: SEO.pages.dreamDictionary.title,
-      description: SEO.pages.dreamDictionary.description,
+      title,
+      description: seo_description,
     },
     twitter: {
-      title: SEO.pages.dreamDictionary.title,
-      description: SEO.pages.dreamDictionary.description,
+      title,
+      description: seo_description,
     },
   };
 }
