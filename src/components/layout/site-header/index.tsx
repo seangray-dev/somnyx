@@ -30,7 +30,7 @@ export default function SiteHeader() {
             <SideNavigation />
             <Logo />
           </div>
-          <div className="mx-4 flex h-7">
+          <div className="mx-4 hidden h-7 items-center sm:flex">
             <Separator orientation="vertical" className="h-full bg-border" />
           </div>
           <div className="hidden h-full items-center gap-4 sm:flex">
