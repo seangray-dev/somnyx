@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const ThemePage = z.object({
   name: z.string(),
-  seo_title: z.string(),
   seo_description: z.string(),
   content: z.object({
     description: z.string(),

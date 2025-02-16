@@ -5,7 +5,6 @@ import { internalMutation, mutation } from "../_generated/server";
 export const createThemePage = internalMutation({
   args: {
     name: v.string(),
-    seo_title: v.string(),
     seo_slug: v.string(),
     seo_description: v.string(),
     content: v.object({
@@ -28,7 +27,6 @@ export const createThemePage = internalMutation({
   async handler(ctx, args) {
     const {
       name,
-      seo_title,
       seo_slug,
       seo_description,
       content,
@@ -44,7 +42,6 @@ export const createThemePage = internalMutation({
 
     const id = await ctx.db.insert("themePages", {
       name,
-      seo_title,
       seo_slug,
       seo_description,
       isPublished,

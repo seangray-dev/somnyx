@@ -238,7 +238,6 @@ export default defineSchema({
 
   themePages: defineTable({
     name: v.string(),
-    seo_title: v.string(),
     seo_slug: v.string(),
     seo_description: v.string(),
     isPublished: v.optional(v.boolean()),
@@ -262,7 +261,7 @@ export default defineSchema({
     .index("by_seo_slug", ["seo_slug"])
     .searchIndex("search", {
       searchField: "name",
-      filterFields: ["summary", "seo_title"],
+      filterFields: ["summary"],
     }),
 
   feedback: defineTable({

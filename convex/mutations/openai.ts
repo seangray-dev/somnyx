@@ -852,7 +852,6 @@ export const generateThemeOrSymbolPageWithElement = action({
         internal.mutations.themePages.createThemePage,
         {
           name: args.name,
-          seo_title: page.seo_title,
           seo_slug: args.name.toLowerCase(),
           seo_description:
             page.seo_description ||
