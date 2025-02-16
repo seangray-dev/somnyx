@@ -37,8 +37,8 @@ export default function SiteHeader() {
             <Link
               href="/interpret"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary hover:underline",
-                pathname === "/interpret" && "text-primary underline"
+                "border-b border-transparent text-sm font-medium transition-all duration-150 hover:border-b-muted-foreground hover:text-muted-foreground",
+                pathname === "/interpret" && "border-b-primary text-primary"
               )}
             >
               Interpret
@@ -46,10 +46,10 @@ export default function SiteHeader() {
             <Link
               href="/dream-dictionary"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary hover:underline",
+                "border-b border-transparent text-sm font-medium transition-all duration-150 hover:border-b-muted-foreground hover:text-muted-foreground",
                 (pathname === "/dream-dictionary" ||
-                  pathname.startsWith("/dream-meaning/")) &&
-                  "text-primary underline"
+                  pathname.startsWith("/dream-dictionary/")) &&
+                  "border-b-primary text-primary"
               )}
             >
               <span className="hidden md:inline">Dream </span>{" "}
@@ -58,8 +58,9 @@ export default function SiteHeader() {
             <Link
               href="/blog"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary hover:underline",
-                pathname === "/blog" && "text-primary underline"
+                "border-b border-transparent text-sm font-medium transition-all duration-150 hover:border-b-muted-foreground hover:text-muted-foreground",
+                (pathname === "/blog" || pathname.startsWith("/blog/")) &&
+                  "border-b-primary text-primary"
               )}
             >
               Blog

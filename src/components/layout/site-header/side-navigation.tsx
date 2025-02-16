@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { MenuIcon } from "lucide-react";
@@ -12,12 +13,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 import { navigation } from "../site-footer/footer-links";
 import { links } from "./links";
 
 export default function SideNavigation() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -39,7 +42,12 @@ export default function SideNavigation() {
                 onClick={() => setOpen(false)}
                 variant={"link"}
                 key={link.label}
-                className="flex items-center gap-4 text-foreground hover:text-primary"
+                className={cn(
+                  "flex w-fit items-center gap-4 text-foreground hover:text-muted-foreground",
+                  ((pathname.startsWith(link.href) && link.href !== "/") ||
+                    pathname === link.href) &&
+                    "text-primary underline"
+                )}
               >
                 {link.icon}
                 {/* @ts-expect-error */}
