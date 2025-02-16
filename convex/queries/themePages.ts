@@ -91,14 +91,6 @@ export const getAllThemePages = query({
 
 export const getAllThemePagesAdmin = query({
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    const userId = identity?.subject;
-
-    // Only allow admin to access this query
-    // if (userId !== "user_2YCqK8BfgJcxrKxmwEjxCXhL6rF") {
-    //   return null;
-    // }
-
     const themePages = await ctx.db.query("themePages").order("desc").collect();
     return themePages;
   },
