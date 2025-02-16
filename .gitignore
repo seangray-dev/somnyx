@@ -43,3 +43,6 @@ next-env.d.ts
 /public/workbox-*.js.map
 
 certificates
+
+#cursor
+.cursor
