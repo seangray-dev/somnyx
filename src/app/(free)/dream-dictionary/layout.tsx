@@ -4,7 +4,7 @@ import React from "react";
 import { SEO } from "@/config/app";
 
 export default function layout({ children }: { children: React.ReactNode }) {
-  return { children };
+  return <>{children}</>;
 }
 
 export async function generateMetadata(): Promise<Metadata> {
