@@ -61,7 +61,12 @@ export default function SideNavigation() {
                 onClick={() => setOpen(false)}
                 variant={"link"}
                 key={link.name}
-                className="flex w-fit items-center gap-4 text-foreground hover:text-primary"
+                className={cn(
+                  "flex w-fit items-center gap-4 text-foreground hover:text-muted-foreground",
+                  ((pathname.startsWith(link.href) && link.href !== "/") ||
+                    pathname === link.href) &&
+                    "text-primary underline"
+                )}
               >
                 {/* @ts-expect-error */}
                 <Link href={link.href}>{link.name}</Link>
