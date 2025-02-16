@@ -20,13 +20,19 @@ export const contentType = "image/png";
 export default async function Image({ params }: { params: { theme: string } }) {
   const theme = await fetchQuery(
     // @ts-ignore
-    api.queries.themePages.getThemePageWithImageByNamePublic,
+    api.queries.themePages.getThemePageByNamePublic,
     {
       name: params.theme.toLowerCase(),
     }
   );
+  const imageUrl = await fetchQuery(
+    api.queries.themePages.getThemePageImageUrl,
+    {
+      storageId: theme?.storageId,
+    }
+  );
 
-  if (!theme?.imageUrl) {
+  if (!imageUrl) {
     return new Response("Image not found", { status: 404 });
   }
 

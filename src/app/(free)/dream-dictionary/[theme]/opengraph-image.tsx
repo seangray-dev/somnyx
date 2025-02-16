@@ -4,9 +4,14 @@
 // @ts-nocheck
 import { ImageResponse } from "next/og";
 
+
+
 import { fetchQuery } from "convex/nextjs";
 
+
+
 import { api } from "@/convex/_generated/api";
+
 
 export const runtime = "edge";
 
@@ -20,13 +25,19 @@ export const contentType = "image/png";
 export default async function Image({ params }: { params: { theme: string } }) {
   const theme = await fetchQuery(
     // @ts-ignore
-    api.queries.themePages.getThemePageWithImageByNamePublic,
+    api.queries.themePages.getThemePageByNamePublic,
     {
       name: params.theme.toLowerCase(),
     }
   );
+  const imageUrl = await fetchQuery(
+    api.queries.themePages.getThemePageImageUrl,
+    {
+      storageId: theme?.storageId
+    }
+  );
 
-  if (!theme?.imageUrl) {
+  if (!imageUrl) {
     return new Response("Image not found", { status: 404 });
   }
 
@@ -42,7 +53,7 @@ export default async function Image({ params }: { params: { theme: string } }) {
         }}
       >
         <img
-          src={theme.imageUrl}
+          src={imageUrl}
           alt={`Dream symbol: ${theme.name}`}
           style={{
             width: "100%",
