@@ -1,9 +1,11 @@
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { auth } from "@clerk/nextjs/server";
 import { preloadQuery } from "convex/nextjs";
 
 import AboutDream from "@/components/dreams/about-dream";
+import { SEO } from "@/config/app";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import AnalysisCard from "@/features/analysis/components/analysis-card";
@@ -48,4 +50,20 @@ export default async function DreamPage({
       </div>
     </div>
   );
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  // TODO: Dynamic metadata for public dreams - title, description, image, etc.
+  return {
+    title: SEO.pages.dreams.title,
+    description: SEO.pages.dreams.description,
+    openGraph: {
+      title: SEO.pages.dreams.title,
+      description: SEO.pages.dreams.description,
+    },
+    twitter: {
+      title: SEO.pages.dreams.title,
+      description: SEO.pages.dreams.description,
+    },
+  };
 }

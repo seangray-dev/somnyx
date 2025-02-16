@@ -1,5 +1,8 @@
+import { Metadata } from "next";
+
 import DreamMeaningFaqSection from "@/components/dream-dictionary/faq-section";
 import FooterCtaSection from "@/components/dream-dictionary/footer-cta-section";
+import { SEO } from "@/config/app";
 import Analysis from "@/features/free-analysis/components/analysis";
 
 export default function page() {
@@ -35,4 +38,19 @@ export default function page() {
       <FooterCtaSection />
     </div>
   );
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: SEO.pages.interpret.title,
+    description: SEO.pages.interpret.description,
+    openGraph: {
+      title: SEO.pages.interpret.title,
+      description: SEO.pages.interpret.description,
+    },
+    twitter: {
+      title: SEO.pages.interpret.title,
+      description: SEO.pages.interpret.description,
+    },
+  };
 }

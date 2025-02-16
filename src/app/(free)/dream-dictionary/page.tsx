@@ -29,6 +29,7 @@ interface GroupedElements {
 export default function Page() {
   const [inputValue, setInputValue] = useState("");
   const [debouncedValue] = useDebounce(inputValue, 600);
+  // @ts-ignore
   const isAdmin = useQuery(api.users.isUserAdmin);
   // @ts-ignore
   const elements = useQuery(api.queries.commonElements.getAllCommonElements);

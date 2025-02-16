@@ -1,6 +1,9 @@
+import { Metadata } from "next";
+
 import Account from "@/components/settings/account";
 import DeleteActions from "@/components/settings/delete-actions";
 import ThemeSection from "@/components/settings/theme-section";
+import { SEO } from "@/config/app";
 
 export default function SettingsPage() {
   return (
@@ -13,4 +16,19 @@ export default function SettingsPage() {
       </div>
     </div>
   );
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: SEO.pages.settings.title,
+    description: SEO.pages.settings.description,
+    openGraph: {
+      title: SEO.pages.settings.title,
+      description: SEO.pages.settings.description,
+    },
+    twitter: {
+      title: SEO.pages.settings.title,
+      description: SEO.pages.settings.description,
+    },
+  };
 }
