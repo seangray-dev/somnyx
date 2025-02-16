@@ -4,7 +4,7 @@ import SiteFooter from "@/components/layout/site-footer";
 import SiteHeader from "@/components/layout/site-header";
 import { Toaster } from "@/components/ui/sonner";
 import { SEO, applicationName, baseUrl } from "@/config/app";
-import { lora, openSans } from "@/fonts";
+import { Lora, OpenSans } from "@/fonts";
 import { ContextProvider } from "@/providers/context-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 
@@ -69,7 +69,7 @@ export default function RootLayout({
 }>) {
   return (
     <ContextProvider>
-      <html lang="en" className={`${lora.variable} ${openSans.variable}`}>
+      <html lang="en" className={`${Lora.variable} ${OpenSans.variable}`}>
         <body className="flex min-h-screen flex-col antialiased">
           <ThemeProvider attribute="class" defaultTheme="system">
             <SiteHeader />
@@ -77,7 +77,7 @@ export default function RootLayout({
             <SiteFooter />
             <Toaster richColors position="top-center" duration={5000} />
           </ThemeProvider>
-          <PWA />
+          {/* <PWA /> */}
         </body>
       </html>
     </ContextProvider>
