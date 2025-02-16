@@ -37,6 +37,21 @@ export default function SiteFooter() {
             </div>
           </div>
           <div className="flex flex-col gap-4">
+            <h6 className="font-semibold text-foreground">Free Resources</h6>
+            <div className="flex flex-col gap-2">
+              {navigation.freeResources.map((item) => (
+                <Link
+                  key={item.name}
+                  // @ts-expect-error
+                  href={item.href}
+                  className="hover:text-foreground hover:underline"
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-4">
             <h6 className="font-semibold text-foreground">Support</h6>
             <div className="flex flex-col gap-2">
               {navigation.support.map((item) => (
