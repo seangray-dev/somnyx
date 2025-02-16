@@ -20,6 +20,11 @@ export const SEO = {
       description:
         "Transform fleeting dreams into lasting wisdom with AI-powered dream journaling and analysis. Start capturing your dreams today.",
     },
+    auth: {
+      title: "Sign In",
+      description:
+        "Sign in or create your Somnyx account to start your dream journaling journey.",
+    },
     signIn: {
       title: "Sign In",
       description: "Sign in to your Somnyx account to continue.",

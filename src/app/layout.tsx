@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from "next";
 import SiteFooter from "@/components/layout/site-footer";
 import SiteHeader from "@/components/layout/site-header";
 import { Toaster } from "@/components/ui/sonner";
-import { SEO } from "@/config/app";
+import { SEO, applicationName, baseUrl } from "@/config/app";
 import { lora, openSans } from "@/fonts";
 import { ContextProvider } from "@/providers/context-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
@@ -18,19 +18,17 @@ export const metadata: Metadata = {
   },
   description: SEO.default.description,
   keywords: SEO.default.keywords,
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://somnyx.app"
-  ),
-  authors: [{ name: "Somnyx" }],
-  creator: "Somnyx",
-  publisher: "Somnyx",
+  metadataBase: new URL(baseUrl),
+  // authors: [{ name: "Somnyx" }],
+  // creator: "Somnyx",
+  // publisher: "Somnyx",
   robots: {
     index: true,
     follow: true,
   },
   openGraph: {
     type: "website",
-    siteName: "Somnyx",
+    siteName: applicationName,
     title: SEO.default.title,
     description: SEO.default.description,
   },
@@ -38,7 +36,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: SEO.default.title,
     description: SEO.default.description,
-    creator: "@somnyx",
+    // creator: "@somnyx",
   },
   manifest: "/manifest.json",
   icons: {

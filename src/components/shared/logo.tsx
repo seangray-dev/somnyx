@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { appplicationName } from "@/config/app";
+import { applicationName } from "@/config/app";
 
 export default function Logo() {
   return (
@@ -10,7 +10,7 @@ export default function Logo() {
         <Image
           className="dark:invert"
           src="/images/logo.png"
-          alt={appplicationName}
+          alt={applicationName}
           width={130}
           height={130}
         />
