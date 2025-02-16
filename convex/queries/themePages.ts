@@ -125,3 +125,23 @@ export const getPublishedThemePageNames = query({
     return pages.map((page) => page.name.toLowerCase());
   },
 });
+
+export const getThemePageWithImageByNamePublic = query({
+  args: { name: v.string() },
+  handler: async (ctx, args) => {
+    const theme = await ctx.db
+      .query("themePages")
+      .filter((q) => q.eq(q.field("name"), args.name.toLowerCase()))
+      .first();
+
+    if (!theme?.storageId) return null;
+
+    // Get the URL for the image
+    const imageUrl = await ctx.storage.getUrl(theme.storageId);
+
+    return {
+      ...theme,
+      imageUrl,
+    };
+  },
+});
