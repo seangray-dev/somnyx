@@ -2,6 +2,14 @@ import { v } from "convex/values";
 
 import { internalMutation, mutation } from "../_generated/server";
 
+function formatSeoSlug(slug: string) {
+  return slug
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export const createThemePage = internalMutation({
   args: {
     name: v.string(),
@@ -40,9 +48,12 @@ export const createThemePage = internalMutation({
       isPublished = false,
     } = args;
 
+    // Format the seo_slug before saving
+    const formattedSlug = formatSeoSlug(seo_slug);
+
     const id = await ctx.db.insert("themePages", {
       name,
-      seo_slug,
+      seo_slug: formattedSlug,
       seo_description,
       isPublished,
       content,
@@ -115,5 +126,27 @@ export const togglePublishState = mutation({
     });
 
     return { success: true };
+  },
+});
+
+export const fixExistingSeoSlugs = internalMutation({
+  handler: async (ctx) => {
+    const pages = await ctx.db.query("themePages").collect();
+    let count = 0;
+
+    for (const page of pages) {
+      const formattedSlug = formatSeoSlug(page.seo_slug);
+
+      // Only update if the slug needs to be changed
+      if (formattedSlug !== page.seo_slug) {
+        await ctx.db.patch(page._id, {
+          seo_slug: formattedSlug,
+          updatedAt: Date.now(),
+        });
+        count++;
+      }
+    }
+
+    return `Successfully updated ${count} theme page slugs`;
   },
 });

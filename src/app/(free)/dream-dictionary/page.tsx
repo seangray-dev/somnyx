@@ -15,6 +15,7 @@ import { api } from "@/convex/_generated/api";
 interface ElementInfo {
   name: string;
   confidence: number;
+  seo_slug: string;
 }
 
 interface CategoryGroup {
@@ -71,15 +72,24 @@ export default function Page() {
       acc[category] = { symbols: [], themes: [] };
     }
 
+    // Format the slug for navigation
+    const seo_slug = element.name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
     if (element.type === "symbol") {
       acc[category].symbols.push({
         name: element.name,
         confidence: element.confidence,
+        seo_slug,
       });
     } else {
       acc[category].themes.push({
         name: element.name,
         confidence: element.confidence,
+        seo_slug,
       });
     }
 
@@ -176,11 +186,11 @@ export default function Page() {
                         <div className="flex flex-wrap gap-2">
                           {symbols
                             .sort((a, b) => b.confidence - a.confidence)
-                            .map(({ name }) => (
+                            .map(({ name, seo_slug }) => (
                               <Link
                                 key={name}
                                 href={{
-                                  pathname: `/dream-dictionary/${name.toLowerCase()}`,
+                                  pathname: `/dream-dictionary/${seo_slug}`,
                                 }}
                                 className="transition-opacity hover:opacity-80"
                               >
@@ -200,11 +210,11 @@ export default function Page() {
                         <div className="flex flex-wrap gap-2">
                           {themes
                             .sort((a, b) => b.confidence - a.confidence)
-                            .map(({ name }) => (
+                            .map(({ name, seo_slug }) => (
                               <Link
                                 key={name}
                                 href={{
-                                  pathname: `/dream-dictionary/${name.toLowerCase()}`,
+                                  pathname: `/dream-dictionary/${seo_slug}`,
                                 }}
                                 className="transition-opacity hover:opacity-80"
                               >
