@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { fetchQuery, preloadQuery } from "convex/nextjs";
 
 import ThemePageContent from "@/components/dream-dictionary/theme-page";
-import { SEO } from "@/config/app";
+import { applicationName, SEO } from "@/config/app";
 import { api } from "@/convex/_generated/api";
 
 export default async function ThemePage({
@@ -45,7 +45,7 @@ export async function generateMetadata({
   }
 
   const { name, seo_description } = theme;
-  const title = `${SEO.pages.dreamDictionary.title} - ${name}`;
+  const title = `${SEO.pages.dreamDictionary.title} - ${name} | ${applicationName}`;
 
   return {
     title,

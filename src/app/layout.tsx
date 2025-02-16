@@ -29,12 +29,18 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: applicationName,
-    title: SEO.default.title,
+    title: {
+      default: SEO.default.title,
+      template: "%s | Somnyx",
+    },
     description: SEO.default.description,
   },
   twitter: {
     card: "summary_large_image",
-    title: SEO.default.title,
+    title: {
+      default: SEO.default.title,
+      template: "%s | Somnyx",
+    },
     description: SEO.default.description,
     // creator: "@somnyx",
   },

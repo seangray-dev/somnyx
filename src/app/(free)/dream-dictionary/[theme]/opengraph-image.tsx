@@ -4,14 +4,9 @@
 // @ts-nocheck
 import { ImageResponse } from "next/og";
 
-
-
 import { fetchQuery } from "convex/nextjs";
 
-
-
 import { api } from "@/convex/_generated/api";
-
 
 export const runtime = "edge";
 
@@ -33,7 +28,7 @@ export default async function Image({ params }: { params: { theme: string } }) {
   const imageUrl = await fetchQuery(
     api.queries.themePages.getThemePageImageUrl,
     {
-      storageId: theme?.storageId
+      storageId: theme?.storageId,
     }
   );
 

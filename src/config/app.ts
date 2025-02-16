@@ -15,24 +15,8 @@ export const SEO = {
       "dream journal, dream interpretation, AI dream analysis, dream tracking, dream patterns",
   },
   pages: {
-    home: {
-      title: "Somnyx | Never Let Another Dream Slip Away",
-      description:
-        "Transform fleeting dreams into lasting wisdom with AI-powered dream journaling and analysis. Start capturing your dreams today.",
-    },
     auth: {
-      title: "Sign In",
-      description:
-        "Sign in or create your Somnyx account to start your dream journaling journey.",
-    },
-    signIn: {
-      title: "Sign In",
-      description: "Sign in to your Somnyx account to continue.",
-    },
-    signUp: {
-      title: "Sign Up",
-      description:
-        "Sign up for a Somnyx account to start journaling your dreams.",
+      title: "Sign In / Sign Up",
     },
     dashboard: {
       title: "Dashboard",
