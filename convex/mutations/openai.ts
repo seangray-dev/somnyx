@@ -372,7 +372,7 @@ export const generateAnalysis = internalAction({
         model: "dall-e-3",
         prompt: analysisImagePrompt(userPrompt),
         n: 1,
-        size: "512x512",
+        size: "1024x1024",
         quality: "standard",
       });
 
