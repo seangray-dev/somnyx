@@ -5,7 +5,7 @@
   "scripts": {
     "db:seed": "npx convex import --table emotions data/emotions.json && npx convex import --table roles data/roles.json && npx convex import --table themes data/themes.json",
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "dev:frontend": "next dev --experimental-https",
+    "dev:frontend": "next dev",
     "dev:backend": "convex dev --typecheck=disable",
     "build": "next build",
     "start": "next start",
@@ -53,6 +53,7 @@
     "dotenv-expand": "^11.0.6",
     "jotai": "^2.10.0",
     "lucide-react": "^0.379.0",
+    "motion": "^12.4.3",
     "next": "^14.2.14",
     "next-docs-mdx": "^7.1.2",
     "next-mdx-remote": "^5.0.0",
