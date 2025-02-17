@@ -1,7 +1,11 @@
+import { Metadata } from "next";
+
 import fs from "fs";
 import matter from "gray-matter";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import path from "path";
+
+import { SEO } from "@/config/app";
 
 function getTermsOfService() {
   const filePath = path.join(
@@ -18,4 +22,19 @@ export default function TermsOfServicePage() {
   const content = getTermsOfService();
 
   return <MDXRemote source={content} />;
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: SEO.legal.termsOfService.title,
+    description: SEO.legal.termsOfService.description,
+    openGraph: {
+      title: SEO.legal.termsOfService.title,
+      description: SEO.legal.termsOfService.description,
+    },
+    twitter: {
+      title: SEO.legal.termsOfService.title,
+      description: SEO.legal.termsOfService.description,
+    },
+  };
 }

@@ -14,6 +14,10 @@ const isPublicRoute = createRouteMatcher([
   "/blog(.*)",
   "/order/success",
   "/api/dream-meaning(.*)",
+  "/admin(.*)",
+  "/support",
+  "/privacy-policy",
+  "/terms-of-service",
 ]);
 
 export default clerkMiddleware((auth, req) => {
@@ -30,6 +34,8 @@ export default clerkMiddleware((auth, req) => {
   if (!isPublicRoute(req)) {
     auth().protect();
   }
+
+  return NextResponse.next();
 });
 
 export const config = {

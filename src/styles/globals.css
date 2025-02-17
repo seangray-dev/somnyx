@@ -4,8 +4,8 @@
 
 @layer base {
   :root {
-    --font-sans: "Open Sans", sans-serif;
-    --font-serif: "Lora", serif;
+    --font-openSans: "Open Sans", sans-serif;
+    --font-lora: "Lora", serif;
     --background: 0 0% 100%;
     --foreground: 224 71.4% 4.1%;
     --card: 0 0% 100%;
@@ -70,7 +70,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background font-sans text-foreground;
+    @apply font-openSans bg-background text-foreground;
   }
 
   h1,
@@ -79,6 +79,6 @@
   h4,
   h5,
   h6 {
-    @apply font-serif;
+    @apply font-lora;
   }
 }

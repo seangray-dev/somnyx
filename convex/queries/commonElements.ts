@@ -54,16 +54,41 @@ export const getAllCommonElements = query({
         .filter((q) => q.eq(q.field("isPublished"), true))
         .collect();
 
-      const publishedNames = new Set(
-        publishedThemePages.map((page) => page.name.toLowerCase())
+      const themePageMap = new Map(
+        publishedThemePages.map((page) => [
+          page.name.toLowerCase(),
+          page.seo_slug,
+        ])
       );
 
-      return elements.filter((element) =>
-        publishedNames.has(element.name.toLowerCase())
-      );
+      return elements.filter((element) => {
+        const lowerName = element.name.toLowerCase();
+        const hasPublishedPage = themePageMap.has(lowerName);
+        if (hasPublishedPage) {
+          return {
+            ...element,
+            seo_slug: themePageMap.get(lowerName),
+          };
+        }
+        return false;
+      });
     }
 
-    return elements;
+    // For admin, still include seo_slugs where available
+    const allThemePages = await ctx.db.query("themePages").collect();
+    const themePageMap = new Map(
+      allThemePages.map((page) => [page.name.toLowerCase(), page.seo_slug])
+    );
+
+    return elements.map((element) => ({
+      ...element,
+      seo_slug:
+        themePageMap.get(element.name.toLowerCase()) ||
+        element.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, ""),
+    }));
   },
 });
 

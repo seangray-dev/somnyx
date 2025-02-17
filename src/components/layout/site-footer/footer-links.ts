@@ -2,6 +2,9 @@ export const navigation = {
   product: [
     { name: "Features", href: "/#features" },
     { name: "Pricing", href: "/#pricing" },
+    { name: "Journal", href: "/journal" },
+  ],
+  freeResources: [
     { name: "Dream Dictionary", href: "/dream-dictionary" },
     { name: "Interpret", href: "/interpret" },
     { name: "Blog", href: "/blog" },

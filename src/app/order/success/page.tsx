@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -5,6 +6,7 @@ import { env } from "process";
 import Stripe from "stripe";
 
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/config/app";
 
 export const dynamic = "force-dynamic";
 
@@ -59,4 +61,19 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
       </div>
     );
   }
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: SEO.pages.orderSuccess.title,
+    description: SEO.pages.orderSuccess.description,
+    openGraph: {
+      title: SEO.pages.orderSuccess.title,
+      description: SEO.pages.orderSuccess.description,
+    },
+    twitter: {
+      title: SEO.pages.orderSuccess.title,
+      description: SEO.pages.orderSuccess.description,
+    },
+  };
 }

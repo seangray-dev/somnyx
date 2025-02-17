@@ -32,7 +32,7 @@ export default function HeroSection() {
         </div>
       </div>
       {/* Scroll Indicator */}
-      <div className="animate-scroll-bounce absolute left-1/2 top-[calc(100vh-120px)] -translate-x-1/2">
+      <div className="absolute top-[calc(100vh-120px)] animate-scroll-bounce">
         <Button
           variant="ghost"
           size="icon"

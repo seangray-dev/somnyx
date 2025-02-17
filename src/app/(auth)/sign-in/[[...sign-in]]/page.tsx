@@ -8,7 +8,7 @@ export default function Page() {
   const { theme } = useTheme();
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center">
+    <div className="flex flex-1 flex-col items-center justify-center py-20">
       {theme === "dark" ? (
         <SignIn appearance={{ baseTheme: dark }} />
       ) : (

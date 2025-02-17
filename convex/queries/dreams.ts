@@ -208,3 +208,22 @@ export const getDreamCountByMonth = query({
     return dreamCountsByMonth;
   },
 });
+
+export const getDreamForMetadataById = query({
+  args: { id: v.id("dreams") },
+  handler: async (ctx, args) => {
+    const dream = await ctx.db.get(args.id);
+
+    if (!dream) {
+      return null;
+    }
+
+    // Only return minimal data needed for OG image
+    return {
+      id: dream._id,
+      title: dream.title,
+      details: dream.details,
+      isPublic: dream.isPublic,
+    };
+  },
+});

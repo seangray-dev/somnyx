@@ -91,14 +91,6 @@ export const getAllThemePages = query({
 
 export const getAllThemePagesAdmin = query({
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    const userId = identity?.subject;
-
-    // Only allow admin to access this query
-    // if (userId !== "user_2YCqK8BfgJcxrKxmwEjxCXhL6rF") {
-    //   return null;
-    // }
-
     const themePages = await ctx.db.query("themePages").order("desc").collect();
     return themePages;
   },
@@ -123,5 +115,25 @@ export const getPublishedThemePageNames = query({
 
     const pages = await dbQuery.collect();
     return pages.map((page) => page.name.toLowerCase());
+  },
+});
+
+export const getThemePageWithImageByNamePublic = query({
+  args: { name: v.string() },
+  handler: async (ctx, args) => {
+    const theme = await ctx.db
+      .query("themePages")
+      .filter((q) => q.eq(q.field("name"), args.name.toLowerCase()))
+      .first();
+
+    if (!theme?.storageId) return null;
+
+    // Get the URL for the image
+    const imageUrl = await ctx.storage.getUrl(theme.storageId);
+
+    return {
+      ...theme,
+      imageUrl,
+    };
   },
 });
