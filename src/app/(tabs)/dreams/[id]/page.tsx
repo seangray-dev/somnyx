@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { auth } from "@clerk/nextjs/server";
-import { preloadQuery } from "convex/nextjs";
+import { fetchQuery, preloadQuery } from "convex/nextjs";
 
 import AboutDream from "@/components/dreams/about-dream";
 import { SEO } from "@/config/app";
@@ -52,18 +52,29 @@ export default async function DreamPage({
   );
 }
 
-export async function generateMetadata(): Promise<Metadata> {
-  // TODO: Dynamic metadata for public dreams - title, description, image, etc.
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
+  const dream = await fetchQuery(api.queries.dreams.getDreamForMetadataById, {
+    id: params.id.toString() as Id<"dreams">,
+  });
+
+  const title = dream?.title ?? SEO.pages.dreams.title;
+  const description =
+    dream?.details.slice(0, 155) ?? SEO.pages.dreams.description;
+
   return {
-    title: SEO.pages.dreams.title,
-    description: SEO.pages.dreams.description,
+    title,
+    description,
     openGraph: {
-      title: SEO.pages.dreams.title,
-      description: SEO.pages.dreams.description,
+      title,
+      description,
     },
     twitter: {
-      title: SEO.pages.dreams.title,
-      description: SEO.pages.dreams.description,
+      title,
+      description,
     },
   };
 }
