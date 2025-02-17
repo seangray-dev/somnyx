@@ -212,10 +212,7 @@ export const getDreamCountByMonth = query({
 export const getDreamForMetadataById = query({
   args: { id: v.id("dreams") },
   handler: async (ctx, args) => {
-    console.log("Fetching dream for metadata:", args.id);
-
     const dream = await ctx.db.get(args.id);
-    console.log("Dream fetch result:", dream ? "Found" : "Not found");
 
     if (!dream) {
       return null;
