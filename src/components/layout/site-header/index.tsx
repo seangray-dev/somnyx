@@ -67,9 +67,7 @@ export default function SiteHeader() {
             </Link>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <HeaderActions />
-        </div>
+        <HeaderActions />
       </nav>
     </header>
   );
