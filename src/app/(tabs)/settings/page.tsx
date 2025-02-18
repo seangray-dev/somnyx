@@ -2,6 +2,7 @@ import { Metadata } from "next";
 
 import Account from "@/components/settings/account";
 import DeleteActions from "@/components/settings/delete-actions";
+import NotificationsSection from "@/components/settings/notifications-section";
 import ThemeSection from "@/components/settings/theme-section";
 import { SEO } from "@/config/app";
 
@@ -12,6 +13,7 @@ export default function SettingsPage() {
       <h1 className="container text-2xl font-bold sm:text-3xl">Settings</h1>
       <div className="container space-y-6">
         <ThemeSection />
+        <NotificationsSection />
         <DeleteActions />
       </div>
     </div>

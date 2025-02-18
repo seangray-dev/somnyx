@@ -18,6 +18,7 @@ export const env = createEnv({
     OPENAI_API_KEY: z.string().min(1),
     REDIS_URL: z.string().min(1),
     REDIS_TOKEN: z.string().min(1),
+    VAPID_PRIVATE_KEY: z.string().min(1),
   },
   onValidationError: (error: ZodError) => {
     console.error(

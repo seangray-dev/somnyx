@@ -9,7 +9,6 @@ import { ContextProvider } from "@/providers/context-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 
 import "../styles/globals.css";
-import PWA from "./pwa";
 
 export const metadata: Metadata = {
   title: {
@@ -77,7 +76,6 @@ export default function RootLayout({
             <SiteFooter />
             <Toaster richColors position="top-center" duration={5000} />
           </ThemeProvider>
-          {/* <PWA /> */}
         </body>
       </html>
     </ContextProvider>

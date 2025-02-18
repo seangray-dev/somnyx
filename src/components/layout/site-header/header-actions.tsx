@@ -8,19 +8,21 @@ import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/client-auth";
 
 import UserDropdownMenu from "./user-dropdown-menu";
+import PushNotificationManager from "@/features/notifications/components/push-notification-manager";
 
 export default function HeaderActions() {
   const session = useSession();
   const { isLoggedIn, isLoaded } = session;
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2">
       {isLoggedIn ? (
         <>
-          <AddDreamButton />
           <div className="hidden sm:block">
             <ThemeToggle />
           </div>
+          <PushNotificationManager />
+          <AddDreamButton />
           <UserDropdownMenu />
         </>
       ) : (
