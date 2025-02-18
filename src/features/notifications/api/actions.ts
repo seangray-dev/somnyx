@@ -2,10 +2,13 @@
 
 import webpush, { PushSubscription as WebPushSubscription } from "web-push";
 
+import { env as clientEnv } from "@/config/env/client";
+import { env as serverEnv } from "@/config/env/server";
+
 webpush.setVapidDetails(
   "mailto:myuserid@email.com",
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
+  clientEnv.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+  serverEnv.VAPID_PRIVATE_KEY!
 );
 
 let subscription: PushSubscription | null = null;

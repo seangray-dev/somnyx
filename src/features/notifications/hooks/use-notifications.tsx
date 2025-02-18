@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import { env } from "@/config/env/client";
 import { urlBase64ToUint8Array } from "@/utils/notifications";
 
 import {
@@ -36,7 +37,7 @@ export default function UseNotifications() {
     const sub = await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(
-        process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
+        env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
       ),
     });
     setSubscription(sub);
