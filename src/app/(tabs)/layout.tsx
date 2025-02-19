@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import Tabs from "@/components/layout/tabs";
 import DashboardHeader from "@/components/layout/tabs/dashboard-header";
 import Stats from "@/features/stats/components";
+import InstallPrompt from "@/features/notifications/components/install-prompt";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -27,6 +28,7 @@ export default function TabsLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
+      <InstallPrompt />
       <DashboardHeader />
       <Stats />
       <div className="flex flex-1 flex-col pb-28 pt-8">{children}</div>
