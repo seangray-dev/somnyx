@@ -34,15 +34,17 @@ export default function SiteHeader() {
             <Separator orientation="vertical" className="h-full bg-border" />
           </div>
           <div className="hidden h-full items-center gap-4 sm:flex">
-            <Link
-              href="/interpret"
-              className={cn(
-                "border-b border-transparent text-sm font-medium transition-all duration-150 hover:border-b-muted-foreground hover:text-muted-foreground",
-                pathname === "/interpret" && "border-b-primary text-primary"
-              )}
-            >
-              Interpret
-            </Link>
+            {!isLoggedIn && (
+              <Link
+                href="/interpret"
+                className={cn(
+                  "border-b border-transparent text-sm font-medium transition-all duration-150 hover:border-b-muted-foreground hover:text-muted-foreground",
+                  pathname === "/interpret" && "border-b-primary text-primary"
+                )}
+              >
+                Interpret
+              </Link>
+            )}
             <Link
               href="/dream-dictionary"
               className={cn(
