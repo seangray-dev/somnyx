@@ -31,10 +31,27 @@ export default function PushNotificationManager() {
   }
 
   const handleSubscriptionToggle = async (checked: boolean) => {
+    let success = false;
+
     if (checked) {
-      await subscribeToPush();
+      // Request notification permission first
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        success = await subscribeToPush();
+      }
     } else {
-      await unsubscribeFromPush();
+      success = await unsubscribeFromPush();
+    }
+
+    // If the operation failed, we need to force a re-render with the previous state
+    if (!success) {
+      // Force toggle back to previous state
+      const switchElement = document.getElementById(
+        "notifications"
+      ) as HTMLInputElement;
+      if (switchElement) {
+        switchElement.checked = !checked;
+      }
     }
   };
 
