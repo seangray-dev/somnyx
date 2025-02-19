@@ -13,19 +13,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useSession } from "@/lib/client-auth";
 import { cn } from "@/lib/utils";
 
 import { navigation } from "../site-footer/footer-links";
-import { links, publicLinks } from "./links";
+import { links } from "./links";
 
 export default function SideNavigation() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const { isLoggedIn } = useSession();
-
-  // Use appropriate links based on login status
-  const navigationLinks = isLoggedIn ? links : publicLinks;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -42,7 +37,7 @@ export default function SideNavigation() {
         </SheetHeader>
         <div className="flex h-full flex-col justify-between">
           <div className="space-y-2">
-            {navigationLinks.map((link) => (
+            {links.map((link) => (
               <Button
                 onClick={() => setOpen(false)}
                 variant={"link"}
