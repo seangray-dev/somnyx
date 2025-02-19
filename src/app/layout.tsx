@@ -43,11 +43,18 @@ export const metadata: Metadata = {
     description: SEO.default.description,
     // creator: "@somnyx",
   },
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
     apple: "/images/apple-touch-icon.png",
+    other: [
+      {
+        rel: "apple-touch-icon",
+        sizes: "180x180",
+        url: "/images/apple-touch-icon.png",
+      },
+    ],
   },
 };
 
