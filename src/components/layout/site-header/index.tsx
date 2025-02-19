@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import IconLogo from "@/components/shared/icon-logo";
 import Logo from "@/components/shared/logo";
 import { Separator } from "@/components/ui/separator";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -28,7 +29,8 @@ export default function SiteHeader() {
         <div className="flex h-full items-center">
           <div className="flex h-full items-center gap-2">
             <SideNavigation />
-            <Logo />
+            <Logo className="hidden sm:inline-flex" />
+            <IconLogo className="inline-flex sm:hidden" />
           </div>
           <div className="mx-4 hidden h-7 items-center sm:flex">
             <Separator orientation="vertical" className="h-full bg-border" />
