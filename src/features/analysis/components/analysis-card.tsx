@@ -59,21 +59,23 @@ const renderSection = (
 );
 
 const ImageSkeleton = () => (
-  <div className="mx-auto max-w-lg pb-10">
-    <div className="aspect-square size-[500px] w-full animate-pulse overflow-hidden rounded-sm bg-muted" />
+  <div className="mx-auto w-full max-w-[512px] pb-10">
+    <div className="aspect-square w-full animate-pulse rounded-sm bg-muted" />
   </div>
 );
 
 const AnalysisImage = ({ url }: { url: string }) => (
-  <div className="mx-auto max-w-lg pb-10">
-    <Image
-      src={url}
-      alt="Analysis"
-      width={512}
-      height={512}
-      className="w-full rounded-sm object-cover"
-      priority
-    />
+  <div className="mx-auto w-full max-w-[512px] pb-10">
+    <div className="relative aspect-square w-full">
+      <Image
+        src={url}
+        alt="Analysis"
+        width={512}
+        height={512}
+        className="rounded-sm object-cover"
+        priority
+      />
+    </div>
   </div>
 );
 
@@ -86,8 +88,8 @@ const RegenerateImageSection = ({
   isRegenerating: boolean;
   hasError: boolean;
 }) => (
-  <div className="mx-auto max-w-lg pb-10">
-    <div className="aspect-square size-[500px] w-full animate-pulse overflow-hidden rounded-lg bg-muted" />
+  <div className="mx-auto w-full max-w-[512px] pb-10">
+    <div className="aspect-square w-full animate-pulse rounded-sm bg-muted" />
     <div className="mt-4 flex flex-col items-center gap-2">
       <Button
         variant="outline"
