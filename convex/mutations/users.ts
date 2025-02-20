@@ -15,12 +15,14 @@ export const deleteAccount = action({
       throw new Error("You must be logged in.");
     }
 
+    // @ts-ignore
     const user = await ctx.runQuery(api.users.getMyUser);
 
     if (!user) {
       throw new Error("User not found.");
     }
 
+    // @ts-ignore
     await ctx.runMutation(internal.users.deleteUser, { userId: userId });
     await clerkClient.users.deleteUser(userId);
   },

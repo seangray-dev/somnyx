@@ -45,11 +45,12 @@ export const createUser = internalMutation({
 
     if (!user) {
       await ctx.db.insert("users", {
+        userId: args.userId,
         first_name: args.first_name,
         last_name: args.last_name,
-        userId: args.userId,
         email: args.email,
         profileImage: args.profileImage,
+        credits: 300,
       });
     }
   },
@@ -107,6 +108,13 @@ export const getMyUser = query({
   },
 });
 
+export function getFullUser(ctx: QueryCtx | MutationCtx, userId: string) {
+  return ctx.db
+    .query("users")
+    .withIndex("by_userId", (q) => q.eq("userId", userId))
+    .first();
+}
+
 export const updateMyUser = mutation({
   args: { first_name: v.string(), last_name: v.string() },
   async handler(ctx, args) {
@@ -152,6 +160,19 @@ export const deleteUser = internalMutation({
       throw new ConvexError("could not find user");
     }
     await ctx.db.delete(user._id);
+  },
+});
+
+export const getUserCredits = query({
+  args: { userId: v.optional(v.string()) },
+  async handler(ctx, args) {
+    const user = await getUserByUserId(ctx, args.userId!);
+
+    if (!user) {
+      return;
+    }
+
+    return user.credits;
   },
 });
 
@@ -220,5 +241,107 @@ export const isPremium = query({
     }
 
     return isUserPremium(user);
+  },
+});
+
+export const updateUserCredits = internalMutation({
+  args: {
+    userId: v.string(),
+    amount: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const user = await getFullUser(ctx, args.userId);
+
+    if (!user) throw new Error(`User not found for ID: ${args.userId}`);
+
+    const newCredits = (user.credits || 0) + args.amount;
+    if (newCredits < 0) throw new Error("Insufficient credits.");
+
+    await ctx.db.patch(user._id, { credits: newCredits });
+  },
+});
+
+async function validateCredits(
+  ctx: MutationCtx,
+  requiredCredits: number,
+  userId?: string
+) {
+  const user = userId
+    ? await getFullUser(ctx, userId)
+    : await getUserByUserId(ctx, (await getUserId(ctx)) as string);
+
+  if (!user) throw new Error("User not found.");
+
+  if (user.credits! < requiredCredits) {
+    const creditsNeeded = requiredCredits - user.credits!;
+    throw new Error(
+      `Insufficient credits. You need ${creditsNeeded} more credits.`
+    );
+  }
+
+  return user;
+}
+
+export const consumeCredits = internalMutation({
+  args: { cost: v.number(), userId: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    const user = await validateCredits(ctx, args.cost, args.userId);
+
+    await ctx.db.patch(user._id, {
+      credits: user.credits! - args.cost,
+    });
+  },
+});
+
+export const getTotalUsers = query({
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect();
+    return users.length;
+  },
+});
+
+export const isUserAdmin = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    
+    if (!identity) return false;
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+      .first();
+
+    return user?.isAdmin ?? false;
+  },
+});
+
+export const toggleAdminStatus = mutation({
+  args: { userId: v.string(), isAdmin: v.boolean() },
+  handler: async (ctx, args) => {
+    // Check if current user is admin
+    const currentIdentity = await ctx.auth.getUserIdentity();
+    if (!currentIdentity) throw new Error("Not authenticated");
+
+    const currentUser = await ctx.db
+      .query("users")
+      .withIndex("by_userId", (q) => q.eq("userId", currentIdentity.subject))
+      .first();
+
+    if (!currentUser?.isAdmin) throw new Error("Unauthorized");
+
+    // Update target user's admin status
+    const targetUser = await ctx.db
+      .query("users")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .first();
+
+    if (!targetUser) throw new Error("User not found");
+
+    await ctx.db.patch(targetUser._id, {
+      isAdmin: args.isAdmin,
+      adminSince: args.isAdmin ? Date.now() : undefined,
+    });
+
+    return { success: true };
   },
 });

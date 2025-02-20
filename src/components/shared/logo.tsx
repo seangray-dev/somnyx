@@ -1,13 +1,29 @@
+import Image from "next/image";
 import Link from "next/link";
 
-import { appplicationName } from "@/config/app";
+import { applicationName } from "@/config/app";
+import { cn } from "@/lib/utils";
 
-export default function Logo() {
+export default function Logo({ className }: { className?: string }) {
   return (
-    <div className="font-serif text-xl font-bold uppercase">
-      <Link href="/" className="w-fit transition-opacity hover:opacity-70">
-        {appplicationName}
-      </Link>
-    </div>
+    <Link
+      href="/"
+      className={cn(
+        "relative flex h-8 w-[130px] items-center transition-opacity hover:opacity-70",
+        className
+      )}
+      aria-label={`${applicationName} home`}
+    >
+      <Image
+        className="h-auto w-full dark:invert"
+        src="/images/logo.png"
+        alt={`${applicationName} Logo`}
+        width={130}
+        height={32}
+        priority
+        placeholder="blur"
+        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIIAAAAgCAQAAABBQj7cAAAAL0lEQVR42u3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAODXAEZYAAHyWq6bAAAAAElFTkSuQmCC"
+      />
+    </Link>
   );
 }

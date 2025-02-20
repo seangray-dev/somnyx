@@ -1,4 +1,10 @@
+import { Route } from "next";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import { useAction } from "convex/react";
 import { CheckIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   Card,
@@ -8,9 +14,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { api } from "@/convex/_generated/api";
+import { STRIPE_PRODUCTS } from "@/convex/util";
+import { useSession } from "@/lib/client-auth";
 
+import LoadingButton from "../shared/loading-button";
 import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
 
 const allFeatures = [
   "Unlimited Dream Journaling",
@@ -24,8 +33,11 @@ const starterFeatures = [
   "AI-Powered Dream Titles",
 ];
 
+const { insgiht, dreamer, visionary } = STRIPE_PRODUCTS;
+
 const pricingOptions = [
   {
+    priceId: "starter",
     name: "Starter Pack",
     description:
       "New here? No worries! Our free trial gives you 300 credits to get started and explore dream analysis.",
@@ -36,30 +48,33 @@ const pricingOptions = [
     features: starterFeatures,
   },
   {
+    priceId: insgiht.priceId,
     name: "Insight Pack",
     description:
       "Need quick insights? This package offers 700 credits to keep your dreams on track.",
-    credits: 700,
+    credits: insgiht.credits,
     price: 2.99,
     basePrice: 2.99,
     discount: 0,
     features: allFeatures,
   },
   {
+    priceId: dreamer.priceId,
     name: "Dreamer Pack",
     description:
       "Ready to commit? The Dreamer Pack gives you 3000 credits for consistent tracking.",
-    credits: 3000,
+    credits: dreamer.credits,
     price: 9.99,
     basePrice: 12.99,
     discount: 23,
     features: allFeatures,
   },
   {
+    priceId: visionary.priceId,
     name: "Visionary Pack",
     description:
       "A power user? The Visionary Pack offers 5000 credits for frequent analysis and deep insights.",
-    credits: 5000,
+    credits: visionary.credits,
     price: 14.99,
     basePrice: 21.99,
     discount: 32,
@@ -76,8 +91,56 @@ const formatPrice = (price: number | string) => {
 };
 
 export default function PricingSection() {
+  const checkout = useAction(api.stripe.checkout);
+  const router = useRouter();
+  const { isLoggedIn } = useSession();
+
+  const handleCheckout = async (product: {
+    priceId: string;
+    credits: number;
+  }) => {
+    if (product.priceId === "starter") {
+      router.push("/sign-up" as Route);
+      return;
+    }
+
+    if (!isLoggedIn) {
+      toast.error("You must be logged in to make a purchase.");
+      return;
+    }
+
+    const url = await checkout({ product });
+    router.push(url as Route);
+  };
+
+  function CheckoutButton({
+    product,
+    label,
+  }: {
+    product: { priceId: string; credits: number };
+    label: string;
+  }) {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleClick = async () => {
+      setIsLoading(true);
+      await handleCheckout(product);
+      setIsLoading(false);
+    };
+
+    return (
+      <LoadingButton
+        isLoading={isLoading}
+        onClick={handleClick}
+        className="w-full"
+      >
+        {label}
+      </LoadingButton>
+    );
+  }
+
   return (
-    <section className="bg-secondary">
+    <section id="pricing" className="bg-secondary">
       <div className="container flex flex-col gap-14 py-12">
         <div className="space-y-7 text-center">
           <div className="space-y-2">
@@ -104,7 +167,10 @@ export default function PricingSection() {
         </div>
         <div className="flex flex-col gap-8 md:grid md:grid-cols-2 xl:grid-cols-4">
           {pricingOptions.map((option) => (
-            <Card key={option.name} className="flex flex-col">
+            <Card
+              key={option.name}
+              className="mx-auto flex max-w-[60ch] flex-col"
+            >
               <CardHeader>
                 <CardTitle className="font-bold">{option.name}</CardTitle>
                 <CardDescription className="text-pretty font-medium">
@@ -142,12 +208,14 @@ export default function PricingSection() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button disabled variant="secondary" className="w-full">
-                  Coming Soon!
-                  {/* {option.price === "Free"
-                    ? "Start Free Trial"
-                    : `Buy ${option.credits} credits`} */}
-                </Button>
+                <CheckoutButton
+                  product={{ priceId: option.priceId, credits: option.credits }}
+                  label={
+                    option.price === "Free"
+                      ? "Start Free Trial"
+                      : `Buy ${option.credits} credits`
+                  }
+                />
               </CardFooter>
             </Card>
           ))}

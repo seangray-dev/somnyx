@@ -3,9 +3,19 @@ import { atom, useAtom } from "jotai";
 
 import { api } from "@/convex/_generated/api";
 
-const emotionsAtom = atom<
-  null | { _id: string; name: string; emoji: string }[]
->(null);
+type EmotionWithCount = {
+  name: string;
+  emoji: string;
+  dreams: number;
+};
+
+type Emotion = {
+  _id: string;
+  name: string;
+  emoji: string;
+};
+
+const emotionsAtom = atom<Emotion[] | null>(null);
 
 export const useGetAllEmotions = () => {
   const [emotions, setEmotions] = useAtom(emotionsAtom);
@@ -28,3 +38,35 @@ export const useEmotionById = (id: string) => {
 
   return { emotion, isLoading };
 };
+
+const emotionFrequenciesAtom = atom<EmotionWithCount[] | null>(null);
+
+export default function useEmotionFrequencies() {
+  const [emotionCounts, setEmotionCounts] = useAtom(emotionFrequenciesAtom);
+  const fetchedEmotionCounts = useQuery(api.queries.getEmotionFrequencies);
+  const { emotions } = useGetAllEmotions();
+
+  if (fetchedEmotionCounts && emotions && !emotionCounts) {
+    const countsMap: Record<string, number> = {};
+    fetchedEmotionCounts.forEach((count) => {
+      countsMap[count.name] = count.dreams;
+    });
+
+    const allEmotionsWithCounts = emotions
+      .map((emotion) => ({
+        name: emotion.name,
+        emoji: emotion.emoji,
+        dreams: countsMap[emotion.name] || 0,
+      }))
+      .sort((a, b) => b.dreams - a.dreams);
+
+    setEmotionCounts(allEmotionsWithCounts);
+  }
+
+  const isLoading = emotionCounts === undefined;
+
+  return {
+    data: emotionCounts,
+    isLoading,
+  };
+}

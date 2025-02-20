@@ -3,7 +3,8 @@ import { v } from "convex/values";
 import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import { internalMutation, mutation } from "../_generated/server";
-import { getUserId } from "../util";
+import { getMyUser } from "../users";
+import { CREDIT_COSTS, getUserId } from "../util";
 
 export const addNewDream = mutation({
   args: {
@@ -15,16 +16,15 @@ export const addNewDream = mutation({
     things: v.optional(v.array(v.string())),
     title: v.optional(v.string()),
     details: v.string(),
+    withAnalysis: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const userId = await getUserId(ctx);
+    const user = await getMyUser(ctx, {});
 
-    if (!userId) {
-      throw new Error("You must be logged in.");
-    }
+    if (!user) throw new Error("You must be logged in.");
 
     const dreamId = await ctx.db.insert("dreams", {
-      userId: userId,
+      userId: user.userId,
       isPublic: false,
       date: args.date,
       emotions: args.emotions,
@@ -36,28 +36,59 @@ export const addNewDream = mutation({
       details: args.details,
     });
 
+    // Generate title and themes (these are free features)
     await ctx.scheduler.runAfter(
       0,
+      // @ts-ignore
       internal.mutations.openai.generateDreamTitle,
-      { dreamId: dreamId, details: args.details, emotions: args.emotions }
+      { dreamId, details: args.details, emotions: args.emotions }
     );
 
     await ctx.scheduler.runAfter(
       0,
       internal.mutations.openai.generateDreamThemes,
-      { dreamId: dreamId, details: args.details, emotions: args.emotions }
+      { dreamId, details: args.details, emotions: args.emotions }
     );
+
+    // Generate analysis if requested
+    if (args.withAnalysis) {
+      await ctx.runMutation(internal.mutations.generateAnalysisInternal, {
+        dreamId,
+        userId: user.userId,
+      });
+    }
+
+    return dreamId;
+  },
+});
+
+export const generateAnalysis = mutation({
+  args: { dreamId: v.id("dreams"), userId: v.string() },
+  handler: async (ctx, args) => {
+    await ctx.runMutation(internal.users.consumeCredits, {
+      cost: CREDIT_COSTS.ANALYSIS,
+    });
 
     await ctx.scheduler.runAfter(
       0,
       internal.mutations.openai.generateAnalysis,
-      {
-        dreamId: dreamId,
-        userId: userId,
-      }
+      { dreamId: args.dreamId, userId: args.userId }
     );
+  },
+});
 
-    return dreamId;
+export const generateAnalysisInternal = internalMutation({
+  args: { dreamId: v.id("dreams"), userId: v.string() },
+  handler: async (ctx, args) => {
+    await ctx.runMutation(internal.users.consumeCredits, {
+      cost: CREDIT_COSTS.ANALYSIS,
+    });
+
+    await ctx.scheduler.runAfter(
+      0,
+      internal.mutations.openai.generateAnalysis,
+      { dreamId: args.dreamId, userId: args.userId }
+    );
   },
 });
 

@@ -1,6 +1,10 @@
+import { Metadata } from "next";
+
 import Account from "@/components/settings/account";
 import DeleteActions from "@/components/settings/delete-actions";
+import NotificationsSection from "@/components/settings/notifications-section";
 import ThemeSection from "@/components/settings/theme-section";
+import { SEO } from "@/config/app";
 
 export default function SettingsPage() {
   return (
@@ -9,8 +13,24 @@ export default function SettingsPage() {
       <h1 className="container text-2xl font-bold sm:text-3xl">Settings</h1>
       <div className="container space-y-6">
         <ThemeSection />
+        <NotificationsSection />
         <DeleteActions />
       </div>
     </div>
   );
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: SEO.pages.settings.title,
+    description: SEO.pages.settings.description,
+    openGraph: {
+      title: SEO.pages.settings.title,
+      description: SEO.pages.settings.description,
+    },
+    twitter: {
+      title: SEO.pages.settings.title,
+      description: SEO.pages.settings.description,
+    },
+  };
 }

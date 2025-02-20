@@ -1,7 +1,7 @@
 import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
+import { format } from "date-fns";
 
-import { Id } from "../_generated/dataModel";
 import { internalQuery, query } from "../_generated/server";
 import { getUserId } from "../util";
 
@@ -62,6 +62,25 @@ export const getDreamByIdInternal = internalQuery({
     }
 
     return dream;
+  },
+});
+
+export const getDreamsByMonth = internalQuery({
+  args: { userId: v.string(), monthYear: v.string() },
+  handler: async (ctx, { userId, monthYear }) => {
+    const [monthNumber, year] = monthYear.split("-").map(Number);
+
+    const startDate = new Date(year, monthNumber - 1, 1).toISOString();
+    const endDate = new Date(year, monthNumber, 0, 23, 59, 59).toISOString();
+
+    const dreams = await ctx.db
+      .query("dreams")
+      .withIndex("by_userId_and_date", (q) =>
+        q.eq("userId", userId).gte("date", startDate).lte("date", endDate)
+      )
+      .collect();
+
+    return dreams;
   },
 });
 
@@ -138,43 +157,73 @@ export const getDreamsInCurrentMonthCount = query({
   },
 });
 
-export const getMostFrequentEmotion = query({
+export const getAvailbleMonthsForInsights = query({
   handler: async (ctx) => {
     const userId = await getUserId(ctx);
+    const currentDate = new Date();
+    const currentMonthYear = format(currentDate, "MM-yyyy");
+
     const dreams = await ctx.db
       .query("dreams")
       .withIndex("by_userId", (q) => q.eq("userId", userId!))
       .collect();
 
-    const emotions = dreams.map((dream) => dream.emotions).flat();
+    const monthsSet = new Set(
+      dreams.map((dream) => {
+        const dreamDate = new Date(dream.date);
+        return format(dreamDate, "MM-yyyy");
+      })
+    );
 
-    if (emotions.length === 0) {
-      return null; // Return null if no emotions
-    }
+    monthsSet.add(currentMonthYear);
 
-    const emotionCounts = emotions.reduce(
-      (acc, emotion) => {
-        const emotionKey = emotion.toString(); // Convert Id<"emotions"> to string
-        acc[emotionKey] = (acc[emotionKey] || 0) + 1;
+    return Array.from(monthsSet).sort((a, b) => b.localeCompare(a));
+  },
+});
+
+export const getDreamCountByMonth = query({
+  async handler(ctx) {
+    const userId = await getUserId(ctx);
+
+    const dreams = await ctx.db
+      .query("dreams")
+      .withIndex("by_userId_and_date", (q) => q.eq("userId", userId!))
+      .collect();
+
+    const dreamCountsByMonth = dreams.reduce(
+      (acc, dream) => {
+        const dreamDate = new Date(dream.date);
+        const monthYear = `${String(dreamDate.getMonth() + 1).padStart(2, "0")}-${dreamDate.getFullYear()}`;
+
+        if (!acc[monthYear]) {
+          acc[monthYear] = 0;
+        }
+        acc[monthYear] += 1;
+
         return acc;
       },
       {} as Record<string, number>
     );
 
-    const mostFrequentEmotionId = Object.entries(emotionCounts).reduce(
-      (acc, curr) => (acc[1] < curr[1] ? curr : acc),
-      ["", 0] // Initial value
-    )[0];
+    return dreamCountsByMonth;
+  },
+});
 
-    // Fetch the emotion details from the emotions table
-    const mostFrequentEmotion = await ctx.db.get(
-      mostFrequentEmotionId as Id<"emotions">
-    );
+export const getDreamForMetadataById = query({
+  args: { id: v.id("dreams") },
+  handler: async (ctx, args) => {
+    const dream = await ctx.db.get(args.id);
 
+    if (!dream) {
+      return null;
+    }
+
+    // Only return minimal data needed for OG image
     return {
-      emotionName: mostFrequentEmotion?.name,
-      emoji: mostFrequentEmotion?.emoji,
-      count: emotionCounts[mostFrequentEmotionId],
+      id: dream._id,
+      title: dream.title,
+      details: dream.details,
+      isPublic: dream.isPublic,
     };
   },
 });

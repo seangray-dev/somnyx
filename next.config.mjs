@@ -1,6 +1,5 @@
 import createJiti from "jiti";
 import createNextDocsMDX from "next-docs-mdx/config";
-import nextPwa from "next-pwa";
 import { fileURLToPath } from "node:url";
 
 const jiti = createJiti(fileURLToPath(import.meta.url));
@@ -14,15 +13,14 @@ const nextConfig = {
   experimental: {
     typedRoutes: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "vivid-hornet-727.convex.cloud",
+      },
+    ],
+  },
 };
 
-const withPWA = nextPwa({
-  dest: "public",
-  register: true,
-});
-
-const config = withPWA({
-  ...nextConfig,
-});
-
-export default withMDX(config);
+export default withMDX(nextConfig);
