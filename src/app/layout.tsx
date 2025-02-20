@@ -54,6 +54,10 @@ export const metadata: Metadata = {
         sizes: "180x180",
         url: "/images/apple-touch-icon.png",
       },
+      {
+        rel: "apple-touch-startup-image",
+        url: "/images/apple-touch-icon.png",
+      },
     ],
   },
 };
