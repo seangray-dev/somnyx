@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     icon: [
       {
         url: "/icon-192x192.png",
-        sizes: "196x196",
+        sizes: "192x192",
         type: "image/png",
       },
     ],
@@ -57,6 +57,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     title: applicationName,
     capable: true,
+    statusBarStyle: "default",
     startupImage: [
       {
         url: "/pwa/apple-splash-2048-2732.jpg",
