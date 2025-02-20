@@ -88,8 +88,7 @@ export default function InstallGuidePage() {
                 <h3 className="font-semibold">Step 2: Menu Option</h3>
                 <p>
                   Tap the three dots menu in Chrome and select &quot;Add to
-                  Home Screen&quot;.
-                  Screen".
+                  Home Screen&quot;.                  
                 </p>
                 {/* TODO: Add menu screenshot */}
               </div>
