@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
-export default function ShareTarget() {
+function ShareTargetContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -28,4 +28,12 @@ export default function ShareTarget() {
   }, [router, searchParams]);
 
   return null; // Or a loading spinner
+}
+
+export default function ShareTarget() {
+  return (
+    <Suspense>
+      <ShareTargetContent />
+    </Suspense>
+  );
 }
