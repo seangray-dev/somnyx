@@ -23,5 +23,30 @@ export default function manifest(): MetadataRoute.Manifest {
         type: "image/png",
       },
     ],
+    share_target: {
+      action: "/share-target",
+      method: "get",
+      params: [
+        {
+          name: "title",
+          value: "title",
+        },
+        {
+          name: "text",
+          value: "text",
+        },
+        {
+          name: "url",
+          value: "url",
+        },
+      ],
+    },
+    related_applications: [
+      {
+        platform: "webapp",
+        url: "https://somnyx.app/manifest.webmanifest",
+      },
+    ],
+    prefer_related_applications: true,
   };
 }
