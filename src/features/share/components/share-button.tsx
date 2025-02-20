@@ -20,7 +20,7 @@ export default function ShareButton({ url }: ShareButtonProps) {
       if (navigator.share) {
         // Use native share dialog if available
         await navigator.share({
-          url: url.trim(),
+          url: `${url.trim()}?source=pwa`,
         });
         toast.success("Thanks for sharing!");
       } else {

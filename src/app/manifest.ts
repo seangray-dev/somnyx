@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Somnyx",
     short_name: "Somnyx",
     description: SEO.default.description,
-    start_url: "/",
+    start_url: "https://somnyx.app",
     display: "standalone",
     background_color: "#030712",
     theme_color: "#030712",
@@ -26,11 +26,8 @@ export default function manifest(): MetadataRoute.Manifest {
     share_target: {
       action: "/share-target",
       method: "get",
+      enctype: "application/x-www-form-urlencoded",
       params: [
-        {
-          name: "title",
-          value: "title",
-        },
         {
           name: "text",
           value: "text",
@@ -41,6 +38,14 @@ export default function manifest(): MetadataRoute.Manifest {
         },
       ],
     },
+    shortcuts: [
+      {
+        name: "Dream Dictionary",
+        url: "/dream-dictionary",
+        icons: [{ src: "/icon-192x192.png", sizes: "192x192" }],
+      },
+    ],
+    scope: "/",
     related_applications: [
       {
         platform: "webapp",
