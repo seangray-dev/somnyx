@@ -18,9 +18,10 @@ export default function ShareButton({ url }: ShareButtonProps) {
     setIsSharing(true);
     try {
       if (navigator.share) {
-        // Use native share dialog if available
+        // Convert https:// to web+somnyx:// for PWA handling
+        const pwaUrl = url.trim().replace("https://", "web+somnyx://");
         await navigator.share({
-          url: `${url.trim()}?source=pwa`,
+          url: pwaUrl,
         });
         toast.success("Thanks for sharing!");
       } else {

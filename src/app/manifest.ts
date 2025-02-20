@@ -53,5 +53,11 @@ export default function manifest(): MetadataRoute.Manifest {
       },
     ],
     prefer_related_applications: true,
+    protocol_handlers: [
+      {
+        protocol: "web+somnyx",
+        url: "/%s",
+      },
+    ],
   };
 }
