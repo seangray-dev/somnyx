@@ -9,31 +9,30 @@ import { Button } from "@/components/ui/button";
 
 interface ShareButtonProps {
   url: string;
+  title?: string;
+  text?: string;
 }
 
-export default function ShareButton({ url }: ShareButtonProps) {
+export default function ShareButton({ url, title, text }: ShareButtonProps) {
   const [isSharing, setIsSharing] = useState(false);
 
   const handleShare = async () => {
     setIsSharing(true);
     try {
       if (navigator.share) {
-        // Convert https:// to web+somnyx:// for PWA handling
-        const pwaUrl = url.trim().replace("https://", "web+somnyx://");
         await navigator.share({
-          url: pwaUrl,
+          url: url.trim(),
+          title: title?.trim(),
+          text: text?.trim(),
         });
         toast.success("Thanks for sharing!");
       } else {
-        // Fallback to copying the URL
         await navigator.clipboard.writeText(url.trim());
         toast.success("Link copied to clipboard!");
       }
     } catch (error) {
-      // User cancelled share or something went wrong
       if (error instanceof Error && error.name !== "AbortError") {
         toast.error("Failed to share");
-        console.error("Error sharing:", error);
       }
     } finally {
       setIsSharing(false);
