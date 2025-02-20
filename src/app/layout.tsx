@@ -45,13 +45,12 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: [{ url: "/favicon-196.png", sizes: "196x196", type: "image/png" }],
-    apple: [{ url: "/apple-icon-180.png" }],
+    icon: [{ url: "/pwa/favicon-196.png", sizes: "196x196", type: "image/png" }],
+    apple: [{ url: "/pwa/apple-icon-180.png" }],
   },
   appleWebApp: {
     title: applicationName,
     capable: true,
-    statusBarStyle: "black-translucent",
     startupImage: [
       {
         url: "/pwa/apple-splash-2048-2732.jpg",
@@ -233,7 +232,8 @@ export const viewport: Viewport = {
   userScalable: false,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#030712" },
+    { media: "(prefers-color-scheme: dark)", color: "#ffffff" },
+    // { media: "(prefers-color-scheme: dark)", color: "#030712" },
   ],
   width: "device-width",
 };
