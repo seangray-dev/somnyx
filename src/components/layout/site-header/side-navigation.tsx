@@ -2,6 +2,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
+import { useSession } from "@clerk/nextjs";
 import { MenuIcon } from "lucide-react";
 
 import Logo from "@/components/shared/logo";
@@ -16,11 +17,14 @@ import {
 import { cn } from "@/lib/utils";
 
 import { navigation } from "../site-footer/footer-links";
-import { links } from "./links";
+import { getPrivateLinks, getPublicLinks } from "./links";
 
 export default function SideNavigation() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const { isSignedIn } = useSession();
+
+  const navigationLinks = isSignedIn ? getPrivateLinks() : getPublicLinks();
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -37,7 +41,7 @@ export default function SideNavigation() {
         </SheetHeader>
         <div className="flex h-full flex-col justify-between">
           <div className="space-y-2">
-            {links.map((link) => (
+            {navigationLinks.map((link) => (
               <Button
                 onClick={() => setOpen(false)}
                 variant={"link"}
