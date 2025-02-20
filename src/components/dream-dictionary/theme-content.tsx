@@ -10,7 +10,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { baseUrl } from "@/config/app";
 import { Doc } from "@/convex/_generated/dataModel";
+import ShareButton from "@/features/share/components/share-button";
 import { useGetThemePageImageUrl } from "@/hooks/use-convex-image";
 
 interface ThemeContentProps {
@@ -46,12 +48,17 @@ export default function ThemeContent({ themePage }: ThemeContentProps) {
         {/* Hero Section */}
         <header className="grid items-center gap-8 md:grid-cols-2">
           <div className="space-y-6 text-center md:text-left">
-            <h1 className="text-4xl font-bold capitalize tracking-tight">
-              {name} Dreams
-            </h1>
+            <div className="flex items-center justify-center gap-4 md:justify-start">
+              <h1 className="text-4xl font-bold capitalize tracking-tight text-center md:text-left">
+                {name} Dreams
+              </h1>
+            </div>
             <p className="text-balance text-lg text-muted-foreground">
               {summary}
             </p>
+            <ShareButton
+              url={`https://${baseUrl}/dream-dictionary/${themePage.seo_slug}`}
+            />
           </div>
           {imageUrl ? (
             <div>
