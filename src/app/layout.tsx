@@ -47,12 +47,12 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/pwa/favicon-196.png",
+        url: "/icon-192x192.png",
         sizes: "196x196",
         type: "image/png",
       },
     ],
-    apple: [{ url: "/pwa/apple-icon-180.png" }],
+    apple: [{ url: "/apple-touch-icon.png" }],
   },
   appleWebApp: {
     title: applicationName,
