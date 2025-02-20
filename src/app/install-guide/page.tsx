@@ -50,8 +50,8 @@ export default function InstallGuidePage() {
               <div className="space-y-4">
                 <h3 className="font-semibold">Step 3: Add to Home Screen</h3>
                 <p>
-                  In both browsers, look for and tap "Add to Home Screen". You
-                  might need to scroll to find this option.
+                  In both browsers, look for and tap &quot;Add to Home Screen&quot;.
+                  You might need to scroll to find this option.
                 </p>
                 {/* TODO: Add add to home screen screenshot */}
               </div>
@@ -59,8 +59,8 @@ export default function InstallGuidePage() {
               <div className="space-y-4">
                 <h3 className="font-semibold">Step 4: Confirm Installation</h3>
                 <p>
-                  Tap "Add" in the top right corner. Somnyx will now be
-                  installed on your home screen.
+                  Tap &quot;Add&quot; in the top right corner. Somnyx will now
+                  be installed on your home screen.
                 </p>
                 {/* TODO: Add confirmation screenshot */}
               </div>
@@ -77,7 +77,8 @@ export default function InstallGuidePage() {
               <div className="space-y-4">
                 <h3 className="font-semibold">Step 1: Installation Prompt</h3>
                 <p>
-                  You should see an "Add to Home Screen" prompt automatically.
+                  You should see an &quot;Add to Home Screen&quot; prompt
+                  automatically.
                   If not, continue to step 2.
                 </p>
                 {/* TODO: Add prompt screenshot */}
@@ -86,7 +87,8 @@ export default function InstallGuidePage() {
               <div className="space-y-4">
                 <h3 className="font-semibold">Step 2: Menu Option</h3>
                 <p>
-                  Tap the three dots menu in Chrome and select "Add to Home
+                  Tap the three dots menu in Chrome and select &quot;Add to
+                  Home Screen&quot;.
                   Screen".
                 </p>
                 {/* TODO: Add menu screenshot */}
@@ -95,7 +97,8 @@ export default function InstallGuidePage() {
               <div className="space-y-4">
                 <h3 className="font-semibold">Step 3: Confirm Installation</h3>
                 <p>
-                  Tap "Add" when prompted. Somnyx will now be installed on your
+                  Tap &quot;Add&quot; when prompted. Somnyx will now be installed
+                  on your home screen.
                   home screen.
                 </p>
                 {/* TODO: Add confirmation screenshot */}
