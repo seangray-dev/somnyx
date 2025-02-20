@@ -4,7 +4,7 @@ export const applicationName = "Somnyx";
 export const baseUrl = "https://somnyx.app";
 
 export const DOMAIN =
-  env.NODE_ENV === "production" ? baseUrl : "http://localhost:3000";
+  env.NODE_ENV === "production" ? baseUrl : "https://localhost:3000";
 
 export const SEO = {
   default: {

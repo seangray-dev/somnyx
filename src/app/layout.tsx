@@ -9,7 +9,6 @@ import { ContextProvider } from "@/providers/context-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 
 import "../styles/globals.css";
-import PWA from "./pwa";
 
 export const metadata: Metadata = {
   title: {
@@ -44,11 +43,22 @@ export const metadata: Metadata = {
     description: SEO.default.description,
     // creator: "@somnyx",
   },
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
+    shortcut: "/favicon.ico",
+    apple: "/images/apple-touch-icon.png",
+    other: [
+      {
+        rel: "apple-touch-icon",
+        sizes: "180x180",
+        url: "/images/apple-touch-icon.png",
+      },
+      {
+        rel: "apple-touch-startup-image",
+        url: "/images/apple-touch-icon.png",
+      },
+    ],
   },
 };
 
@@ -77,7 +87,6 @@ export default function RootLayout({
             <SiteFooter />
             <Toaster richColors position="top-center" duration={5000} />
           </ThemeProvider>
-          {/* <PWA /> */}
         </body>
       </html>
     </ContextProvider>

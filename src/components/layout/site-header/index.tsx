@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import IconLogo from "@/components/shared/icon-logo";
 import Logo from "@/components/shared/logo";
 import { Separator } from "@/components/ui/separator";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -28,21 +29,24 @@ export default function SiteHeader() {
         <div className="flex h-full items-center">
           <div className="flex h-full items-center gap-2">
             <SideNavigation />
-            <Logo />
+            <Logo className="hidden sm:inline-flex" />
+            <IconLogo className="inline-flex sm:hidden" />
           </div>
           <div className="mx-4 hidden h-7 items-center sm:flex">
             <Separator orientation="vertical" className="h-full bg-border" />
           </div>
           <div className="hidden h-full items-center gap-4 sm:flex">
-            <Link
-              href="/interpret"
-              className={cn(
-                "border-b border-transparent text-sm font-medium transition-all duration-150 hover:border-b-muted-foreground hover:text-muted-foreground",
-                pathname === "/interpret" && "border-b-primary text-primary"
-              )}
-            >
-              Interpret
-            </Link>
+            {!isLoggedIn && (
+              <Link
+                href="/interpret"
+                className={cn(
+                  "border-b border-transparent text-sm font-medium transition-all duration-150 hover:border-b-muted-foreground hover:text-muted-foreground",
+                  pathname === "/interpret" && "border-b-primary text-primary"
+                )}
+              >
+                Interpret
+              </Link>
+            )}
             <Link
               href="/dream-dictionary"
               className={cn(
@@ -67,9 +71,7 @@ export default function SiteHeader() {
             </Link>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <HeaderActions />
-        </div>
+        <HeaderActions />
       </nav>
     </header>
   );

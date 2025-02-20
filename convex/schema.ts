@@ -19,6 +19,28 @@ export default defineSchema({
     .index("by_email", ["email"])
     .index("by_subscriptionId", ["subscriptionId"]),
 
+  notifications: defineTable({
+    userId: v.string(),
+    subscription: v.object({
+      endpoint: v.string(),
+      expirationTime: v.optional(v.number()),
+      keys: v.object({
+        p256dh: v.string(),
+        auth: v.string(),
+      }),
+      options: v.optional(
+        v.object({
+          applicationServerKey: v.optional(v.string()),
+          userVisibleOnly: v.optional(v.boolean()),
+        })
+      ),
+    }),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_userId_and_endpoint", ["userId", "subscription.endpoint"]),
+
   emotions: defineTable({
     name: v.string(),
     emoji: v.string(),
