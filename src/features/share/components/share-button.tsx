@@ -25,7 +25,7 @@ export default function ShareButton({ url }: ShareButtonProps) {
         toast.success("Thanks for sharing!");
       } else {
         // Fallback to copying the URL
-        await navigator.clipboard.writeText(url);
+        await navigator.clipboard.writeText(url.trim());
         toast.success("Link copied to clipboard!");
       }
     } catch (error) {

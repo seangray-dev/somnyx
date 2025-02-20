@@ -49,7 +49,7 @@ export default function ThemeContent({ themePage }: ThemeContentProps) {
         <header className="grid items-center gap-8 md:grid-cols-2">
           <div className="space-y-6 text-center md:text-left">
             <div className="flex items-center justify-center gap-4 md:justify-start">
-              <h1 className="text-4xl font-bold capitalize tracking-tight text-center md:text-left">
+              <h1 className="text-center text-4xl font-bold capitalize tracking-tight md:text-left">
                 {name} Dreams
               </h1>
             </div>
@@ -57,7 +57,7 @@ export default function ThemeContent({ themePage }: ThemeContentProps) {
               {summary}
             </p>
             <ShareButton
-              url={`https://${baseUrl}/dream-dictionary/${themePage.seo_slug}`}
+              url={`${baseUrl}/dream-dictionary/${themePage.seo_slug}`}
             />
           </div>
           {imageUrl ? (
