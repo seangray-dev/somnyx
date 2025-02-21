@@ -1,6 +1,9 @@
 "use client";
 
+import { useState } from "react";
+
 import { BellOffIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,35 +28,52 @@ import useNotifications from "../hooks/use-notifications";
 export default function PushNotificationManager() {
   const { isSupported, subscription, subscribeToPush, unsubscribeFromPush } =
     useNotifications();
+  const [isToggling, setIsToggling] = useState(false);
+  const [optimisticState, setOptimisticState] = useState<boolean | null>(null);
 
   if (!isSupported) {
     return null;
   }
 
-  const handleSubscriptionToggle = async (checked: boolean) => {
-    let success = false;
+  // Get the actual checked state, preferring optimistic state if it exists
+  const isChecked = optimisticState ?? !!subscription;
 
+  const handleSubscriptionToggle = async (checked: boolean) => {
     try {
+      setIsToggling(true);
+      // Update optimistic state immediately
+      setOptimisticState(checked);
+
       if (checked) {
         const permission = await Notification.requestPermission();
 
         if (permission === "granted") {
-          success = await subscribeToPush();
+          const success = await subscribeToPush();
+          if (!success) {
+            throw new Error("Failed to subscribe to notifications");
+          }
+          toast.success("Notifications enabled for this device");
+        } else {
+          throw new Error("Notification permission denied");
         }
       } else {
-        success = await unsubscribeFromPush();
+        const success = await unsubscribeFromPush();
+        if (!success) {
+          throw new Error("Failed to unsubscribe from notifications");
+        }
+        toast.success("Notifications disabled for this device");
       }
     } catch (error) {
+      // Revert optimistic update on error
+      setOptimisticState(null);
       console.error("Toggle error:", error);
-    }
-
-    if (!success) {
-      const switchElement = document.getElementById(
-        "notifications"
-      ) as HTMLInputElement;
-      if (switchElement) {
-        switchElement.checked = !checked;
-      }
+      toast.error(
+        "Error: Unable to toggle notifications for this device. Please try again or contact us for support"
+      );
+    } finally {
+      setIsToggling(false);
+      // Clear optimistic state after successful update
+      setOptimisticState(null);
     }
   };
 
@@ -63,8 +83,8 @@ export default function PushNotificationManager() {
         <Tooltip>
           <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                {subscription ? (
+              <Button variant="ghost" size="icon" disabled={isToggling}>
+                {isChecked ? (
                   <BellIcon />
                 ) : (
                   <BellOffIcon className="text-destructive" size={20} />
@@ -73,7 +93,7 @@ export default function PushNotificationManager() {
             </DropdownMenuTrigger>
           </TooltipTrigger>
           <TooltipContent>
-            {subscription
+            {isChecked
               ? "Notifications are enabled"
               : "Notifications are disabled"}
           </TooltipContent>
@@ -89,14 +109,15 @@ export default function PushNotificationManager() {
               >
                 <span className="">Push Notifications</span>
                 <span className="text-xs text-muted-foreground">
-                  {subscription
-                    ? "You are subscribed to push notifications."
-                    : "You are not subscribed to push notifications."}
+                  {isChecked
+                    ? "You are subscribed to push notifications on this device."
+                    : "You are not subscribed to push notifications on this device."}
                 </span>
               </Label>
               <Switch
                 id="notifications"
-                checked={!!subscription}
+                checked={isChecked}
+                disabled={isToggling}
                 onCheckedChange={handleSubscriptionToggle}
               />
             </div>
@@ -104,7 +125,6 @@ export default function PushNotificationManager() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup className="p-2">
-          {/* Placeholder for future notification items */}
           <p className="py-4 text-center text-sm text-muted-foreground">
             No notifications yet
           </p>
