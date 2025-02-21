@@ -83,6 +83,7 @@ export default function PushNotificationManager() {
               throw new Error("Failed to subscribe to notifications");
             }
             toast.success("Notifications enabled for this device");
+            setOpen(false);
           } else {
             throw new Error("Notification permission denied");
           }
@@ -100,6 +101,7 @@ export default function PushNotificationManager() {
           throw new Error("Failed to unsubscribe from notifications");
         }
         toast.success("Notifications disabled for this device");
+        setOpen(false);
       }
     } catch (error) {
       setOptimisticState(null);
