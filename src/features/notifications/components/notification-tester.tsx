@@ -2,15 +2,23 @@
 
 import { useState } from "react";
 
+
+
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
+
+
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useIsAdmin } from "@/features/store/admin";
 
+
+
 import { sendNotificationToUser } from "../api/notification-service";
+import { NOTIFICATION_TYPES, NotificationType } from "../types/notifications";
+
 
 export function NotificationTester() {
   const [message, setMessage] = useState("");
@@ -33,7 +41,12 @@ export function NotificationTester() {
         throw new Error("Not authenticated");
       }
 
-      const result = await sendNotificationToUser(userId, message, token);
+      const result = await sendNotificationToUser(
+        userId,
+        NOTIFICATION_TYPES.DAILY_REMINDER,
+        token,
+        undefined
+      );
 
       if (result.success) {
         toast.success("Test notification sent successfully");

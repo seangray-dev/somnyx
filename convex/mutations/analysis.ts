@@ -1,6 +1,8 @@
 import { v } from "convex/values";
 
+import { internal } from "../_generated/api";
 import { internalMutation } from "../_generated/server";
+import { NOTIFICATION_TYPES } from "../notifications/types";
 
 export const addNewAnalysis = internalMutation({
   args: {
@@ -33,6 +35,23 @@ export const addNewAnalysis = internalMutation({
       underlyingMessage,
       actionableTakeaway,
     });
+
+    const dream = await ctx.db.get(dreamId);
+    if (!dream) throw new Error("Dream not found");
+
+    // Schedule HTTP request to send notification to user
+    await ctx.scheduler.runAfter(
+      0,
+      internal.mutations.notifications.sendNotification,
+      {
+        userId,
+        type: NOTIFICATION_TYPES.ANALYSIS_COMPLETE,
+        data: {
+          dreamId,
+          dreamTitle: dream.title,
+        },
+      }
+    );
 
     return analyisId;
   },

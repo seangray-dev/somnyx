@@ -32,6 +32,7 @@ import type * as mutations_openai from "../mutations/openai.js";
 import type * as mutations_themePages from "../mutations/themePages.js";
 import type * as mutations_users from "../mutations/users.js";
 import type * as mutations from "../mutations.js";
+import type * as notifications_types_index from "../notifications/types/index.js";
 import type * as queries_analysis from "../queries/analysis.js";
 import type * as queries_commonElements from "../queries/commonElements.js";
 import type * as queries_dreams from "../queries/dreams.js";
@@ -74,6 +75,7 @@ declare const fullApi: ApiFromModules<{
   "mutations/themePages": typeof mutations_themePages;
   "mutations/users": typeof mutations_users;
   mutations: typeof mutations;
+  "notifications/types/index": typeof notifications_types_index;
   "queries/analysis": typeof queries_analysis;
   "queries/commonElements": typeof queries_commonElements;
   "queries/dreams": typeof queries_dreams;

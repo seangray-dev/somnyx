@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 
-import { mutation } from "../_generated/server";
+import { internalAction, mutation } from "../_generated/server";
+import { NOTIFICATION_TYPES } from "../notifications/types";
 
 export const subscribe = mutation({
   args: {
@@ -96,5 +97,41 @@ export const unsubscribe = mutation({
     }
 
     return { success: true };
+  },
+});
+
+export const sendNotification = internalAction({
+  args: {
+    userId: v.string(),
+    type: v.union(
+      v.literal(NOTIFICATION_TYPES.ANALYSIS_COMPLETE),
+      v.literal(NOTIFICATION_TYPES.MONTHLY_INSIGHTS),
+      v.literal(NOTIFICATION_TYPES.DAILY_REMINDER),
+      v.literal(NOTIFICATION_TYPES.LOW_CREDITS),
+      v.literal(NOTIFICATION_TYPES.INACTIVITY_REMINDER),
+      v.literal(NOTIFICATION_TYPES.APP_UPDATE),
+      v.literal(NOTIFICATION_TYPES.STREAK_MILESTONE)
+    ),
+    data: v.any(),
+  },
+  handler: async (ctx, args) => {
+    const { userId, type, data } = args;
+    const apiUrl = "https://somnyx.app/api/notifications";
+
+    // Make HTTP request to your Next.js endpoint
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // Add any necessary auth headers
+      },
+      body: JSON.stringify({ userId, type, data }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to send notification");
+    }
+
+    return await response.json();
   },
 });

@@ -2,12 +2,15 @@ import { fetchQuery } from "convex/nextjs";
 
 import { api } from "@/convex/_generated/api";
 
+import { NotificationDataMap, NotificationType } from "../types/notifications";
+import { getNotificationContent } from "../utils/notification-templates";
 import { sendNotification } from "./actions";
 
-export async function sendNotificationToUser(
+export async function sendNotificationToUser<T extends NotificationType>(
   userId: string,
-  message: string,
-  token: string
+  type: T,
+  token: string,
+  data?: NotificationDataMap[T]
 ) {
   try {
     // Get all active devices for the user
@@ -23,9 +26,18 @@ export async function sendNotificationToUser(
       return { success: false, error: "No devices found" };
     }
 
+    const notificationContent = getNotificationContent(type, data);
+
+    if (!notificationContent) {
+      console.log("No notification content found for type:", type);
+      return { success: false, error: "No notification content found" };
+    }
+
     // Send notification to each device
     const results = await Promise.allSettled(
-      devices.map((device) => sendNotification(device.deviceId, message))
+      devices.map((device) =>
+        sendNotification(device.deviceId, notificationContent)
+      )
     );
 
     // Check if any notifications were successful

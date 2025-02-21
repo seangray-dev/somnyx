@@ -104,7 +104,10 @@ export async function unsubscribeUser(deviceId: string) {
   }
 }
 
-export async function sendNotification(deviceId: string, message: string) {
+export async function sendNotification(
+  deviceId: string,
+  message: string | object
+) {
   try {
     // Get the auth token
     const { getToken } = auth();
@@ -126,12 +129,10 @@ export async function sendNotification(deviceId: string, message: string) {
     }
 
     // Format notification payload
-    const payload = {
-      title: "Somnyx",
-      body: message,
-      icon: "/favicon.ico",
-      timestamp: Date.now(),
-    };
+    const payload =
+      typeof message === "string"
+        ? { title: "Somnyx", body: message }
+        : message;
 
     // Send the notification
     await webpush.sendNotification(
