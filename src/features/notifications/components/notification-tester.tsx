@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useIsAdmin } from "@/features/store/isAdmin";
 
 import { sendNotificationToUser } from "../api/notification-service";
 
@@ -15,6 +16,11 @@ export function NotificationTester() {
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const { userId, getToken } = useAuth();
+  const { isAdmin } = useIsAdmin();
+
+  if (!isAdmin) {
+    return null;
+  }
 
   const handleSendTest = async () => {
     if (!userId || !message.trim()) return;
