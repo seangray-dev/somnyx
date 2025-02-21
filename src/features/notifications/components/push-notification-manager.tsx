@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { BellOffIcon } from "lucide-react";
@@ -30,6 +31,8 @@ export default function PushNotificationManager() {
     useNotifications();
   const [isToggling, setIsToggling] = useState(false);
   const [optimisticState, setOptimisticState] = useState<boolean | null>(null);
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   if (!isSupported) {
     return null;
@@ -41,20 +44,55 @@ export default function PushNotificationManager() {
   const handleSubscriptionToggle = async (checked: boolean) => {
     try {
       setIsToggling(true);
-      // Update optimistic state immediately
       setOptimisticState(checked);
 
       if (checked) {
-        const permission = await Notification.requestPermission();
+        // Try to get service worker registration first
+        const registration = await navigator.serviceWorker.ready;
 
-        if (permission === "granted") {
-          const success = await subscribeToPush();
-          if (!success) {
-            throw new Error("Failed to subscribe to notifications");
+        try {
+          // This will trigger the native permission prompt
+          const permission = await registration.pushManager.permissionState({
+            userVisibleOnly: true,
+          });
+
+          if (permission === "denied") {
+            setOptimisticState(false);
+            setOpen(false); // Explicitly close dropdown
+            toast.error(
+              "Notifications are blocked. Please enable them in your browser or device settings.",
+              {
+                action: {
+                  label: "Learn More",
+                  onClick: () => {
+                    router.push("/install-guide");
+                    toast.dismiss();
+                  },
+                },
+              }
+            );
+            return;
           }
-          toast.success("Notifications enabled for this device");
-        } else {
-          throw new Error("Notification permission denied");
+
+          // Now request notification permission
+          const notificationPermission = await Notification.requestPermission();
+
+          if (notificationPermission === "granted") {
+            const success = await subscribeToPush();
+            if (!success) {
+              throw new Error("Failed to subscribe to notifications");
+            }
+            toast.success("Notifications enabled for this device");
+          } else {
+            throw new Error("Notification permission denied");
+          }
+        } catch (error) {
+          // Handle permission errors
+          setOptimisticState(false);
+          if (error instanceof Error) {
+            toast.error(error.message);
+          }
+          return;
         }
       } else {
         const success = await unsubscribeFromPush();
@@ -64,7 +102,6 @@ export default function PushNotificationManager() {
         toast.success("Notifications disabled for this device");
       }
     } catch (error) {
-      // Revert optimistic update on error
       setOptimisticState(null);
       console.error("Toggle error:", error);
       toast.error(
@@ -72,13 +109,12 @@ export default function PushNotificationManager() {
       );
     } finally {
       setIsToggling(false);
-      // Clear optimistic state after successful update
       setOptimisticState(null);
     }
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>

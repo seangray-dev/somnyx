@@ -1,5 +1,7 @@
-import { api } from "@/convex/_generated/api";
 import { fetchQuery } from "convex/nextjs";
+
+import { api } from "@/convex/_generated/api";
+
 import { sendNotification } from "./actions";
 
 export async function sendNotificationToUser(
@@ -10,6 +12,7 @@ export async function sendNotificationToUser(
   try {
     // Get all active devices for the user
     const devices = await fetchQuery(
+      // @ts-ignore
       api.queries.notifications.getUserDevices,
       { userId },
       { token }
@@ -38,4 +41,4 @@ export async function sendNotificationToUser(
     console.error("Error sending notifications:", error);
     return { success: false, error: String(error) };
   }
-} 
+}
