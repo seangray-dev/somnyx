@@ -4,6 +4,8 @@ import { mutation } from "../_generated/server";
 
 export const subscribe = mutation({
   args: {
+    deviceName: v.string(),
+    deviceId: v.string(),
     subscription: v.object({
       endpoint: v.string(),
       expirationTime: v.optional(v.number()),
@@ -34,10 +36,8 @@ export const subscribe = mutation({
       // Check if a subscription already exists for this endpoint
       const existing = await ctx.db
         .query("notifications")
-        .withIndex("by_userId_and_endpoint", (q) =>
-          q
-            .eq("userId", userId)
-            .eq("subscription.endpoint", args.subscription.endpoint)
+        .withIndex("by_userId_and_deviceId", (q) =>
+          q.eq("userId", userId).eq("deviceId", args.deviceId)
         )
         .first();
 
@@ -45,6 +45,9 @@ export const subscribe = mutation({
         // Update existing subscription
         return await ctx.db.patch(existing._id, {
           subscription: args.subscription,
+          deviceName: args.deviceName,
+          deviceId: args.deviceId,
+          lastActiveAt: now,
           updatedAt: now,
         });
       }
@@ -52,7 +55,10 @@ export const subscribe = mutation({
       // Create new subscription
       const newSubscription = await ctx.db.insert("notifications", {
         userId,
+        deviceId: args.deviceId,
+        deviceName: args.deviceName,
         subscription: args.subscription,
+        lastActiveAt: now,
         createdAt: now,
         updatedAt: now,
       });
@@ -67,7 +73,7 @@ export const subscribe = mutation({
 
 export const unsubscribe = mutation({
   args: {
-    endpoint: v.string(),
+    deviceId: v.string(),
   },
   async handler(ctx, args) {
     const identity = await ctx.auth.getUserIdentity();
@@ -80,8 +86,8 @@ export const unsubscribe = mutation({
     // Find and delete the subscription
     const subscription = await ctx.db
       .query("notifications")
-      .withIndex("by_userId_and_endpoint", (q) =>
-        q.eq("userId", userId).eq("subscription.endpoint", args.endpoint)
+      .withIndex("by_userId_and_deviceId", (q) =>
+        q.eq("userId", userId).eq("deviceId", args.deviceId)
       )
       .first();
 

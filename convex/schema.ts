@@ -21,6 +21,8 @@ export default defineSchema({
 
   notifications: defineTable({
     userId: v.string(),
+    deviceId: v.string(),
+    deviceName: v.string(),
     subscription: v.object({
       endpoint: v.string(),
       expirationTime: v.optional(v.number()),
@@ -35,11 +37,12 @@ export default defineSchema({
         })
       ),
     }),
+    lastActiveAt: v.number(),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_userId", ["userId"])
-    .index("by_userId_and_endpoint", ["userId", "subscription.endpoint"]),
+    .index("by_userId_and_deviceId", ["userId", "deviceId"]),
 
   emotions: defineTable({
     name: v.string(),

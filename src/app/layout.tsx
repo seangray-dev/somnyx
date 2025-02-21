@@ -56,7 +56,6 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     title: applicationName,
-    capable: true,
     statusBarStyle: "default",
     startupImage: [
       {

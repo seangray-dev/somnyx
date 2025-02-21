@@ -28,6 +28,8 @@ webpush.setVapidDetails(
 );
 
 export async function subscribeUser(sub: {
+  deviceId: string;
+  deviceName: string;
   endpoint: string;
   expirationTime?: number | null;
   keys: { p256dh: string; auth: string };
@@ -60,6 +62,8 @@ export async function subscribeUser(sub: {
       // @ts-ignore
       api.mutations.notifications.subscribe,
       {
+        deviceId: sub.deviceId,
+        deviceName: sub.deviceName,
         subscription,
       },
       { token }
@@ -72,7 +76,7 @@ export async function subscribeUser(sub: {
   }
 }
 
-export async function unsubscribeUser(endpoint: string) {
+export async function unsubscribeUser(deviceId: string) {
   try {
     // Get the auth token
     const { getToken } = auth();
@@ -87,7 +91,7 @@ export async function unsubscribeUser(endpoint: string) {
     // Remove subscription from Convex
     await fetchMutation(
       api.mutations.notifications.unsubscribe,
-      { endpoint },
+      { deviceId },
       { token }
     );
     return { success: true };
@@ -100,7 +104,7 @@ export async function unsubscribeUser(endpoint: string) {
   }
 }
 
-export async function sendNotification(message: string) {
+export async function sendNotification(deviceId: string, message: string) {
   try {
     // Get the auth token
     const { getToken } = auth();
@@ -113,7 +117,7 @@ export async function sendNotification(message: string) {
     // Get subscription from Convex
     const subscription = await fetchQuery(
       api.queries.notifications.getSubscription,
-      {},
+      { deviceId },
       { token }
     );
 

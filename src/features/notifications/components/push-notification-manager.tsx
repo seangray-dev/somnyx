@@ -33,19 +33,21 @@ export default function PushNotificationManager() {
   const handleSubscriptionToggle = async (checked: boolean) => {
     let success = false;
 
-    if (checked) {
-      // Request notification permission first
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        success = await subscribeToPush();
+    try {
+      if (checked) {
+        const permission = await Notification.requestPermission();
+
+        if (permission === "granted") {
+          success = await subscribeToPush();
+        }
+      } else {
+        success = await unsubscribeFromPush();
       }
-    } else {
-      success = await unsubscribeFromPush();
+    } catch (error) {
+      console.error("Toggle error:", error);
     }
 
-    // If the operation failed, we need to force a re-render with the previous state
     if (!success) {
-      // Force toggle back to previous state
       const switchElement = document.getElementById(
         "notifications"
       ) as HTMLInputElement;
