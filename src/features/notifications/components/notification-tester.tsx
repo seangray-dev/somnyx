@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useIsAdmin } from "@/features/store/isAdmin";
+import { useIsAdmin } from "@/features/store/admin";
 
 import { sendNotificationToUser } from "../api/notification-service";
 
