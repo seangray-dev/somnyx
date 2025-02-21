@@ -5,7 +5,7 @@ import DeleteActions from "@/components/settings/delete-actions";
 import NotificationsSection from "@/components/settings/notifications-section";
 import ThemeSection from "@/components/settings/theme-section";
 import { SEO } from "@/config/app";
-
+import { NotificationTester } from "@/features/notifications/components/notification-tester";
 export default function SettingsPage() {
   return (
     <div className="flex flex-col gap-6">
@@ -15,6 +15,7 @@ export default function SettingsPage() {
         <ThemeSection />
         <NotificationsSection />
         <DeleteActions />
+        <NotificationTester />
       </div>
     </div>
   );

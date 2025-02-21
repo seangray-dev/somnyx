@@ -42,7 +42,9 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index("by_userId", ["userId"])
-    .index("by_userId_and_deviceId", ["userId", "deviceId"]),
+    .index("by_userId_and_deviceId", ["userId", "deviceId"])
+    .index("by_userId_and_endpoint", ["userId", "subscription.endpoint"])
+    .index("by_deviceId", ["deviceId"]),
 
   emotions: defineTable({
     name: v.string(),
