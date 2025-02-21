@@ -116,7 +116,7 @@ export const sendNotification = internalAction({
   },
   handler: async (ctx, args) => {
     const { userId, type, data } = args;
-    const apiUrl = "https://somnyx.app/api/notifications";
+    const apiUrl = "https://www.somnyx.app/api/notifications";
 
     // Make HTTP request to your Next.js endpoint
     const response = await fetch(apiUrl, {
