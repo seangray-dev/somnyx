@@ -2,45 +2,29 @@ import { NextResponse } from "next/server";
 
 import { fetchQuery } from "convex/nextjs";
 
+import { env } from "@/config/env/server";
 import { api } from "@/convex/_generated/api";
 import { sendNotificationToUser } from "@/features/notifications/api/notification-service";
 import { NOTIFICATION_TYPES } from "@/features/notifications/types/notifications";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300; // 5 minute timeout
+export const NOTIFICATION_WINDOW_MINUTES = 15;
 
 export async function GET(request: Request) {
   try {
-    // Verify the request is from Vercel Cron
-    // const authHeader = request.headers.get("authorization");
-    // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+    const authHeader = request.headers.get("authorization");
+    if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    // Log initial preferences data
     const preferences = await fetchQuery(
       // @ts-ignore
       api.queries.notificationPreferences.getAllDailyReminderPreferences
     );
-    console.log("Retrieved preferences:", preferences);
 
     const now = new Date();
-    // Log timezone info
-    console.log("Server timezone:", now.getTimezoneOffset());
-    console.log("Full date object:", now.toISOString());
 
-    const currentTimeMs =
-      now.getHours() * 60 * 60 * 1000 + now.getMinutes() * 60 * 1000;
-
-    // Log time calculations
-    console.log({
-      hours: now.getHours(),
-      minutes: now.getMinutes(),
-      calculatedMs: currentTimeMs,
-    });
-
-    // Log each preference evaluation
-    // src/app/api/cron/daily-reminders/route.ts
     const usersToNotify = preferences.filter((pref) => {
       const reminderTimeMs = pref.dailyReminderTime;
       if (!reminderTimeMs || !pref.timezoneOffset) {
@@ -63,21 +47,8 @@ export async function GET(request: Request) {
         1440 - Math.abs(reminderMinutes - userCurrentMinutes)
       );
 
-      console.log({
-        userId: pref.userId,
-        userTimezone: `UTC${pref.timezoneOffset >= 0 ? "+" : "-"}${Math.abs(pref.timezoneOffset / 60)}`,
-        reminderTime: new Date(
-          new Date().setHours(0, 0, 0, 0) + reminderTimeMs
-        ).toLocaleTimeString(),
-        userLocalTime: userNow.toLocaleTimeString(),
-        minuteDiff,
-        withinWindow: minuteDiff <= 5,
-      });
-
-      return minuteDiff <= 5;
+      return minuteDiff <= NOTIFICATION_WINDOW_MINUTES;
     });
-
-    console.log("Users to notify", usersToNotify.length);
 
     // Send notifications to matched users
     const results = await Promise.allSettled(
@@ -91,15 +62,18 @@ export async function GET(request: Request) {
       })
     );
 
-    console.log("Push Notifications Results", results);
+    const devicesFailed = results.filter((r) => r.status === "rejected").length;
 
-    console.log("Notified", usersToNotify.length, "users");
+    const devicesNotified = results.filter(
+      (r) => r.status === "fulfilled" && r.value.success
+    ).length;
 
     return new Response(
       JSON.stringify({
         success: true,
-        notified: usersToNotify.length,
-        results,
+        usersToNotify: usersToNotify.length,
+        devicesNotified: devicesNotified,
+        devicesFailed: devicesFailed,
       })
     );
   } catch (error) {
