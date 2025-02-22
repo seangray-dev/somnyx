@@ -18,26 +18,40 @@ export async function GET(request: Request) {
     //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     // }
 
-    // Get all users with daily reminders enabled
+    // Log initial preferences data
     const preferences = await fetchQuery(
       // @ts-ignore
       api.queries.notificationPreferences.getAllDailyReminderPreferences
     );
+    console.log("Retrieved preferences:", preferences);
 
     const now = new Date();
-    console.log("Now", now);
+    // Log timezone info
+    console.log("Server timezone:", now.getTimezoneOffset());
+    console.log("Full date object:", now.toISOString());
+
     const currentTimeMs =
       now.getHours() * 60 * 60 * 1000 + now.getMinutes() * 60 * 1000;
-    console.log("Current time", currentTimeMs);
 
-    // Filter users whose reminder time matches current time
+    // Log time calculations
+    console.log({
+      hours: now.getHours(),
+      minutes: now.getMinutes(),
+      calculatedMs: currentTimeMs,
+    });
+
+    // Log each preference evaluation
     const usersToNotify = preferences.filter((pref) => {
       const reminderTimeMs = pref.dailyReminderTime;
-      console.log("Users daily reminder time", pref.dailyReminderTime);
-      console.log("Now", now);
-      console.log("Reminder time", reminderTimeMs);
-      // Allow 5 minute window to account for cron job timing
-      return Math.abs(reminderTimeMs ?? 0 - currentTimeMs) <= 5 * 60 * 1000;
+      const timeDiff = Math.abs(reminderTimeMs ?? 0 - currentTimeMs);
+      console.log({
+        userId: pref.userId,
+        reminderTimeMs,
+        currentTimeMs,
+        timeDiff,
+        withinWindow: timeDiff <= 5 * 60 * 1000,
+      });
+      return timeDiff <= 5 * 60 * 1000;
     });
 
     console.log("Users to notify", usersToNotify.length);
