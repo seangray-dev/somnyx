@@ -69,6 +69,17 @@ export const getNotificationContent = <T extends NotificationType>(
       };
     }
 
+    case NOTIFICATION_TYPES.INACTIVITY_REMINDER:
+      return {
+        title: "Your Dream Journey Awaits",
+        body: "Unlock insights from your dreams - each unrecorded dream is a story untold. Return to capture your next adventure.",
+        icon: "/icon-192x192.png",
+        url: "/dashboard",
+        data: {
+          type,
+        },
+      };
+
     default:
       throw new Error(`Notification template not found for type: ${type}`);
   }
