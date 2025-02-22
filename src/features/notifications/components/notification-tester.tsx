@@ -16,7 +16,7 @@ import { NOTIFICATION_TYPES } from "../types/notifications";
 export function NotificationTester() {
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const { userId, getToken } = useAuth();
+  const { userId } = useAuth();
   const { isAdmin } = useIsAdmin();
 
   if (!isAdmin) {
@@ -24,35 +24,30 @@ export function NotificationTester() {
   }
 
   const handleSendTest = async () => {
-    // if (!userId || !message.trim()) return;
+    if (!userId || !message.trim()) return;
 
-    // try {
-    //   setIsSending(true);
-    //   const token = await getToken({ template: "convex" });
+    console.log("Sending test notification to user", userId);
 
-    //   if (!token) {
-    //     throw new Error("Not authenticated");
-    //   }
+    try {
+      setIsSending(true);
 
-    //   const result = await sendNotificationToUser(
-    //     userId,
-    //     NOTIFICATION_TYPES.DAILY_REMINDER,
-    //     token,
-    //     undefined
-    //   );
+      const result = await sendNotificationToUser(
+        userId,
+        NOTIFICATION_TYPES.DAILY_REMINDER
+      );
 
-    //   if (result.success) {
-    //     toast.success("Test notification sent successfully");
-    //     setMessage("");
-    //   } else {
-    //     throw new Error(result.error || "Failed to send notification");
-    //   }
-    // } catch (error) {
-    //   toast.error(error instanceof Error ? error.message : "An error occurred");
-    //   console.error("Error sending test notification:", error);
-    // } finally {
-    //   setIsSending(false);
-    // }
+      if (result.success) {
+        toast.success("Test notification sent successfully");
+        setMessage("");
+      } else {
+        throw new Error(result.error || "Failed to send notification");
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "An error occurred");
+      console.error("Error sending test notification:", error);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (

@@ -109,45 +109,81 @@ export async function sendNotification(
   message: string | object
 ) {
   try {
+    console.log("Fetching devices for user:", userId);
     const devices = await fetchQuery(api.queries.notifications.getUserDevices, {
       userId,
     });
 
+    console.log("Found devices:", devices);
     if (!devices || devices.length === 0) {
       console.warn("No devices found for user", userId);
       return { success: false, error: "No devices found" };
     }
 
-    const subscriptions = await Promise.all(
-      devices.map((device) => {
-        // Get subscription from Convex
-        return fetchQuery(api.queries.notifications.getSubscription, {
-          deviceId: device.deviceId,
-        });
+    const results = await Promise.allSettled(
+      devices.map(async (device) => {
+        try {
+          // Use the subscription directly from the device object
+          if (!device.subscription) {
+            console.warn(
+              "No valid subscription found for device:",
+              device.deviceId
+            );
+            return {
+              success: false,
+              deviceId: device.deviceId,
+              error: "No valid subscription",
+            };
+          }
+
+          // Format notification payload
+          const payload =
+            typeof message === "string"
+              ? { title: "Somnyx", body: message }
+              : message;
+
+          console.log(
+            "Sending notification to device:",
+            device.deviceId,
+            payload
+          );
+
+          // Send the notification
+          await webpush.sendNotification(
+            device.subscription as unknown as WebPushSubscription,
+            JSON.stringify(payload)
+          );
+
+          console.log(
+            "Successfully sent notification to device:",
+            device.deviceId
+          );
+          return { success: true, deviceId: device.deviceId };
+        } catch (error) {
+          console.error("Failed to send to device:", device.deviceId, error);
+          return {
+            success: false,
+            deviceId: device.deviceId,
+            error: String(error),
+          };
+        }
       })
     );
 
-    for (const subscription of subscriptions) {
-      if (!subscription) {
-        continue;
-      }
+    const successfulDevices = results.filter(
+      (r) => r.status === "fulfilled" && r.value.success
+    ).length;
 
-      // Format notification payload
-      const payload =
-        typeof message === "string"
-          ? { title: "Somnyx", body: message }
-          : message;
+    console.log("Notification results:", results);
 
-      // Send the notification
-      await webpush.sendNotification(
-        subscription.subscription as unknown as WebPushSubscription,
-        JSON.stringify(payload)
-      );
-    }
-
-    return { success: true };
+    return {
+      success: successfulDevices > 0,
+      error:
+        successfulDevices === 0 ? "Failed to send to any devices" : undefined,
+      results,
+    };
   } catch (error) {
-    console.error("Error sending push notification:", error);
-    return { success: false, error: "Failed to send notification" };
+    console.error("Error in sendNotification:", error);
+    return { success: false, error: String(error) };
   }
 }
