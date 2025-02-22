@@ -7,8 +7,10 @@ import { InfoIcon, XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { useSession } from "@/lib/client-auth";
 
 export default function InstallPrompt() {
+  const { isLoggedIn } = useSession();
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -28,7 +30,7 @@ export default function InstallPrompt() {
   }, []);
 
   // Don't show if still loading or user dismissed
-  if (isLoading || !isVisible) {
+  if (isLoading || !isVisible || !isLoggedIn) {
     return null;
   }
 
