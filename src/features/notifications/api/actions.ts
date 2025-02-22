@@ -109,19 +109,9 @@ export async function sendNotification(
   message: string | object
 ) {
   try {
-    // Get the auth token
-    const { getToken } = auth();
-    const token = await getToken({ template: "convex" });
-
-    if (!token) {
-      throw new Error("User must be logged in to send notifications");
-    }
-
-    const devices = await fetchQuery(
-      api.queries.notifications.getUserDevices,
-      { userId },
-      { token }
-    );
+    const devices = await fetchQuery(api.queries.notifications.getUserDevices, {
+      userId,
+    });
 
     if (!devices || devices.length === 0) {
       console.warn("No devices found for user", userId);
@@ -131,11 +121,9 @@ export async function sendNotification(
     const subscriptions = await Promise.all(
       devices.map((device) => {
         // Get subscription from Convex
-        return fetchQuery(
-          api.queries.notifications.getSubscription,
-          { deviceId: device.deviceId },
-          { token }
-        );
+        return fetchQuery(api.queries.notifications.getSubscription, {
+          deviceId: device.deviceId,
+        });
       })
     );
 
