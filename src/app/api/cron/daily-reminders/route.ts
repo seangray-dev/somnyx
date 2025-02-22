@@ -20,6 +20,7 @@ export async function GET(request: Request) {
 
     // Get all users with daily reminders enabled
     const preferences = await fetchQuery(
+      // @ts-ignore
       api.queries.notificationPreferences.getAllDailyReminderPreferences
     );
 
