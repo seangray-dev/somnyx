@@ -30,31 +30,38 @@ export default function NotificationPreferences() {
   } = useNotificationPreferences();
 
   const getReminderTimeAsDate = () => {
-    if (!userPreferences?.dailyReminderTime)
+    // Use pending changes first, fall back to user preferences
+    const reminderTimeMs =
+      pendingChanges.dailyReminderTime ?? userPreferences?.dailyReminderTime;
+
+    if (!reminderTimeMs) {
       // Default to 7:00 AM
       return new Date(new Date().setHours(7, 0, 0, 0));
+    }
 
     // Create a new date object set to midnight
     const date = new Date();
     date.setHours(0, 0, 0, 0);
 
     // Add the milliseconds to get the reminder time
-    date.setMilliseconds(userPreferences.dailyReminderTime);
+    date.setMilliseconds(reminderTimeMs);
 
     return date;
   };
 
   const handleTimeChange = (newDate: Date | undefined) => {
-    if (!newDate || !isEditing) return; // Add isEditing check
+    if (!newDate || !isEditing) return;
 
     // Convert the time back to milliseconds since midnight
     const milliseconds =
       newDate.getHours() * 60 * 60 * 1000 + newDate.getMinutes() * 60 * 1000;
 
-    // Update pendingChanges with new time
     setPendingChanges((prev) => ({
       ...prev,
       dailyReminderTime: milliseconds,
+      enabledTypes: (prev.enabledTypes ??
+        userPreferences?.enabledTypes ??
+        []) as NotificationType[],
     }));
   };
 
