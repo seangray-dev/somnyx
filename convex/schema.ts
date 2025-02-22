@@ -324,4 +324,11 @@ export default defineSchema({
     .index("by_type", ["type"])
     .index("by_userId", ["userId"])
     .index("by_status", ["status"]),
+
+  notificationPreferences: defineTable({
+    userId: v.string(),
+    dailyReminderTime: v.optional(v.number()),
+    enabledTypes: v.array(v.string()),
+    updatedAt: v.number(),
+  }).index("by_userId", ["userId"]),
 });

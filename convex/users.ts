@@ -9,6 +9,7 @@ import {
   mutation,
   query,
 } from "./_generated/server";
+import { DEFAULT_NOTIFICATION_PREFERENCES } from "./mutations/notificationPreferences";
 import { getUserId } from "./util";
 
 export const updateUser = internalMutation({
@@ -51,6 +52,13 @@ export const createUser = internalMutation({
         email: args.email,
         profileImage: args.profileImage,
         credits: 300,
+      });
+
+      await ctx.db.insert("notificationPreferences", {
+        userId: args.userId,
+        enabledTypes: DEFAULT_NOTIFICATION_PREFERENCES.enabledTypes,
+        dailyReminderTime: DEFAULT_NOTIFICATION_PREFERENCES.dailyReminderTime,
+        updatedAt: Date.now(),
       });
     }
   },
@@ -303,7 +311,7 @@ export const getTotalUsers = query({
 export const isUserAdmin = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
-    
+
     if (!identity) return false;
 
     const user = await ctx.db

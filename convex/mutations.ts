@@ -5,3 +5,4 @@ export * from "./mutations/message";
 export * from "./mutations/users";
 export * from "./mutations/themePages";
 export * from "./mutations/notifications";
+export * from "./mutations/notificationPreferences";

@@ -1,7 +1,20 @@
 import { GenericId, Validator, v } from "convex/values";
 
+
+
 import { TableNames } from "./_generated/dataModel";
 import { ActionCtx, MutationCtx, QueryCtx } from "./_generated/server";
+
+
+export const NOTIFICATION_TYPES = {
+  ANALYSIS_COMPLETE: "ANALYSIS_COMPLETE",
+  MONTHLY_INSIGHTS: "MONTHLY_INSIGHTS",
+  DAILY_REMINDER: "DAILY_REMINDER",
+  LOW_CREDITS: "LOW_CREDITS",
+  INACTIVITY_REMINDER: "INACTIVITY_REMINDER",
+  APP_UPDATE: "APP_UPDATE",
+  STREAK_MILESTONE: "STREAK_MILESTONE",
+} as const;
 
 export function vid<TableName extends TableNames>(
   tableName: TableName

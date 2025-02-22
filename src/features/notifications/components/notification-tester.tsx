@@ -2,23 +2,16 @@
 
 import { useState } from "react";
 
-
-
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
-
-
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useIsAdmin } from "@/features/store/admin";
 
-
-
 import { sendNotificationToUser } from "../api/notification-service";
-import { NOTIFICATION_TYPES, NotificationType } from "../types/notifications";
-
+import { NOTIFICATION_TYPES } from "../types/notifications";
 
 export function NotificationTester() {
   const [message, setMessage] = useState("");
