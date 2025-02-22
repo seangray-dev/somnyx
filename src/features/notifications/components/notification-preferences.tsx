@@ -198,7 +198,7 @@ export default function NotificationPreferences() {
               <div>
                 <Label>Inactivity Reminder</Label>
                 <p className="text-balance text-sm text-muted-foreground">
-                  Send me notifications when I haven't signed in the last 7
+                  Send me notifications when I haven&apos;t signed in the last 7
                   days.
                 </p>
               </div>

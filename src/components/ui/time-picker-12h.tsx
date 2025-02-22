@@ -31,7 +31,7 @@ export function TimePicker12H({
         setPeriod(newPeriod);
       }
     }
-  }, [date]);
+  }, [date, period]);
 
   const minuteRef = React.useRef<HTMLInputElement>(null);
   const hourRef = React.useRef<HTMLInputElement>(null);

@@ -47,6 +47,7 @@ export function useTimezone() {
     timezoneState.initialized,
     updateTimezone,
     setTimezoneState,
+    userId,
   ]);
 
   useEffect(() => {

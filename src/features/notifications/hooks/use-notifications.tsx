@@ -156,7 +156,7 @@ export default function useNotifications() {
       console.error("Error sending test notification:", error);
       return false;
     }
-  }, [subscription]);
+  }, [subscription, deviceId]);
 
   return {
     isSupported,
