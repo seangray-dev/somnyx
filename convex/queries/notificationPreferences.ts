@@ -28,11 +28,10 @@ export const getNotificationPreferences = query({
 
 export const getAllDailyReminderPreferences = query({
   handler: async (ctx) => {
-    return await ctx.db
-      .query("notificationPreferences")
-      .filter((q) =>
-        q.eq(q.field("enabledTypes"), [NOTIFICATION_TYPES.DAILY_REMINDER])
-      )
-      .collect();
+    const all = await ctx.db.query("notificationPreferences").collect();
+
+    return all.filter((pref) =>
+      pref.enabledTypes.includes(NOTIFICATION_TYPES.DAILY_REMINDER)
+    );
   },
 });

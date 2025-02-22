@@ -41,17 +41,38 @@ export async function GET(request: Request) {
     });
 
     // Log each preference evaluation
+    // src/app/api/cron/daily-reminders/route.ts
     const usersToNotify = preferences.filter((pref) => {
       const reminderTimeMs = pref.dailyReminderTime;
-      const timeDiff = Math.abs(reminderTimeMs ?? 0 - currentTimeMs);
+      if (!reminderTimeMs) {
+        console.log("No reminder time for user", pref.userId);
+        return false;
+      }
+      const timeDiff = Math.abs(reminderTimeMs - currentTimeMs);
+
+      // Convert times to minutes for easier comparison
+      const reminderMinutes = Math.floor(reminderTimeMs / (60 * 1000));
+      const currentMinutes = Math.floor(currentTimeMs / (60 * 1000));
+
+      // Compare the actual times, accounting for 24-hour wraparound
+      const minuteDiff = Math.min(
+        Math.abs(reminderMinutes - currentMinutes),
+        1440 - Math.abs(reminderMinutes - currentMinutes) // 1440 = minutes in a day
+      );
+
       console.log({
         userId: pref.userId,
-        reminderTimeMs,
-        currentTimeMs,
-        timeDiff,
-        withinWindow: timeDiff <= 5 * 60 * 1000,
+        reminderTime: new Date(
+          new Date().setHours(0, 0, 0, 0) + reminderTimeMs
+        ).toLocaleTimeString(),
+        currentTime: new Date(
+          new Date().setHours(0, 0, 0, 0) + currentTimeMs
+        ).toLocaleTimeString(),
+        minuteDiff,
+        withinWindow: minuteDiff <= 5,
       });
-      return timeDiff <= 5 * 60 * 1000;
+
+      return minuteDiff <= 5; // 5 minute window
     });
 
     console.log("Users to notify", usersToNotify.length);
