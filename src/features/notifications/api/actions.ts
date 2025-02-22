@@ -105,7 +105,7 @@ export async function unsubscribeUser(deviceId: string) {
 }
 
 export async function sendNotification(
-  deviceId: string,
+  userId: string,
   message: string | object
 ) {
   try {
@@ -117,28 +117,45 @@ export async function sendNotification(
       throw new Error("User must be logged in to send notifications");
     }
 
-    // Get subscription from Convex
-    const subscription = await fetchQuery(
-      api.queries.notifications.getSubscription,
-      { deviceId },
+    const devices = await fetchQuery(
+      api.queries.notifications.getUserDevices,
+      { userId },
       { token }
     );
 
-    if (!subscription) {
-      throw new Error("No subscription available");
+    if (!devices || devices.length === 0) {
+      console.warn("No devices found for user", userId);
+      return { success: false, error: "No devices found" };
     }
 
-    // Format notification payload
-    const payload =
-      typeof message === "string"
-        ? { title: "Somnyx", body: message }
-        : message;
-
-    // Send the notification
-    await webpush.sendNotification(
-      subscription.subscription as unknown as WebPushSubscription,
-      JSON.stringify(payload)
+    const subscriptions = await Promise.all(
+      devices.map((device) => {
+        // Get subscription from Convex
+        return fetchQuery(
+          api.queries.notifications.getSubscription,
+          { deviceId: device.deviceId },
+          { token }
+        );
+      })
     );
+
+    for (const subscription of subscriptions) {
+      if (!subscription) {
+        continue;
+      }
+
+      // Format notification payload
+      const payload =
+        typeof message === "string"
+          ? { title: "Somnyx", body: message }
+          : message;
+
+      // Send the notification
+      await webpush.sendNotification(
+        subscription.subscription as unknown as WebPushSubscription,
+        JSON.stringify(payload)
+      );
+    }
 
     return { success: true };
   } catch (error) {

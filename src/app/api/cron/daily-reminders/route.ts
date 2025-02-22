@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 
-import { auth } from "@clerk/nextjs/server";
 import { fetchQuery } from "convex/nextjs";
 
 import { api } from "@/convex/_generated/api";
@@ -83,17 +82,16 @@ export async function GET(request: Request) {
     // Send notifications to matched users
     const results = await Promise.allSettled(
       usersToNotify.map(async (pref) => {
-        const { getToken } = auth();
-        const token = await getToken({ template: "convex" });
-        if (!token) return;
+        console.log("Sending notification to user", pref.userId);
 
         return sendNotificationToUser(
           pref.userId,
-          NOTIFICATION_TYPES.DAILY_REMINDER,
-          token
+          NOTIFICATION_TYPES.DAILY_REMINDER
         );
       })
     );
+
+    console.log("Push Notifications Results", results);
 
     console.log("Notified", usersToNotify.length, "users");
 

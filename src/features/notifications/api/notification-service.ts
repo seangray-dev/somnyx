@@ -1,7 +1,3 @@
-import { fetchQuery } from "convex/nextjs";
-
-import { api } from "@/convex/_generated/api";
-
 import { NotificationDataMap, NotificationType } from "../types/notifications";
 import { getNotificationContent } from "../utils/notification-templates";
 import { sendNotification } from "./actions";
@@ -9,23 +5,9 @@ import { sendNotification } from "./actions";
 export async function sendNotificationToUser<T extends NotificationType>(
   userId: string,
   type: T,
-  token: string,
   data?: NotificationDataMap[T]
 ) {
   try {
-    // Get all active devices for the user
-    const devices = await fetchQuery(
-      // @ts-ignore
-      api.queries.notifications.getUserDevices,
-      { userId },
-      { token }
-    );
-
-    if (!devices || devices.length === 0) {
-      console.log("No devices found for user:", userId);
-      return { success: false, error: "No devices found" };
-    }
-
     const notificationContent = getNotificationContent(type, data);
 
     if (!notificationContent) {
@@ -33,22 +15,9 @@ export async function sendNotificationToUser<T extends NotificationType>(
       return { success: false, error: "No notification content found" };
     }
 
-    // Send notification to each device
-    const results = await Promise.allSettled(
-      devices.map((device) =>
-        sendNotification(device.deviceId, notificationContent)
-      )
-    );
+    const result = await sendNotification(userId, notificationContent);
 
-    // Check if any notifications were successful
-    const anySuccess = results.some(
-      (result) => result.status === "fulfilled" && result.value.success
-    );
-
-    return {
-      success: anySuccess,
-      error: anySuccess ? null : "Failed to send notifications to all devices",
-    };
+    return { success: result.success, error: result.error };
   } catch (error) {
     console.error("Error sending notifications:", error);
     return { success: false, error: String(error) };
