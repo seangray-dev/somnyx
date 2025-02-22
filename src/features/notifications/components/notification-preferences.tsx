@@ -6,9 +6,16 @@ import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { CircleHelpIcon } from "@/components/ui/icons/circle-help";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { TimePicker12H } from "@/components/ui/time-picker-12h";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import useNotificationPreferences from "../hooks/use-notification-preferences";
 import { NOTIFICATION_TYPES, NotificationType } from "../types/notifications";
@@ -82,6 +89,23 @@ export default function NotificationPreferences() {
     }));
   };
 
+  const handleInactivityReminderToggle = (enabled: boolean) => {
+    if (!isEditing || !userPreferences) return;
+
+    const currentTypes =
+      pendingChanges.enabledTypes ?? userPreferences.enabledTypes;
+    const updatedTypes = enabled
+      ? [...currentTypes, NOTIFICATION_TYPES.INACTIVITY_REMINDER]
+      : currentTypes.filter(
+          (type) => type !== NOTIFICATION_TYPES.INACTIVITY_REMINDER
+        );
+
+    setPendingChanges((prev) => ({
+      ...prev,
+      enabledTypes: updatedTypes as NotificationType[],
+    }));
+  };
+
   const handleCancel = () => {
     setIsEditing(false);
     setPendingChanges({});
@@ -115,36 +139,78 @@ export default function NotificationPreferences() {
     ? pendingChanges.enabledTypes.includes(NOTIFICATION_TYPES.DAILY_REMINDER)
     : userPreferences?.enabledTypes.includes(NOTIFICATION_TYPES.DAILY_REMINDER);
 
+  const isInactivityReminderEnabled = pendingChanges.enabledTypes
+    ? pendingChanges.enabledTypes.includes(
+        NOTIFICATION_TYPES.INACTIVITY_REMINDER
+      )
+    : userPreferences?.enabledTypes.includes(
+        NOTIFICATION_TYPES.INACTIVITY_REMINDER
+      );
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+      <div>
         {isLoading ? (
           <div className="flex h-full w-full flex-col items-center justify-center gap-4">
             <Loader2Icon className="animate-spin" />
             <div>Loading...</div>
           </div>
         ) : (
-          <>
-            <div>
-              <Label>Daily Reminder</Label>
-              <p className="text-balance text-sm text-muted-foreground">
-                Notifications are sent within ~15 minutes of your selected time
-                to ensure reliable delivery.
-              </p>
+          <div className="flex flex-col gap-6">
+            {/* Daily Reminder */}
+            <div className="flex flex-col justify-between gap-4 sm:flex-row">
+              <div className="flex flex-col gap-1">
+                <div className="flex items-end gap-2">
+                  <Label>Daily Reminder</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <CircleHelpIcon className="text-muted-foreground transition-colors duration-150 hover:text-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs text-sm">
+                          Notifications are sent within ~15 minutes of your
+                          selected time to ensure reliable delivery.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <p className="text-balance text-sm text-muted-foreground">
+                  Send me a daily reminder to record my dreams.
+                </p>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <TimePicker12H
+                  date={getReminderTimeAsDate()}
+                  setDate={handleTimeChange}
+                  disabled={!isEditing || isSaving}
+                />
+                <Switch
+                  checked={isDailyReminderEnabled}
+                  onCheckedChange={handleDailyReminderToggle}
+                  disabled={!isEditing || isSaving}
+                />
+              </div>
             </div>
-            <div className="flex items-center justify-between gap-4">
-              <TimePicker12H
-                date={getReminderTimeAsDate()}
-                setDate={handleTimeChange}
-                disabled={!isEditing || isSaving}
-              />
-              <Switch
-                checked={isDailyReminderEnabled}
-                onCheckedChange={handleDailyReminderToggle}
-                disabled={!isEditing || isSaving}
-              />
+            {/* Inactivity Reminder */}
+            <div className="flex justify-between gap-4 sm:flex-row">
+              <div>
+                <Label>Inactivity Reminder</Label>
+                <p className="text-balance text-sm text-muted-foreground">
+                  Send me notifications when I haven't signed in the last 7
+                  days.
+                </p>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <Switch
+                  checked={isInactivityReminderEnabled}
+                  onCheckedChange={handleInactivityReminderToggle}
+                  disabled={!isEditing || isSaving}
+                />
+              </div>
             </div>
-          </>
+          </div>
         )}
       </div>
       <div className="flex items-center justify-end gap-2">
