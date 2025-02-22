@@ -133,6 +133,7 @@ export default function NotificationPreferences() {
               <TimePicker12H
                 date={getReminderTimeAsDate()}
                 setDate={handleTimeChange}
+                disabled={!isEditing || isSaving}
               />
               <Switch
                 checked={isDailyReminderEnabled}

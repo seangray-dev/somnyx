@@ -10,10 +10,29 @@ import { Period } from "@/utils/time-picker-utils";
 interface TimePicker12HProps {
   date: Date | undefined;
   setDate: (date: Date | undefined) => void;
+  disabled?: boolean;
 }
 
-export function TimePicker12H({ date, setDate }: TimePicker12HProps) {
-  const [period, setPeriod] = React.useState<Period>("AM");
+export function TimePicker12H({
+  date,
+  setDate,
+  disabled = false,
+}: TimePicker12HProps) {
+  const [period, setPeriod] = React.useState<Period>(() => {
+    if (!date) return "AM";
+    return date.getHours() >= 12 ? "PM" : "AM";
+  });
+
+  // Keep period in sync with date changes
+  React.useEffect(() => {
+    if (date) {
+      const newPeriod = date.getHours() >= 12 ? "PM" : "AM";
+      if (newPeriod !== period) {
+        setPeriod(newPeriod);
+      }
+    }
+  }, [date]);
+
   const minuteRef = React.useRef<HTMLInputElement>(null);
   const hourRef = React.useRef<HTMLInputElement>(null);
   // const secondRef = React.useRef<HTMLInputElement>(null);
@@ -32,6 +51,7 @@ export function TimePicker12H({ date, setDate }: TimePicker12HProps) {
           setDate={setDate}
           ref={hourRef}
           onRightFocus={() => minuteRef.current?.focus()}
+          disabled={disabled}
         />
       </div>
       <div className="grid gap-1 text-center">
@@ -46,6 +66,7 @@ export function TimePicker12H({ date, setDate }: TimePicker12HProps) {
           ref={minuteRef}
           onLeftFocus={() => hourRef.current?.focus()}
           onRightFocus={() => periodRef.current?.focus()}
+          disabled={disabled}
         />
       </div>
       {/* <div className="grid gap-1 text-center">
@@ -73,6 +94,7 @@ export function TimePicker12H({ date, setDate }: TimePicker12HProps) {
           setDate={setDate}
           ref={periodRef}
           onLeftFocus={() => minuteRef.current?.focus()}
+          disabled={disabled}
         />
       </div>
     </div>
