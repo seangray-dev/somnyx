@@ -6,7 +6,6 @@ import { NOTIFICATION_TYPES } from "../util";
 export const getNotificationPreferences = query({
   args: { userId: v.optional(v.string()) },
   handler: async (ctx, { userId }) => {
-    console.log("userId", userId);
     if (!userId) {
       console.error("No user ID provided");
       return null;

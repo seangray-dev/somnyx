@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 
 import { fetchQuery } from "convex/nextjs";
+import {
+  addMinutes,
+  differenceInMinutes,
+  setHours,
+  setMinutes,
+} from "date-fns";
 
 import { env } from "@/config/env/server";
 import { api } from "@/convex/_generated/api";
@@ -17,38 +23,75 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const NOTIFICATION_WINDOW_MINUTES = 15;
+
+    const serverNow = new Date();
+    
+    console.log("Cron job started:", {
+      serverTime: serverNow.toISOString(),
+      executionWindow: NOTIFICATION_WINDOW_MINUTES,
+    });
+
     const preferences = await fetchQuery(
       // @ts-ignore
       api.queries.notificationPreferences.getAllDailyReminderPreferences
     );
 
-    const now = new Date();
-
     const usersToNotify = preferences.filter((pref) => {
-      const reminderTimeMs = pref.dailyReminderTime;
-      if (!reminderTimeMs || !pref.timezoneOffset) {
+      const { dailyReminderTime, timezoneOffset, userId } = pref;
+
+      if (!dailyReminderTime || typeof timezoneOffset !== "number") {
+        console.log("Skipping user - missing data:", {
+          userId,
+          dailyReminderTime,
+          timezoneOffset,
+        });
         return false;
       }
 
-      // Get user's local time based on their timezone offset
-      const userNow = new Date(now.getTime() + pref.timezoneOffset * 60 * 1000);
-      const userCurrentTimeMs =
-        userNow.getHours() * 60 * 60 * 1000 + userNow.getMinutes() * 60 * 1000;
+      // Get user's local time
+      const userLocalTime = addMinutes(serverNow, timezoneOffset);
 
-      // Convert times to minutes for easier comparison
-      const reminderMinutes = Math.floor(reminderTimeMs / (60 * 1000));
-      const userCurrentMinutes = Math.floor(userCurrentTimeMs / (60 * 1000));
-
-      // Compare the actual times, accounting for 24-hour wraparound
-      const minuteDiff = Math.min(
-        Math.abs(reminderMinutes - userCurrentMinutes),
-        1440 - Math.abs(reminderMinutes - userCurrentMinutes)
+      // Convert reminder time (milliseconds since midnight) to today's date
+      const reminderHours = Math.floor(dailyReminderTime / (60 * 60 * 1000));
+      const reminderMinutes = Math.floor(
+        (dailyReminderTime % (60 * 60 * 1000)) / (60 * 1000)
+      );
+      const userReminderTime = setMinutes(
+        setHours(userLocalTime, reminderHours),
+        reminderMinutes
       );
 
-      return minuteDiff <= 15; // notification window is 15 minutes;
+      // Calculate minutes until/since reminder time
+      const minutesUntilReminder = differenceInMinutes(
+        userReminderTime,
+        userLocalTime
+      );
+
+      // Only notify if:
+      // 1. We're within the notification window (15 minutes before)
+      // 2. We haven't passed the reminder time (prevent notifications after the time)
+      const shouldNotify =
+        minutesUntilReminder <= NOTIFICATION_WINDOW_MINUTES &&
+        minutesUntilReminder > 0;
+
+      console.log("Time check for user:", {
+        userId,
+        userLocalTime: userLocalTime.toLocaleTimeString(),
+        reminderTime: userReminderTime.toLocaleTimeString(),
+        minutesUntilReminder,
+        shouldNotify,
+      });
+
+      return shouldNotify;
     });
 
-    // Send notifications to matched users
+    console.log("Notification summary:", {
+      totalPreferences: preferences.length,
+      usersToNotify: usersToNotify.length,
+      userIds: usersToNotify.map((p) => p.userId),
+    });
+
     const results = await Promise.allSettled(
       usersToNotify.map(async (pref) => {
         return sendNotificationToUser(
@@ -59,26 +102,20 @@ export async function GET(request: Request) {
     );
 
     const devicesFailed = results.filter((r) => r.status === "rejected").length;
-
     const devicesNotified = results.filter(
       (r) => r.status === "fulfilled" && r.value.success
     ).length;
 
-    console.log({
+    const summary = {
       success: true,
       usersToNotify: usersToNotify.length,
-      devicesNotified: devicesNotified,
-      devicesFailed: devicesFailed,
-    });
+      devicesNotified,
+      devicesFailed,
+    };
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        usersToNotify: usersToNotify.length,
-        devicesNotified: devicesNotified,
-        devicesFailed: devicesFailed,
-      })
-    );
+    console.log("Cron job completed:", summary);
+
+    return new Response(JSON.stringify(summary));
   } catch (error) {
     console.error("Daily reminder cron error:", error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
