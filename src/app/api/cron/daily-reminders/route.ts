@@ -25,15 +25,22 @@ export async function GET(request: Request) {
     );
 
     const now = new Date();
+    console.log("Now", now);
     const currentTimeMs =
       now.getHours() * 60 * 60 * 1000 + now.getMinutes() * 60 * 1000;
+    console.log("Current time", currentTimeMs);
 
     // Filter users whose reminder time matches current time
     const usersToNotify = preferences.filter((pref) => {
       const reminderTimeMs = pref.dailyReminderTime;
+      console.log("Users daily reminder time", pref.dailyReminderTime);
+      console.log("Now", now);
+      console.log("Reminder time", reminderTimeMs);
       // Allow 5 minute window to account for cron job timing
       return Math.abs(reminderTimeMs ?? 0 - currentTimeMs) <= 5 * 60 * 1000;
     });
+
+    console.log("Users to notify", usersToNotify.length);
 
     // Send notifications to matched users
     const results = await Promise.allSettled(
@@ -50,11 +57,15 @@ export async function GET(request: Request) {
       })
     );
 
-    return NextResponse.json({
-      success: true,
-      notified: usersToNotify.length,
-      results,
-    });
+    console.log("Notified", usersToNotify.length, "users");
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        notified: usersToNotify.length,
+        results,
+      })
+    );
   } catch (error) {
     console.error("Daily reminder cron error:", error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
