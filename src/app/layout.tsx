@@ -7,6 +7,7 @@ import { SEO, applicationName, baseUrl } from "@/config/app";
 import { Lora, OpenSans } from "@/fonts";
 import { ContextProvider } from "@/providers/context-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { TimezoneProvider } from "@/providers/timezone-provider";
 
 import "../styles/globals.css";
 
@@ -257,6 +258,7 @@ export default function RootLayout({
             <main className="flex flex-1 flex-col">{children}</main>
             <SiteFooter />
             <Toaster richColors position="top-center" duration={5000} />
+            <TimezoneProvider />
           </ThemeProvider>
         </body>
       </html>

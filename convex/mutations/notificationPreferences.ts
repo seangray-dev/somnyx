@@ -8,7 +8,7 @@ export const DEFAULT_NOTIFICATION_PREFERENCES = {
   dailyReminderTime: 32400000,
 };
 
-// Mutation to initialize preferences for all existing users
+// ! Mutation to initialize preferences for all existing users
 export const initializeAllUsersNotificationPreferences = mutation({
   handler: async (ctx) => {
     // Get all users
@@ -20,7 +20,7 @@ export const initializeAllUsersNotificationPreferences = mutation({
         userId: user.userId,
         enabledTypes: DEFAULT_NOTIFICATION_PREFERENCES.enabledTypes,
         dailyReminderTime: DEFAULT_NOTIFICATION_PREFERENCES.dailyReminderTime,
-        timezoneOffset: -240, // Toronto timezone offset
+        timezoneOffset: -300, // Toronto timezone offset
         updatedAt: Date.now(),
       });
     }
@@ -76,5 +76,19 @@ export const updateNotificationPreferences = mutation({
       ...preferences,
       updatedAt: Date.now(),
     });
+  },
+});
+
+export const updateTimezoneOffset = mutation({
+  args: { userId: v.string(), timezoneOffset: v.number() },
+  handler: async (ctx, { userId, timezoneOffset }) => {
+    const existing = await ctx.db
+      .query("notificationPreferences")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
+
+    if (existing) {
+      return await ctx.db.patch(existing._id, { timezoneOffset });
+    }
   },
 });
