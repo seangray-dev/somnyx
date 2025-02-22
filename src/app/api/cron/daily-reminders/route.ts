@@ -27,7 +27,6 @@ export async function GET(request: Request) {
     const usersToNotify = preferences.filter((pref) => {
       const reminderTimeMs = pref.dailyReminderTime;
       if (!reminderTimeMs || !pref.timezoneOffset) {
-        console.log("No reminder time or timezone offset for user", pref);
         return false;
       }
 
@@ -52,8 +51,6 @@ export async function GET(request: Request) {
     // Send notifications to matched users
     const results = await Promise.allSettled(
       usersToNotify.map(async (pref) => {
-        console.log("Sending notification to user", pref.userId);
-
         return sendNotificationToUser(
           pref.userId,
           NOTIFICATION_TYPES.DAILY_REMINDER
@@ -66,6 +63,13 @@ export async function GET(request: Request) {
     const devicesNotified = results.filter(
       (r) => r.status === "fulfilled" && r.value.success
     ).length;
+
+    console.log({
+      success: true,
+      usersToNotify: usersToNotify.length,
+      devicesNotified: devicesNotified,
+      devicesFailed: devicesFailed,
+    });
 
     return new Response(
       JSON.stringify({
