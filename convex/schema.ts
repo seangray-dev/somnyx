@@ -328,6 +328,7 @@ export default defineSchema({
   notificationPreferences: defineTable({
     userId: v.string(),
     dailyReminderTime: v.optional(v.number()),
+    timezoneOffset: v.optional(v.number()),
     enabledTypes: v.array(v.string()),
     updatedAt: v.number(),
   }).index("by_userId", ["userId"]),

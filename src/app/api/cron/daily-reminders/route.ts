@@ -44,35 +44,38 @@ export async function GET(request: Request) {
     // src/app/api/cron/daily-reminders/route.ts
     const usersToNotify = preferences.filter((pref) => {
       const reminderTimeMs = pref.dailyReminderTime;
-      if (!reminderTimeMs) {
-        console.log("No reminder time for user", pref.userId);
+      if (!reminderTimeMs || !pref.timezoneOffset) {
+        console.log("No reminder time or timezone offset for user", pref);
         return false;
       }
-      const timeDiff = Math.abs(reminderTimeMs - currentTimeMs);
+
+      // Get user's local time based on their timezone offset
+      const userNow = new Date(now.getTime() + pref.timezoneOffset * 60 * 1000);
+      const userCurrentTimeMs =
+        userNow.getHours() * 60 * 60 * 1000 + userNow.getMinutes() * 60 * 1000;
 
       // Convert times to minutes for easier comparison
       const reminderMinutes = Math.floor(reminderTimeMs / (60 * 1000));
-      const currentMinutes = Math.floor(currentTimeMs / (60 * 1000));
+      const userCurrentMinutes = Math.floor(userCurrentTimeMs / (60 * 1000));
 
       // Compare the actual times, accounting for 24-hour wraparound
       const minuteDiff = Math.min(
-        Math.abs(reminderMinutes - currentMinutes),
-        1440 - Math.abs(reminderMinutes - currentMinutes) // 1440 = minutes in a day
+        Math.abs(reminderMinutes - userCurrentMinutes),
+        1440 - Math.abs(reminderMinutes - userCurrentMinutes)
       );
 
       console.log({
         userId: pref.userId,
+        userTimezone: `UTC${pref.timezoneOffset >= 0 ? "+" : "-"}${Math.abs(pref.timezoneOffset / 60)}`,
         reminderTime: new Date(
           new Date().setHours(0, 0, 0, 0) + reminderTimeMs
         ).toLocaleTimeString(),
-        currentTime: new Date(
-          new Date().setHours(0, 0, 0, 0) + currentTimeMs
-        ).toLocaleTimeString(),
+        userLocalTime: userNow.toLocaleTimeString(),
         minuteDiff,
         withinWindow: minuteDiff <= 5,
       });
 
-      return minuteDiff <= 5; // 5 minute window
+      return minuteDiff <= 5;
     });
 
     console.log("Users to notify", usersToNotify.length);
