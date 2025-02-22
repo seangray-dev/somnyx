@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     const NOTIFICATION_WINDOW_MINUTES = 15;
 
     const serverNow = new Date();
-    
+
     console.log("Cron job started:", {
       serverTime: serverNow.toISOString(),
       executionWindow: NOTIFICATION_WINDOW_MINUTES,
@@ -68,12 +68,10 @@ export async function GET(request: Request) {
         userLocalTime
       );
 
-      // Only notify if:
-      // 1. We're within the notification window (15 minutes before)
-      // 2. We haven't passed the reminder time (prevent notifications after the time)
+      // Allow notifications from 15 minutes before until 5 minutes after
       const shouldNotify =
-        minutesUntilReminder <= NOTIFICATION_WINDOW_MINUTES &&
-        minutesUntilReminder > 0;
+        minutesUntilReminder <= NOTIFICATION_WINDOW_MINUTES && // within 15 mins before
+        minutesUntilReminder >= -5; // or up to 5 mins after
 
       console.log("Time check for user:", {
         userId,
@@ -81,6 +79,13 @@ export async function GET(request: Request) {
         reminderTime: userReminderTime.toLocaleTimeString(),
         minutesUntilReminder,
         shouldNotify,
+        reason: !shouldNotify
+          ? minutesUntilReminder > NOTIFICATION_WINDOW_MINUTES
+            ? "too early"
+            : minutesUntilReminder < -5
+              ? "too late"
+              : "unknown"
+          : "within window",
       });
 
       return shouldNotify;
