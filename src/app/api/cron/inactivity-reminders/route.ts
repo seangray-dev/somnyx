@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 
 import { clerkClient } from "@clerk/clerk-sdk-node";
+import { fetchQuery } from "convex/nextjs";
 import { addDays, isBefore } from "date-fns";
 
 import { env } from "@/config/env/server";
+import { api } from "@/convex/_generated/api";
 import { sendNotificationToUser } from "@/features/notifications/api/notification-service";
 import { NOTIFICATION_TYPES } from "@/features/notifications/types/notifications";
 
@@ -23,21 +25,35 @@ export async function GET(request: Request) {
     const now = new Date();
     const inactivityThreshold = addDays(now, -INACTIVITY_DAYS);
 
-    // Get all users from Clerk
+    // Get all users from Clerk with their notification preferences
     const { data: users } = await clerkClient.users.getUserList({
       limit: 100,
     });
 
-    const inactiveUsers = users.filter((user: any) => {
-      const lastSignIn = user.lastSignInAt ? new Date(user.lastSignInAt) : null;
+    // Get notification preferences for all users
+    const preferences = await fetchQuery(
+      api.queries.notificationPreferences.getAllInactivityReminderPreferences
+    );
 
+    const inactiveUsers = users.filter((user: any) => {
+      // Check if user has enabled inactivity reminders
+      const userPrefs = preferences.find((pref) => pref.userId === user.id);
+      if (
+        !userPrefs?.enabledTypes.includes(
+          NOTIFICATION_TYPES.INACTIVITY_REMINDER
+        )
+      ) {
+        console.log("User has disabled inactivity reminders:", user.id);
+        return false;
+      }
+
+      const lastSignIn = user.lastSignInAt ? new Date(user.lastSignInAt) : null;
       if (!lastSignIn) {
         console.log("User has never signed in:", user.id);
         return false;
       }
 
       const isInactive = isBefore(lastSignIn, inactivityThreshold);
-
       if (isInactive) {
         console.log("Found inactive user:", {
           userId: user.id,
@@ -45,6 +61,7 @@ export async function GET(request: Request) {
           daysInactive: Math.floor(
             (now.getTime() - lastSignIn.getTime()) / (1000 * 60 * 60 * 24)
           ),
+          notificationsEnabled: true,
         });
       }
 

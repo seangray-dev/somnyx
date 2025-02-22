@@ -34,3 +34,13 @@ export const getAllDailyReminderPreferences = query({
     );
   },
 });
+
+export const getAllInactivityReminderPreferences = query({
+  handler: async (ctx) => {
+    const all = await ctx.db.query("notificationPreferences").collect();
+
+    return all.filter((pref) =>
+      pref.enabledTypes.includes(NOTIFICATION_TYPES.INACTIVITY_REMINDER)
+    );
+  },
+});
