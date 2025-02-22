@@ -117,9 +117,6 @@ export default function NotificationPreferences() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div className="font-medium">Preferences</div>
-      </div>
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         {isLoading ? (
           <div className="flex h-full w-full flex-col items-center justify-center gap-4">
@@ -128,7 +125,13 @@ export default function NotificationPreferences() {
           </div>
         ) : (
           <>
-            <Label>Daily Reminder</Label>
+            <div>
+              <Label>Daily Reminder</Label>
+              <p className="text-balance text-sm text-muted-foreground">
+                Notifications are sent within ~15 minutes of your selected time
+                to ensure reliable delivery.
+              </p>
+            </div>
             <div className="flex items-center justify-between gap-4">
               <TimePicker12H
                 date={getReminderTimeAsDate()}
