@@ -24,35 +24,35 @@ export function NotificationTester() {
   }
 
   const handleSendTest = async () => {
-    if (!userId || !message.trim()) return;
+    // if (!userId || !message.trim()) return;
 
-    try {
-      setIsSending(true);
-      const token = await getToken({ template: "convex" });
+    // try {
+    //   setIsSending(true);
+    //   const token = await getToken({ template: "convex" });
 
-      if (!token) {
-        throw new Error("Not authenticated");
-      }
+    //   if (!token) {
+    //     throw new Error("Not authenticated");
+    //   }
 
-      const result = await sendNotificationToUser(
-        userId,
-        NOTIFICATION_TYPES.DAILY_REMINDER,
-        token,
-        undefined
-      );
+    //   const result = await sendNotificationToUser(
+    //     userId,
+    //     NOTIFICATION_TYPES.DAILY_REMINDER,
+    //     token,
+    //     undefined
+    //   );
 
-      if (result.success) {
-        toast.success("Test notification sent successfully");
-        setMessage("");
-      } else {
-        throw new Error(result.error || "Failed to send notification");
-      }
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "An error occurred");
-      console.error("Error sending test notification:", error);
-    } finally {
-      setIsSending(false);
-    }
+    //   if (result.success) {
+    //     toast.success("Test notification sent successfully");
+    //     setMessage("");
+    //   } else {
+    //     throw new Error(result.error || "Failed to send notification");
+    //   }
+    // } catch (error) {
+    //   toast.error(error instanceof Error ? error.message : "An error occurred");
+    //   console.error("Error sending test notification:", error);
+    // } finally {
+    //   setIsSending(false);
+    // }
   };
 
   return (
