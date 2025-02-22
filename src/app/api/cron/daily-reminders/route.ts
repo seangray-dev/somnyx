@@ -9,7 +9,6 @@ import { NOTIFICATION_TYPES } from "@/features/notifications/types/notifications
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300; // 5 minute timeout
-export const NOTIFICATION_WINDOW_MINUTES = 15;
 
 export async function GET(request: Request) {
   try {
@@ -47,7 +46,7 @@ export async function GET(request: Request) {
         1440 - Math.abs(reminderMinutes - userCurrentMinutes)
       );
 
-      return minuteDiff <= NOTIFICATION_WINDOW_MINUTES;
+      return minuteDiff <= 15; // notification window is 15 minutes;
     });
 
     // Send notifications to matched users
