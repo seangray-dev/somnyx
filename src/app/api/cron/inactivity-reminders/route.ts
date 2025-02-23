@@ -25,12 +25,10 @@ export async function GET(request: Request) {
     const now = new Date();
     const inactivityThreshold = addDays(now, -INACTIVITY_DAYS);
 
-    // Get all users from Clerk with their notification preferences
     const { data: users } = await clerkClient.users.getUserList({
       limit: 100,
     });
 
-    // Get notification preferences for all users
     const preferences = await fetchQuery(
       api.queries.notificationPreferences.getAllInactivityReminderPreferences
     );
