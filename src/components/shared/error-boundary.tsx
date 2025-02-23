@@ -9,6 +9,7 @@ import { AlertCircleIcon } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { env } from "@/config/env/server";
 
 export default function ErrorBoundary({
   error,
@@ -21,8 +22,7 @@ export default function ErrorBoundary({
     Sentry.captureException(error);
   }, [error]);
 
-  // const isProduction = env.NODE_ENV === "production";
-  const isProduction = true;
+  const isProduction = env.NODE_ENV === "production";
   const errorReference = error.digest || "unknown";
 
   return (
