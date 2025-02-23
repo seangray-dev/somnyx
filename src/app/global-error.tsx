@@ -33,7 +33,7 @@ export default function GlobalError({
             <p>
               If you believe this is a bug or need further assistance,{" "}
               <Link
-                href="/contact"
+                href="/support"
                 target="_blank"
                 className="font-medium underline"
               >
