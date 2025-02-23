@@ -26,7 +26,7 @@ export default function ExhaustedList() {
     <div className="mx-auto space-y-4 bg-muted py-20 text-center">
       <div className="container space-y-4">
         <h3 className="text-xl font-semibold">
-          You've reached the end of the dreamscape
+          You&apos;ve reached the end of the dreamscape
         </h3>
         <p className="mx-auto max-w-[80ch] text-pretty text-muted-foreground">
           Every dream shared here contributes to a collective tapestry of human
