@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import {
   differenceInDays,
   endOfMonth,
   format,
+  isBefore,
   isFuture,
   isLastDayOfMonth,
   parse,
@@ -23,6 +25,9 @@ import PatternInsights from "./pattern-insights";
 import Summary from "./summary";
 import ThemesInsightsTab from "./themes-insights";
 
+// Minimum allowed date for insights (August 2024)
+const MIN_INSIGHTS_DATE = new Date(2024, 7, 1);
+
 export default function InsightsPage({ monthYear }: { monthYear: string }) {
   const { data: insight, isLoading } = useFetchInsight(monthYear);
   const [month, year] = monthYear.split("-");
@@ -30,6 +35,12 @@ export default function InsightsPage({ monthYear }: { monthYear: string }) {
   const today = new Date();
   const monthName = format(requestedDate, "MMMM");
   const lastDayOfMonth = endOfMonth(requestedDate);
+  const router = useRouter();
+
+  // Check if the requested date is before August 2024
+  if (isBefore(requestedDate, MIN_INSIGHTS_DATE)) {
+    router.push("/dashboard");
+  }
 
   // Check if the requested month is in the future
   if (isFuture(requestedDate)) {
