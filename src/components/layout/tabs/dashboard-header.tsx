@@ -25,19 +25,21 @@ export default function DashboardHeader() {
   const firstName = user?.firstName;
 
   return (
-    <section className="flex flex-col gap-4 border-b pb-5">
-      <div className="container pt-1">
-        <Button
-          onClick={() => router.back()}
-          size="sm"
-          variant="ghost"
-          className="pl-0"
-        >
-          <ChevronLeftIcon className="size-4" />
-          Back
-        </Button>
+    <section className="relative border-b">
+      <div className="fixed left-0 right-0 top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container py-2 sm:hidden">
+          <Button
+            onClick={() => router.back()}
+            size="sm"
+            variant="ghost"
+            className="pl-0"
+          >
+            <ChevronLeftIcon className="size-4" />
+            Back
+          </Button>
+        </div>
       </div>
-      <div className="container flex flex-wrap items-center justify-between gap-4">
+      <div className="container flex flex-wrap items-center justify-between gap-4 pb-5 pt-14 sm:pt-5">
         <div className="flex flex-col gap-1">
           <p className="text-xs text-muted-foreground">
             {format(new Date(), "EEE, MMM d, yyyy")}
