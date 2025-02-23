@@ -5,6 +5,7 @@ export const navigation = {
     { name: "Journal", href: "/journal" },
   ],
   freeResources: [
+    { name: "Dreamscape", href: "/dreamscape" },
     { name: "Dream Dictionary", href: "/dream-dictionary" },
     { name: "Interpret", href: "/interpret" },
     { name: "Blog", href: "/blog" },
