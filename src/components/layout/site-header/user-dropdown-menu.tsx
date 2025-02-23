@@ -4,6 +4,7 @@ import { SignOutButton } from "@clerk/nextjs";
 import {
   BookOpenIcon,
   CogIcon,
+  Globe2Icon,
   HandCoinsIcon,
   HelpCircleIcon,
   HomeIcon,
@@ -44,7 +45,16 @@ export default function UserDropdownMenu() {
       icon: <LayoutDashboardIcon size={16} />,
     },
     { label: "Journal", href: "/journal", icon: <LibraryBigIcon size={16} /> },
-    { label: "Dictionary", href: "/dream-dictionary", icon: <BookOpenIcon size={16} /> },
+    {
+      label: "Dreamscape",
+      href: "/dreamscape",
+      icon: <Globe2Icon size={16} />,
+    },
+    {
+      label: "Dictionary",
+      href: "/dream-dictionary",
+      icon: <BookOpenIcon size={16} />,
+    },
     { label: "Settings", href: "/settings", icon: <CogIcon size={16} /> },
     { label: "Support", href: "/support", icon: <HelpCircleIcon size={16} /> },
   ];

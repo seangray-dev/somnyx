@@ -15,7 +15,10 @@ import { getUserId } from "./util";
 export const updateUser = internalMutation({
   args: {
     userId: v.string(),
+    email: v.string(),
     profileImage: v.string(),
+    first_name: v.string(),
+    last_name: v.string(),
   },
   handler: async (ctx, args) => {
     let user = await getUserByUserId(ctx, args.userId);
@@ -25,6 +28,9 @@ export const updateUser = internalMutation({
     }
 
     await ctx.db.patch(user._id, {
+      email: args.email,
+      first_name: args.first_name,
+      last_name: args.last_name,
       profileImage: args.profileImage,
     });
   },
@@ -160,6 +166,7 @@ export const getUserByIdInternal = internalQuery({
   },
 });
 
+// Delete all related data tied to this user
 export const deleteUser = internalMutation({
   args: { userId: v.string() },
   async handler(ctx, args) {
@@ -167,6 +174,52 @@ export const deleteUser = internalMutation({
     if (!user) {
       throw new ConvexError("could not find user");
     }
+
+    // Delete all notifications and preferences
+    const notifications = await ctx.db
+      .query("notifications")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect();
+    await Promise.all(notifications.map((n) => ctx.db.delete(n._id)));
+
+    const notificationPreferences = await ctx.db
+      .query("notificationPreferences")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .first();
+    if (notificationPreferences) {
+      await ctx.db.delete(notificationPreferences._id);
+    }
+
+    // Delete all dreams and their analysis
+    const dreams = await ctx.db
+      .query("dreams")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect();
+    await Promise.all(dreams.map((d) => ctx.db.delete(d._id)));
+
+    // Get and delete all analysis entries and their associated storage items
+    const analysis = await ctx.db
+      .query("analysis")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect();
+
+    // Delete storage items first
+    await Promise.all(
+      analysis
+        .filter((a) => a.imageStorageId)
+        .map((a) => ctx.storage.delete(a.imageStorageId!))
+    );
+    // Then delete analysis records
+    await Promise.all(analysis.map((a) => ctx.db.delete(a._id)));
+
+    // Delete all insights
+    const insights = await ctx.db
+      .query("insights")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect();
+    await Promise.all(insights.map((i) => ctx.db.delete(i._id)));
+
+    // Finally delete the user
     await ctx.db.delete(user._id);
   },
 });

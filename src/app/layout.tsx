@@ -255,7 +255,7 @@ export default function RootLayout({
         <body className="flex min-h-screen flex-col antialiased">
           <ThemeProvider attribute="class" defaultTheme="system">
             <SiteHeader />
-            <main className="flex flex-1 flex-col">{children}</main>
+            <main className="relative flex-1">{children}</main>
             <SiteFooter />
             <Toaster richColors position="top-center" duration={5000} />
             <TimezoneProvider />

@@ -96,6 +96,9 @@ http.route({
         case "user.updated":
           await ctx.runMutation(internal.users.updateUser, {
             userId: result.data.id,
+            email: result.data.email_addresses[0]?.email_address,
+            first_name: result.data.first_name || "",
+            last_name: result.data.last_name || "",
             profileImage: result.data.image_url,
           });
           break;

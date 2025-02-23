@@ -48,6 +48,17 @@ export default function SiteHeader() {
               </Link>
             )}
             <Link
+              href="/dreamscape"
+              className={cn(
+                "border-b border-transparent text-sm font-medium transition-all duration-150 hover:border-b-muted-foreground hover:text-muted-foreground",
+                (pathname === "/dreamscape" ||
+                  pathname.startsWith("/dreamscape/")) &&
+                  "border-b-primary text-primary"
+              )}
+            >
+              <span>DreamScape </span>
+            </Link>
+            <Link
               href="/dream-dictionary"
               className={cn(
                 "border-b border-transparent text-sm font-medium transition-all duration-150 hover:border-b-muted-foreground hover:text-muted-foreground",
@@ -62,7 +73,7 @@ export default function SiteHeader() {
             <Link
               href="/blog"
               className={cn(
-                "border-b border-transparent text-sm font-medium transition-all duration-150 hover:border-b-muted-foreground hover:text-muted-foreground",
+                "border-b border-transparent text-sm font-medium transition-all duration-150 hover:border-b-muted-foreground hover:text-muted-foreground sm:hidden md:inline",
                 (pathname === "/blog" || pathname.startsWith("/blog/")) &&
                   "border-b-primary text-primary"
               )}

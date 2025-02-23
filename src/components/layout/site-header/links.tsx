@@ -1,6 +1,7 @@
 import {
   BookOpenIcon,
   CogIcon,
+  Globe2Icon,
   HelpCircleIcon,
   HomeIcon,
   LayoutDashboardIcon,
@@ -36,6 +37,12 @@ export const navigationLinks: NavLink[] = [
     href: "/journal",
     icon: <LibraryBigIcon size={16} />,
     visibility: "private",
+  },
+  {
+    label: "Dreamscape",
+    href: "/dreamscape",
+    icon: <Globe2Icon size={16} />,
+    visibility: "both",
   },
   {
     label: "Dictionary",

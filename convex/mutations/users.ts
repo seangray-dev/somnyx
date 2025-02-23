@@ -1,6 +1,6 @@
 "use node";
 
-import { clerkClient } from "@clerk/clerk-sdk-node";
+import { createClerkClient } from "@clerk/backend";
 
 import { api, internal } from "../_generated/api";
 import { action } from "../_generated/server";
@@ -9,6 +9,9 @@ import { getUserId } from "../util";
 export const deleteAccount = action({
   args: {},
   handler: async (ctx, args) => {
+    const client = createClerkClient({
+      secretKey: process.env.CLERK_SECRET_KEY,
+    });
     const userId = await getUserId(ctx);
 
     if (!userId) {
@@ -24,6 +27,6 @@ export const deleteAccount = action({
 
     // @ts-ignore
     await ctx.runMutation(internal.users.deleteUser, { userId: userId });
-    await clerkClient.users.deleteUser(userId);
+    await client.users.deleteUser(userId);
   },
 });

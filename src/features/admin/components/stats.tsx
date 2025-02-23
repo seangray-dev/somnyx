@@ -25,25 +25,29 @@ export default function AdminStats() {
   ];
 
   return (
-    <section>
-      <h2 className="text-2xl font-bold">Overview</h2>
-      <div className="pt-4 grid gap-4 md:grid-cols-2">
-        {stats.map((stat) => (
-          <Card key={stat.name}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-base font-medium text-center w-full">
-                {stat.name}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {stat.loading ? (
-                <Skeleton className="h-7 w-20" />
-              ) : (
-                <div className="text-2xl font-bold text-center">{stat.value}</div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+    <section className="relative">
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Overview</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          {stats.map((stat) => (
+            <Card key={stat.name}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="w-full text-center text-base font-medium">
+                  {stat.name}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {stat.loading ? (
+                  <Skeleton className="h-7 w-20" />
+                ) : (
+                  <div className="text-center text-2xl font-bold">
+                    {stat.value}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </section>
   );

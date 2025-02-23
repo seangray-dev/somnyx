@@ -27,9 +27,18 @@ export default function DreamMeaningFaqSection() {
         "Each dream analysis costs 100 credits for a standard interpretation, or 300 credits for a deep insight with more detailed analysis. You can start with our free 300 credits trial, then purchase more credits when needed, with packages ranging from 700 to 5000 credits.",
     },
     {
-      question: "Is my dream content kept private?",
-      answer:
-        "Yes. This is a privacy-first tool. Your dream interpretation is processed securely and we provide unlimited dream journaling to all users. Your dream content remains private and protected.",
+      question: "Will my dreams be private?",
+      answer: (
+        <>
+          Yes, all dreams are private by default and visible only to you. You
+          have the option to share specific dreams publicly in our{" "}
+          <Link href="/dreamscape" className="text-foreground hover:underline">
+            Dreamscape
+          </Link>{" "}
+          community or via direct links, but this is completely optional and
+          under your control.
+        </>
+      ),
     },
     {
       question: "What features are included with credits?",
@@ -74,7 +83,7 @@ export default function DreamMeaningFaqSection() {
               <AccordionItem
                 key={faq.question}
                 value={faq.question}
-                className="rounded-xl border bg-gradient-to-tr from-transparent via-transparent to-secondary/50 p-8 text-left text-pretty"
+                className="text-pretty rounded-xl border bg-gradient-to-tr from-transparent via-transparent to-secondary/50 p-8 text-left"
               >
                 <AccordionTrigger className="text-left font-sans font-medium">
                   {faq.question}
