@@ -24,7 +24,7 @@ export default function ExhaustedList() {
 
   return (
     <div className="mx-auto space-y-4 bg-muted py-20 text-center">
-      <div className="container space-y-4">
+      <div className="container space-y-4 text-pretty">
         <h3 className="text-xl font-semibold">
           You&apos;ve reached the end of the dreamscape
         </h3>
