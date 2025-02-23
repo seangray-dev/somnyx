@@ -106,6 +106,23 @@ export default function NotificationPreferences() {
     }));
   };
 
+  const handleMonthlyInsightsToggle = (enabled: boolean) => {
+    if (!isEditing || !userPreferences) return;
+
+    const currentTypes =
+      pendingChanges.enabledTypes ?? userPreferences.enabledTypes;
+    const updatedTypes = enabled
+      ? [...currentTypes, NOTIFICATION_TYPES.MONTHLY_INSIGHTS]
+      : currentTypes.filter(
+          (type) => type !== NOTIFICATION_TYPES.MONTHLY_INSIGHTS
+        );
+
+    setPendingChanges((prev) => ({
+      ...prev,
+      enabledTypes: updatedTypes as NotificationType[],
+    }));
+  };
+
   const handleCancel = () => {
     setIsEditing(false);
     setPendingChanges({});
@@ -145,6 +162,12 @@ export default function NotificationPreferences() {
       )
     : userPreferences?.enabledTypes.includes(
         NOTIFICATION_TYPES.INACTIVITY_REMINDER
+      );
+
+  const isMonthlyInsightsEnabled = pendingChanges.enabledTypes
+    ? pendingChanges.enabledTypes.includes(NOTIFICATION_TYPES.MONTHLY_INSIGHTS)
+    : userPreferences?.enabledTypes.includes(
+        NOTIFICATION_TYPES.MONTHLY_INSIGHTS
       );
 
   return (
@@ -189,6 +212,22 @@ export default function NotificationPreferences() {
                 <Switch
                   checked={isDailyReminderEnabled}
                   onCheckedChange={handleDailyReminderToggle}
+                  disabled={!isEditing || isSaving}
+                />
+              </div>
+            </div>
+            {/* Monthly Insights Reminder */}
+            <div className="flex justify-between gap-4 sm:flex-row">
+              <div>
+                <Label>Monthly Insights Reminder</Label>
+                <p className="text-balance text-sm text-muted-foreground">
+                  Send me notifications when my monthly insights are ready.
+                </p>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <Switch
+                  checked={isMonthlyInsightsEnabled}
+                  onCheckedChange={handleMonthlyInsightsToggle}
                   disabled={!isEditing || isSaving}
                 />
               </div>
