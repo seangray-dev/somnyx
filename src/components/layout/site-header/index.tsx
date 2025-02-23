@@ -56,7 +56,7 @@ export default function SiteHeader() {
                   "border-b-primary text-primary"
               )}
             >
-              <span>DreamScape </span>
+              <span>Dreamscape </span>
             </Link>
             <Link
               href="/dream-dictionary"
