@@ -25,6 +25,7 @@ import { CREDIT_COSTS } from "@/convex/util";
 import useDreamAnalysis from "@/features/analysis/api/use-dream-analysis";
 import useUserCredits from "@/features/credits/api/use-user-credits";
 import { useGetAnalysisImageUrl } from "@/hooks/use-convex-image";
+import { useSession } from "@/lib/client-auth";
 import { cn } from "@/lib/utils";
 
 type AnalysisProps = {
@@ -121,6 +122,7 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
   } = useDreamAnalysis({
     dreamId,
   });
+  const { isLoggedIn } = useSession();
   const [generateAnalyisLoading, setGenerateAnalyisLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
   const { data: userCredits } = useUserCredits();
@@ -210,7 +212,7 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
   };
 
   const renderImageSection = () => {
-    if (isLoading) {
+    if (isLoading || !isLoggedIn) {
       return <ImageSkeleton />;
     }
 
@@ -218,7 +220,7 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
       return <AnalysisImage url={imageUrl} />;
     }
 
-    if (!imageUrl && !noAnalysis) {
+    if (!imageUrl && !noAnalysis && isLoggedIn) {
       return (
         <RegenerateImageSection
           onRegenerate={handleRegenerateImage}
