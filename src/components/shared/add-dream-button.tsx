@@ -46,7 +46,10 @@ export function AddDreamButton(props: AddDreamButtonProps) {
             Please provide details about your dream.
           </DialogDescription>
         </DialogHeader>
-        <AddNewDreamForm closeDialog={closeDialog} />
+        <AddNewDreamForm
+          closeDialog={closeDialog}
+          minDate={new Date(2024, 7, 1)}
+        />
       </DialogContent>
     </Dialog>
   );

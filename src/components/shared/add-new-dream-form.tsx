@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
-import { format } from "date-fns";
+import { format, isBefore } from "date-fns";
 import { CalendarIcon, SparklesIcon, XIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -43,7 +43,11 @@ import { Textarea } from "../ui/textarea";
 import Loader from "./loader";
 
 const FormSchema = z.object({
-  date: z.date({ required_error: "Please select a date" }),
+  date: z
+    .date({ required_error: "Please select a date" })
+    .refine((date) => !isBefore(date, new Date(2024, 7, 1)), {
+      message: "Dreams can only be logged from August 2024 onwards.",
+    }),
   emotions: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: "You have to select at least one emotion.",
   }),
@@ -66,10 +70,11 @@ const FormSchema = z.object({
 type AddNewDreamFormProps = {
   className?: string;
   closeDialog: () => void;
+  minDate: Date;
 };
 
 export function AddNewDreamForm(props: AddNewDreamFormProps) {
-  const { className, closeDialog } = props;
+  const { className, closeDialog, minDate } = props;
   const { emotions, isLoading: emotionsLoading } = useGetAllEmotions();
   const { data: userCredits } = useUserCredits();
   const { roles, isLoading: rolesLoading } = useGetAllRoles();
@@ -159,12 +164,27 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent
+                  className="pointer-events-auto relative w-auto p-0"
+                  align="start"
+                  sideOffset={5}
+                >
                   <Calendar
                     mode="single"
                     selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={(date) => date > new Date()}
+                    onSelect={(date) => {
+                      if (date && isBefore(date, minDate)) {
+                        toast.error("Invalid date", {
+                          description:
+                            "Dreams can only be logged from August 2024 onwards.",
+                        });
+                        return;
+                      }
+                      field.onChange(date);
+                    }}
+                    disabled={(date) =>
+                      date > new Date() || isBefore(date, minDate)
+                    }
                     initialFocus
                   />
                 </PopoverContent>
