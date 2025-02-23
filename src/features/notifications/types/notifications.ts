@@ -19,6 +19,7 @@ export type NotificationDataMap = {
   [NOTIFICATION_TYPES.MONTHLY_INSIGHTS]: {
     month: string;
     year: number;
+    monthYear: string;
   };
   [NOTIFICATION_TYPES.DAILY_REMINDER]: undefined;
   [NOTIFICATION_TYPES.LOW_CREDITS]: {

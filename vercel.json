@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/inactivity-reminders",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/monthly-insights",
+      "schedule": "0 0 L * *"
     }
   ]
 }

@@ -29,16 +29,15 @@ export const getNotificationContent = <T extends NotificationType>(
     case NOTIFICATION_TYPES.MONTHLY_INSIGHTS: {
       const typedData =
         data as NotificationDataMap[typeof NOTIFICATION_TYPES.MONTHLY_INSIGHTS];
-      const { month, year } = typedData;
+      const { month, monthYear } = typedData;
       return {
         title: "Monthly Dream Insights Ready",
         body: `Your insights for ${month} are ready to explore`,
         icon: "/icon-192x192.png",
-        url: `/insights/${month}-${year}`,
+        url: `/insights/${monthYear}`,
         data: {
           type,
-          month,
-          year,
+          monthYear,
         },
       };
     }
