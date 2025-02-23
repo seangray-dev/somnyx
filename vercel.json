@@ -10,7 +10,7 @@
     },
     {
       "path": "/api/cron/monthly-insights",
-      "schedule": "0 0 L * *"
+      "schedule": "0 0 1 * *"
     }
   ]
 }
