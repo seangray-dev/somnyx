@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { clerkClient } from "@clerk/clerk-sdk-node";
+import { createClerkClient } from "@clerk/backend";
 import { fetchQuery } from "convex/nextjs";
 import { addDays, isBefore } from "date-fns";
 
@@ -25,7 +25,11 @@ export async function GET(request: Request) {
     const now = new Date();
     const inactivityThreshold = addDays(now, -INACTIVITY_DAYS);
 
-    const { data: users } = await clerkClient.users.getUserList({
+    const client = createClerkClient({
+      secretKey: process.env.CLERK_SECRET_KEY,
+    });
+
+    const { data: users } = await client.users.getUserList({
       limit: 100,
     });
 
