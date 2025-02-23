@@ -2,6 +2,7 @@ import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { format } from "date-fns";
 
+import { Id } from "../_generated/dataModel";
 import { internalQuery, query } from "../_generated/server";
 import { getUserId } from "../util";
 
@@ -224,6 +225,91 @@ export const getDreamForMetadataById = query({
       title: dream.title,
       details: dream.details,
       isPublic: dream.isPublic,
+    };
+  },
+});
+
+export const getPublicDreams = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+    sortBy: v.union(v.literal("recent"), v.literal("random")),
+  },
+  handler: async (ctx, args) => {
+    const { paginationOpts, sortBy } = args;
+
+    if (sortBy === "random") {
+      const publicDreams = await ctx.db
+        .query("dreams")
+        .filter((q) => q.eq(q.field("isPublic"), true))
+        .collect();
+
+      const dreamsWithAnalysis = await Promise.all(
+        publicDreams.map(async (dream) => {
+          const analysis = await ctx.db
+            .query("analysis")
+            .withIndex("by_dreamId", (q) => q.eq("dreamId", dream._id))
+            .first();
+          return {
+            ...dream,
+            analysisId: analysis?._id,
+            imageStorageId: analysis?.imageStorageId as
+              | Id<"_storage">
+              | undefined,
+          };
+        })
+      );
+
+      const combined = new Array(
+        dreamsWithAnalysis.length + publicDreams.length
+      );
+      for (let i = 0; i < dreamsWithAnalysis.length; i++)
+        combined[i] = dreamsWithAnalysis[i];
+      for (let i = 0; i < publicDreams.length; i++)
+        combined[dreamsWithAnalysis.length + i] = publicDreams[i];
+
+      const shuffledDreams = combined.sort(() => Math.random() - 0.5);
+      const startIndex = paginationOpts.cursor
+        ? parseInt(paginationOpts.cursor)
+        : 0;
+      const endIndex = startIndex + paginationOpts.numItems;
+      const page = shuffledDreams.slice(startIndex, endIndex);
+      const isDone = endIndex >= shuffledDreams.length;
+
+      return {
+        page,
+        continueCursor: isDone ? "end" : endIndex.toString(),
+        isDone,
+      };
+    }
+
+    // For sorted dreams, use Convex's built-in pagination
+    const query = ctx.db
+      .query("dreams")
+      .filter((q) => q.eq(q.field("isPublic"), true))
+      .order("desc");
+
+    const results = await query.paginate(paginationOpts);
+
+    const dreamsWithAnalysis = await Promise.all(
+      results.page.map(async (dream) => {
+        const analysis = await ctx.db
+          .query("analysis")
+          .withIndex("by_dreamId", (q) => q.eq("dreamId", dream._id))
+          .first();
+        return {
+          ...dream,
+          analysisId: analysis?._id,
+          imageStorageId: analysis?.imageStorageId as
+            | Id<"_storage">
+            | undefined,
+        };
+      })
+    );
+
+    return {
+      ...results,
+      page: dreamsWithAnalysis,
+      continueCursor: results.continueCursor ?? "end",
     };
   },
 });

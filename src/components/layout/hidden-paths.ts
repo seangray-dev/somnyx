@@ -2,7 +2,7 @@ const HIDDEN_PATHS = [
   "/dashboard",
   "/journal",
   "/settings",
-  "/dreams",
+  "/dreams/",
   "/insights",
 ];
 
