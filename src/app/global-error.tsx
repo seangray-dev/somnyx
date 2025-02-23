@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 
-import { ConvexError } from "convex/values";
+import * as Sentry from "@sentry/nextjs";
 import { AlertCircleIcon } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -17,12 +17,8 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  if (error instanceof ConvexError) {
-    error.message = error.data;
-  }
-
   useEffect(() => {
-    console.error(error);
+    Sentry.captureException(error);
   }, [error]);
 
   return (
