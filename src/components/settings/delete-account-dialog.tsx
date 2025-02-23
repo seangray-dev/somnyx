@@ -37,10 +37,9 @@ export default function DeleteAccountDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
   const [feedback, setFeedback] = useState("");
+  // @ts-ignore
   const deleteAccount = useAction(api.mutations.deleteAccount);
-  const deleteAllUserDreams = useMutation(
-    api.mutations.dreams.deleteAllUserDreams
-  );
+
   const collectFeedback = useMutation(
     api.mutations.collectDeleteAccountFeedback
   );
@@ -58,7 +57,6 @@ export default function DeleteAccountDialog() {
     setIsLoading(true);
     try {
       await collectFeedback({ reasons: selectedReasons, feedback });
-      await deleteAllUserDreams();
       await deleteAccount();
       setIsOpen(false);
       toast.success("Account deleted successfully");

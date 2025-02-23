@@ -175,12 +175,20 @@ export const deleteUser = internalMutation({
       throw new ConvexError("could not find user");
     }
 
-    // Delete all notifications
+    // Delete all notifications and preferences
     const notifications = await ctx.db
       .query("notifications")
       .withIndex("by_userId", (q) => q.eq("userId", args.userId))
       .collect();
     await Promise.all(notifications.map((n) => ctx.db.delete(n._id)));
+
+    const notificationPreferences = await ctx.db
+      .query("notificationPreferences")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .first();
+    if (notificationPreferences) {
+      await ctx.db.delete(notificationPreferences._id);
+    }
 
     // Delete all dreams and their analysis
     const dreams = await ctx.db
@@ -189,11 +197,27 @@ export const deleteUser = internalMutation({
       .collect();
     await Promise.all(dreams.map((d) => ctx.db.delete(d._id)));
 
+    // Get and delete all analysis entries and their associated storage items
     const analysis = await ctx.db
       .query("analysis")
       .withIndex("by_userId", (q) => q.eq("userId", args.userId))
       .collect();
+
+    // Delete storage items first
+    await Promise.all(
+      analysis
+        .filter((a) => a.imageStorageId)
+        .map((a) => ctx.storage.delete(a.imageStorageId!))
+    );
+    // Then delete analysis records
     await Promise.all(analysis.map((a) => ctx.db.delete(a._id)));
+
+    // Delete all insights
+    const insights = await ctx.db
+      .query("insights")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect();
+    await Promise.all(insights.map((i) => ctx.db.delete(i._id)));
 
     // Finally delete the user
     await ctx.db.delete(user._id);
