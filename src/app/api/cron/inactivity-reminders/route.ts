@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     const inactivityThreshold = addDays(now, -INACTIVITY_DAYS);
 
     const client = createClerkClient({
-      secretKey: process.env.CLERK_SECRET_KEY,
+      secretKey: env.CLERK_SECRET_KEY,
     });
 
     const { data: users } = await client.users.getUserList({
