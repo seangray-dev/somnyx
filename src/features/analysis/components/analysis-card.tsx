@@ -122,7 +122,7 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
   } = useDreamAnalysis({
     dreamId,
   });
-  const { isLoggedIn } = useSession();
+  const { isLoggedIn, session } = useSession();
   const [generateAnalyisLoading, setGenerateAnalyisLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
   const { data: userCredits } = useUserCredits();
@@ -135,6 +135,7 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
   const regenerateImage = useAction(
     api.mutations.openai.regenerateAnalysisImage
   );
+  const isOwner = session?.user.id === analysis?.userId;
 
   const handleGenerateAnalysis = async () => {
     setGenerateAnalyisLoading(true);
@@ -220,7 +221,7 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
       return <AnalysisImage url={imageUrl} />;
     }
 
-    if (!imageUrl && !noAnalysis && isLoggedIn) {
+    if (!imageUrl && !noAnalysis && isLoggedIn && isOwner) {
       return (
         <RegenerateImageSection
           onRegenerate={handleRegenerateImage}
