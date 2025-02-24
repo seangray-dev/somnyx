@@ -17,8 +17,10 @@ import type {
 } from "convex/server";
 import type * as clerk from "../clerk.js";
 import type * as crons from "../crons.js";
+import type * as email_resend from "../email/resend.js";
+import type * as email_templates_welcome from "../email/templates/welcome.js";
 import type * as email_util from "../email/util.js";
-import type * as email_welcome from "../email/welcome.js";
+import type * as emails from "../emails.js";
 import type * as http from "../http.js";
 import type * as mutations_analysis from "../mutations/analysis.js";
 import type * as mutations_commonElements from "../mutations/commonElements.js";
@@ -61,8 +63,10 @@ import type * as zodSchemas from "../zodSchemas.js";
 declare const fullApi: ApiFromModules<{
   clerk: typeof clerk;
   crons: typeof crons;
+  "email/resend": typeof email_resend;
+  "email/templates/welcome": typeof email_templates_welcome;
   "email/util": typeof email_util;
-  "email/welcome": typeof email_welcome;
+  emails: typeof emails;
   http: typeof http;
   "mutations/analysis": typeof mutations_analysis;
   "mutations/commonElements": typeof mutations_commonElements;

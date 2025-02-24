@@ -5,6 +5,7 @@ import { createRateLimit } from "../src/lib/rate-limit";
 import { internal } from "./_generated/api";
 import { Doc, Id } from "./_generated/dataModel";
 import { httpAction } from "./_generated/server";
+import { sendWelcomeEmail } from "./emails";
 import { SYSTEM_PROMPT } from "./util";
 
 const http = httpRouter();
@@ -91,6 +92,10 @@ http.route({
             first_name: result.data.first_name || "",
             last_name: result.data.last_name || "",
             profileImage: result.data.image_url,
+          });
+          await sendWelcomeEmail({
+            name: result.data.first_name || undefined,
+            email: result.data.email_addresses[0].email_address,
           });
           break;
         case "user.updated":
