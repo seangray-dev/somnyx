@@ -1,20 +1,21 @@
 import { ConvexError } from "convex/values";
 
 import { resend } from "./email/resend";
-import WelcomeEmail from "./email/templates/welcome";
+import WelcomeEmail, { getPlainText } from "./email/templates/welcome";
 
 export const sendWelcomeEmail = async ({
   email,
   name,
 }: {
   email: string;
-  name?: string
+  name?: string;
 }) => {
   const { error } = await resend.emails.send({
-    from: "Somnyx <noreply@somnyx.app>",
+    from: "Somnyx <onboarding@somnyx.app>",
     to: email,
     subject: "Thanks for joining!",
     react: WelcomeEmail({ name }),
+    text: getPlainText(name),
   });
 
   if (error) {
