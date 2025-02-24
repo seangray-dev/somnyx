@@ -10,14 +10,22 @@ export default defineSchema({
     credits: v.optional(v.number()),
     isAdmin: v.optional(v.boolean()),
     adminSince: v.optional(v.number()),
-    lastLoginAt: v.optional(v.number()),
-    subscriptionId: v.optional(v.string()),
+    lastLoginAt: v.optional(v.number()), // TODO: Implement
     profileImage: v.optional(v.string()),
-    endsOn: v.optional(v.number()),
+    onboardingCompletedAt: v.optional(v.number()),
   })
     .index("by_userId", ["userId"])
-    .index("by_email", ["email"])
-    .index("by_subscriptionId", ["subscriptionId"]),
+    .index("by_email", ["email"]),
+
+  onboarding: defineTable({
+    userId: v.string(),
+    onboardingStep: v.number(),
+    lastEmailSent: v.optional(v.string()), // Track last email type
+    lastEmailDate: v.optional(v.number()),
+    completed: v.optional(v.boolean()),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_completed", ["completed"]),
 
   notifications: defineTable({
     userId: v.string(),
