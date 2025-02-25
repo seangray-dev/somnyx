@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-import { SignOutButton } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
 import {
   BookOpenIcon,
   CogIcon,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 
 import UserAvatar from "@/components/shared/user-avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +30,8 @@ import { useSession } from "@/lib/client-auth";
 
 export default function UserDropdownMenu() {
   const { session } = useSession();
+  const { signOut } = useAuth();
+  const router = useRouter();
   const user = session?.user;
   const fullName = user?.fullName;
   const email = user?.primaryEmailAddress?.emailAddress;
@@ -93,12 +97,20 @@ export default function UserDropdownMenu() {
         ))}
         <DropdownMenuSeparator />
         <DropdownMenuItem>
-          <SignOutButton>
+          <Button
+            asChild
+            variant="ghost"
+            className="h-fit w-fit p-0 hover:cursor-pointer"
+            onClick={() => {
+              router.push("/");
+              signOut();
+            }}
+          >
             <div className="flex items-center gap-2">
               <LogOutIcon size={16} />
               <span>Sign Out</span>
             </div>
-          </SignOutButton>
+          </Button>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
