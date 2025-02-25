@@ -20,6 +20,8 @@ import type * as crons from "../crons.js";
 import type * as email_resend from "../email/resend.js";
 import type * as email_templates_baseTemplate from "../email/templates/baseTemplate.js";
 import type * as email_templates_dreamReminder from "../email/templates/dreamReminder.js";
+import type * as email_templates_monthlyInsights_example from "../email/templates/monthlyInsights-example.js";
+import type * as email_templates_monthlyInsights from "../email/templates/monthlyInsights.js";
 import type * as email_templates_welcome from "../email/templates/welcome.js";
 import type * as email_util from "../email/util.js";
 import type * as emails from "../emails.js";
@@ -70,6 +72,8 @@ declare const fullApi: ApiFromModules<{
   "email/resend": typeof email_resend;
   "email/templates/baseTemplate": typeof email_templates_baseTemplate;
   "email/templates/dreamReminder": typeof email_templates_dreamReminder;
+  "email/templates/monthlyInsights-example": typeof email_templates_monthlyInsights_example;
+  "email/templates/monthlyInsights": typeof email_templates_monthlyInsights;
   "email/templates/welcome": typeof email_templates_welcome;
   "email/util": typeof email_util;
   emails: typeof emails;
