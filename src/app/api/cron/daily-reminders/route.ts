@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { fetchQuery } from "convex/nextjs";
+import { fetchMutation, fetchQuery } from "convex/nextjs";
 import {
   addMinutes,
   differenceInMinutes,
@@ -116,7 +116,7 @@ export async function GET(request: Request) {
     // Update lastDailyReminderSent for each user before sending notifications
     await Promise.all(
       usersToNotify.map(async (pref) => {
-        await fetchQuery(
+        await fetchMutation(
           // @ts-ignore
           api.mutations.notificationPreferences.updateLastDailyReminderSent,
           { userId: pref.userId, timestamp: Date.now() }
