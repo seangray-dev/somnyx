@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { useAuth } from "@clerk/nextjs";
 import { useAction, useMutation } from "convex/react";
 import { toast } from "sonner";
 
@@ -33,6 +34,7 @@ const feedbackOptions = [
 ];
 
 export default function DeleteAccountDialog() {
+  const { signOut } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
@@ -61,6 +63,7 @@ export default function DeleteAccountDialog() {
       setIsOpen(false);
       toast.success("Account deleted successfully");
       router.push("/");
+      signOut();
     } catch (err) {
       toast.error("Uh oh! Something went wrong.", {
         description: "We couldn't delete your account. Please try again later.",
