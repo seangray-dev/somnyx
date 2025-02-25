@@ -338,6 +338,7 @@ export default defineSchema({
     dailyReminderTime: v.optional(v.number()),
     timezoneOffset: v.optional(v.number()),
     enabledTypes: v.array(v.string()),
+    lastDailyReminderSent: v.optional(v.number()),
     updatedAt: v.number(),
   }).index("by_userId", ["userId"]),
 

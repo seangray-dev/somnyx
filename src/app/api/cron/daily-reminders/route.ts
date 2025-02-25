@@ -6,6 +6,7 @@ import {
   differenceInMinutes,
   setHours,
   setMinutes,
+  startOfDay,
 } from "date-fns";
 
 import { env } from "@/config/env/server";
@@ -23,9 +24,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const NOTIFICATION_WINDOW_MINUTES = 15;
+    const NOTIFICATION_WINDOW_MINUTES = 2; // Reduced from 15 to 2 minutes for more precise timing
 
     const serverNow = new Date();
+    const todayStart = startOfDay(serverNow).getTime();
 
     console.log("Cron job started:", {
       serverTime: serverNow.toISOString(),
@@ -38,13 +40,27 @@ export async function GET(request: Request) {
     );
 
     const usersToNotify = preferences.filter((pref) => {
-      const { dailyReminderTime, timezoneOffset, userId } = pref;
+      const {
+        dailyReminderTime,
+        timezoneOffset,
+        userId,
+        lastDailyReminderSent,
+      } = pref;
 
       if (!dailyReminderTime || typeof timezoneOffset !== "number") {
         console.log("Skipping user - missing data:", {
           userId,
           dailyReminderTime,
           timezoneOffset,
+        });
+        return false;
+      }
+
+      // Check if we've already sent a notification today
+      if (lastDailyReminderSent && lastDailyReminderSent >= todayStart) {
+        console.log("Skipping user - already notified today:", {
+          userId,
+          lastSent: new Date(lastDailyReminderSent).toISOString(),
         });
         return false;
       }
@@ -68,10 +84,10 @@ export async function GET(request: Request) {
         userLocalTime
       );
 
-      // Allow notifications from 15 minutes before until 5 minutes after
+      // Allow notifications within 2 minutes before until 1 minute after
       const shouldNotify =
-        minutesUntilReminder <= NOTIFICATION_WINDOW_MINUTES && // within 15 mins before
-        minutesUntilReminder >= -5; // or up to 5 mins after
+        minutesUntilReminder <= NOTIFICATION_WINDOW_MINUTES && // within 2 mins before
+        minutesUntilReminder >= -1; // or up to 1 min after
 
       console.log("Time check for user:", {
         userId,
@@ -82,7 +98,7 @@ export async function GET(request: Request) {
         reason: !shouldNotify
           ? minutesUntilReminder > NOTIFICATION_WINDOW_MINUTES
             ? "too early"
-            : minutesUntilReminder < -5
+            : minutesUntilReminder < -1
               ? "too late"
               : "unknown"
           : "within window",
@@ -96,6 +112,17 @@ export async function GET(request: Request) {
       usersToNotify: usersToNotify.length,
       userIds: usersToNotify.map((p) => p.userId),
     });
+
+    // Update lastDailyReminderSent for each user before sending notifications
+    await Promise.all(
+      usersToNotify.map(async (pref) => {
+        await fetchQuery(
+          // @ts-ignore
+          api.mutations.notificationPreferences.updateLastDailyReminderSent,
+          { userId: pref.userId, timestamp: Date.now() }
+        );
+      })
+    );
 
     const results = await Promise.allSettled(
       usersToNotify.map(async (pref) => {

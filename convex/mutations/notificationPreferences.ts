@@ -92,3 +92,20 @@ export const updateTimezoneOffset = mutation({
     }
   },
 });
+
+export const updateLastDailyReminderSent = mutation({
+  args: { userId: v.string(), timestamp: v.number() },
+  handler: async (ctx, { userId, timestamp }) => {
+    const existing = await ctx.db
+      .query("notificationPreferences")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        lastDailyReminderSent: timestamp,
+        updatedAt: Date.now(),
+      });
+    }
+  },
+});
