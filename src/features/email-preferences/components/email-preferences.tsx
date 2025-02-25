@@ -100,11 +100,9 @@ export default function EmailPreferences() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-6">
         {/* Dream Reminder */}
-        <div className="flex flex-col justify-between gap-4 sm:flex-row">
-          <div className="flex flex-col gap-1">
-            <div className="flex items-end gap-2">
-              <Label>No Recent Dreams Logged</Label>
-            </div>
+        <div className="flex justify-between gap-4 sm:flex-row">
+          <div>
+            <Label>Dream Reminder</Label>
             <p className="text-balance text-sm text-muted-foreground">
               Send me a weekly email if I haven&apos;t logged any dreams over 7
               days.
