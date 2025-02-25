@@ -1,6 +1,5 @@
 import { ConvexError, v } from "convex/values";
 
-import { Doc } from "./_generated/dataModel";
 import {
   MutationCtx,
   QueryCtx,
@@ -64,6 +63,14 @@ export const createUser = internalMutation({
         userId: args.userId,
         enabledTypes: DEFAULT_NOTIFICATION_PREFERENCES.enabledTypes,
         dailyReminderTime: DEFAULT_NOTIFICATION_PREFERENCES.dailyReminderTime,
+        updatedAt: Date.now(),
+      });
+
+      await ctx.db.insert("emailPreferences", {
+        userId: args.userId,
+        dreamReminders: true,
+        monthlyInsights: true,
+        newFeatures: true,
         updatedAt: Date.now(),
       });
     }
@@ -246,64 +253,6 @@ export const getUserByUserId = (
     .withIndex("by_userId", (q) => q.eq("userId", userId))
     .first();
 };
-
-export const updateSubscription = internalMutation({
-  args: { subscriptionId: v.string(), userId: v.string(), endsOn: v.number() },
-  handler: async (ctx, args) => {
-    const user = await getUserByUserId(ctx, args.userId);
-
-    if (!user) {
-      throw new Error("no user found with that user id");
-    }
-
-    await ctx.db.patch(user._id, {
-      subscriptionId: args.subscriptionId,
-      endsOn: args.endsOn,
-    });
-  },
-});
-
-export const updateSubscriptionBySubId = internalMutation({
-  args: { subscriptionId: v.string(), endsOn: v.number() },
-  handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_subscriptionId", (q) =>
-        q.eq("subscriptionId", args.subscriptionId)
-      )
-      .first();
-
-    if (!user) {
-      throw new Error("no user found with that user id");
-    }
-
-    await ctx.db.patch(user._id, {
-      endsOn: args.endsOn,
-    });
-  },
-});
-
-export const isUserPremium = async (user: Doc<"users">) => {
-  return (user?.endsOn ?? 0) > Date.now();
-};
-
-export const isPremium = query({
-  handler: async (ctx) => {
-    const userId = await getUserId(ctx);
-
-    if (!userId) {
-      return false;
-    }
-
-    const user = await getUserByUserId(ctx, userId);
-
-    if (!user) {
-      return false;
-    }
-
-    return isUserPremium(user);
-  },
-});
 
 export const updateUserCredits = internalMutation({
   args: {

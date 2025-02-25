@@ -340,4 +340,13 @@ export default defineSchema({
     enabledTypes: v.array(v.string()),
     updatedAt: v.number(),
   }).index("by_userId", ["userId"]),
+
+  emailPreferences: defineTable({
+    userId: v.string(),
+    dreamReminders: v.boolean(),
+    lastDreamReminderSent: v.optional(v.number()),
+    monthlyInsights: v.boolean(),
+    newFeatures: v.boolean(),
+    updatedAt: v.number(),
+  }).index("by_userId", ["userId"]),
 });
