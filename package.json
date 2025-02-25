@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "email:dev": "email dev --dir convex/email",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "stripe:listen": "stripe listen --forward-to https://vivid-hornet-727.convex.site/stripe",
     "stripe:trigger": "stripe trigger payment_intent.succeeded"
@@ -70,7 +71,7 @@
     "react-hook-form": "^7.53.0",
     "react-intersection-observer": "^9.15.1",
     "recharts": "^2.13.3",
-    "resend": "^3.2.0",
+    "resend": "^3.5.0",
     "sonner": "^1.5.0",
     "stripe": "^15.8.0",
     "svix": "^1.24.0",
@@ -97,6 +98,7 @@
     "postcss": "^8",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.8",
+    "react-email": "3.0.7",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

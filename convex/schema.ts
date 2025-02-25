@@ -11,13 +11,21 @@ export default defineSchema({
     isAdmin: v.optional(v.boolean()),
     adminSince: v.optional(v.number()),
     lastLoginAt: v.optional(v.number()),
-    subscriptionId: v.optional(v.string()),
     profileImage: v.optional(v.string()),
-    endsOn: v.optional(v.number()),
+    onboardingCompletedAt: v.optional(v.number()),
   })
     .index("by_userId", ["userId"])
-    .index("by_email", ["email"])
-    .index("by_subscriptionId", ["subscriptionId"]),
+    .index("by_email", ["email"]),
+
+  onboarding: defineTable({
+    userId: v.string(),
+    onboardingStep: v.number(),
+    lastEmailSent: v.optional(v.string()), // Track last email type
+    lastEmailDate: v.optional(v.number()),
+    completed: v.optional(v.boolean()),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_completed", ["completed"]),
 
   notifications: defineTable({
     userId: v.string(),
@@ -330,6 +338,15 @@ export default defineSchema({
     dailyReminderTime: v.optional(v.number()),
     timezoneOffset: v.optional(v.number()),
     enabledTypes: v.array(v.string()),
+    updatedAt: v.number(),
+  }).index("by_userId", ["userId"]),
+
+  emailPreferences: defineTable({
+    userId: v.string(),
+    dreamReminders: v.boolean(),
+    lastDreamReminderSent: v.optional(v.number()),
+    monthlyInsights: v.boolean(),
+    newFeatures: v.boolean(),
     updatedAt: v.number(),
   }).index("by_userId", ["userId"]),
 });
