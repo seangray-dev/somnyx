@@ -57,6 +57,7 @@ export const createUser = internalMutation({
         email: args.email,
         profileImage: args.profileImage,
         credits: 300,
+        lastLoginAt: Date.now(),
       });
 
       await ctx.db.insert("notificationPreferences", {
@@ -353,5 +354,26 @@ export const toggleAdminStatus = mutation({
     });
 
     return { success: true };
+  },
+});
+
+export const updateLastLogin = internalMutation({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    try {
+      const user = await getUserByUserId(ctx, args.userId);
+
+      if (!user) {
+        throw new ConvexError(`User not found with ID: ${args.userId}`);
+      }
+
+      await ctx.db.patch(user._id, {
+        lastLoginAt: Date.now(),
+      });
+    } catch (error) {
+      // Log the error for monitoring but still throw it
+      console.error("Failed to update last login:", error);
+      throw error;
+    }
   },
 });

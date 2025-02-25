@@ -10,7 +10,7 @@ export default defineSchema({
     credits: v.optional(v.number()),
     isAdmin: v.optional(v.boolean()),
     adminSince: v.optional(v.number()),
-    lastLoginAt: v.optional(v.number()), // TODO: Implement
+    lastLoginAt: v.optional(v.number()),
     profileImage: v.optional(v.string()),
     onboardingCompletedAt: v.optional(v.number()),
   })

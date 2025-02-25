@@ -112,6 +112,11 @@ http.route({
             userId: result.data.id!,
           });
           break;
+        case "session.created":
+          await ctx.runMutation(internal.users.updateLastLogin, {
+            userId: result.data.id,
+          });
+          break;
       }
 
       return new Response(null, {
