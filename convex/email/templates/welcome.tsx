@@ -10,7 +10,7 @@ import BaseEmailTemplate, {
   EmailLink,
   EmailSection,
   EmailText,
-} from "./base-template";
+} from "./baseTemplate";
 
 interface WelcomeEmailProps {
   name?: string;

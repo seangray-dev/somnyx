@@ -18,7 +18,7 @@ import type {
 import type * as clerk from "../clerk.js";
 import type * as crons from "../crons.js";
 import type * as email_resend from "../email/resend.js";
-import type * as email_templates_base_template from "../email/templates/base-template.js";
+import type * as email_templates_baseTemplate from "../email/templates/baseTemplate.js";
 import type * as email_templates_dreamReminder from "../email/templates/dreamReminder.js";
 import type * as email_templates_welcome from "../email/templates/welcome.js";
 import type * as email_util from "../email/util.js";
@@ -68,7 +68,7 @@ declare const fullApi: ApiFromModules<{
   clerk: typeof clerk;
   crons: typeof crons;
   "email/resend": typeof email_resend;
-  "email/templates/base-template": typeof email_templates_base_template;
+  "email/templates/baseTemplate": typeof email_templates_baseTemplate;
   "email/templates/dreamReminder": typeof email_templates_dreamReminder;
   "email/templates/welcome": typeof email_templates_welcome;
   "email/util": typeof email_util;

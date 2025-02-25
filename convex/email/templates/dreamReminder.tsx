@@ -9,7 +9,7 @@ import BaseEmailTemplate, {
   EmailHeading,
   EmailSection,
   EmailText,
-} from "./base-template";
+} from "./baseTemplate";
 
 interface DreamReminderEmailProps {
   name?: string;
