@@ -1,5 +1,6 @@
 export * from "./queries/commonElements";
 export * from "./queries/dreams";
+export * from "./queries/emails";
 export * from "./queries/emotions";
 export * from "./queries/message";
 export * from "./queries/notificationPreferences";
