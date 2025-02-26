@@ -13,6 +13,8 @@ export const upsertDreamElement = internalMutation({
     type: v.union(v.literal("symbol"), v.literal("theme")),
     category: v.string(),
     confidence: v.number(),
+    freeInterpretationId: v.optional(v.id("freeInterpretations")),
+    dreamId: v.optional(v.id("dreams")),
   },
   async handler(ctx, args) {
     const existing = await ctx.db
@@ -26,10 +28,22 @@ export const upsertDreamElement = internalMutation({
         (existing.confidence * existing.count + args.confidence) /
         (existing.count + 1);
 
+      // Prepare arrays for update
+      const freeInterpretationIds = [
+        ...(existing.freeInterpretationIds || []),
+        ...(args.freeInterpretationId ? [args.freeInterpretationId] : []),
+      ];
+      const dreamIds = [
+        ...(existing.dreamIds || []),
+        ...(args.dreamId ? [args.dreamId] : []),
+      ];
+
       await ctx.db.patch(existing._id, {
         count: existing.count + 1,
         updatedAt: Date.now(),
         confidence: newConfidence,
+        freeInterpretationIds,
+        dreamIds,
       });
     } else {
       // Create new entry
@@ -40,6 +54,10 @@ export const upsertDreamElement = internalMutation({
         count: 1,
         confidence: args.confidence,
         updatedAt: Date.now(),
+        freeInterpretationIds: args.freeInterpretationId
+          ? [args.freeInterpretationId]
+          : undefined,
+        dreamIds: args.dreamId ? [args.dreamId] : undefined,
       });
     }
   },

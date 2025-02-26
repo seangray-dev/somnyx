@@ -21,6 +21,7 @@ const isPublicRoute = createRouteMatcher([
   "/api/cron/(.*)",
   "/dreamscape",
   "/install-guide",
+  "/api/get-ip",
 ]);
 
 export default clerkMiddleware((auth, req) => {

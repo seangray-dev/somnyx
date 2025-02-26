@@ -262,6 +262,8 @@ export default defineSchema({
     type: v.union(v.literal("symbol"), v.literal("theme")),
     category: v.string(),
     confidence: v.number(),
+    freeInterpretationIds: v.optional(v.array(v.id("freeInterpretations"))),
+    dreamIds: v.optional(v.array(v.id("dreams"))),
   })
     .index("by_count", ["count"])
     .index("by_name", ["name"])
@@ -350,4 +352,25 @@ export default defineSchema({
     newFeatures: v.boolean(),
     updatedAt: v.number(),
   }).index("by_userId", ["userId"]),
+
+  freeInterpretations: defineTable({
+    dreamText: v.string(),
+    analysis: v.optional(
+      v.object({
+        summary: v.string(),
+        emotionalBreakdown: v.string(),
+        symbolicInterpretation: v.string(),
+        underlyingMessage: v.string(),
+        actionableTakeaway: v.string(),
+      })
+    ),
+    isExpired: v.boolean(),
+    expiresAt: v.number(),
+    createdAt: v.number(),
+    ipAddress: v.optional(v.string()),
+    sessionId: v.optional(v.string()),
+  })
+    .index("by_createdAt", ["createdAt"])
+    .index("by_expiresAt", ["expiresAt"])
+    .index("by_ipAddress_createdAt", ["ipAddress", "createdAt"]),
 });

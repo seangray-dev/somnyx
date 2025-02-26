@@ -28,6 +28,23 @@ const Themes = z.object({
   themes: z.array(z.string()),
 });
 
+const ThemesAndSymbols = z.object({
+  themes: z.array(
+    z.object({
+      name: z.string(),
+      confidence: z.number(),
+      category: z.string(),
+    })
+  ),
+  symbols: z.array(
+    z.object({
+      name: z.string(),
+      confidence: z.number(),
+      category: z.string(),
+    })
+  ),
+});
+
 const DreamElement = z.object({
   name: z.string(),
   category: z.string(),
@@ -279,11 +296,6 @@ export const generateDreamThemes = internalAction({
     if (themes.length > 3) {
       themes = themes.slice(0, 3);
     }
-
-    await ctx.runMutation(internal.mutations.dreams.updateDreamInternal, {
-      id: args.dreamId,
-      themes,
-    });
   },
 });
 
@@ -392,6 +404,123 @@ export const generateAnalysis = internalAction({
     } catch (err) {
       console.error("Error generating analysis image:", err);
       throw err;
+    }
+  },
+});
+
+export const generateAnalysisFree = internalAction({
+  args: {
+    interpretationId: v.id("freeInterpretations"),
+  },
+  async handler(ctx, args) {
+    const { interpretationId } = args;
+
+    const interpretation = await ctx.runQuery(
+      internal.queries.interpretations.getInterpretationByIdInternal,
+      {
+        interpretationId,
+      }
+    );
+
+    if (!interpretation) {
+      throw new Error("Interpretation not found");
+    }
+
+    const userPrompt = `
+      Dream Details:
+      --------------
+      "${interpretation.dreamText}"
+    `;
+
+    const response = await openai.beta.chat.completions.parse({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: SYSTEM_PROMPT,
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+      response_format: zodResponseFormat(Analysis, "analysis"),
+    });
+
+    const analysis = response.choices[0].message.parsed;
+
+    if (!analysis) {
+      throw new Error("Failed to generate analysis");
+    }
+
+    await ctx.runMutation(
+      internal.mutations.interpretations.patchInterpretation,
+      {
+        interpretationId,
+        analysis,
+      }
+    );
+  },
+});
+
+export const generateDreamThemesFree = internalAction({
+  args: {
+    interpretationId: v.id("freeInterpretations"),
+    details: v.string(),
+  },
+  async handler(ctx, args) {
+    const { interpretationId, details } = args;
+
+    const userPrompt = `Details: ${details}`;
+
+    const response = await openai.beta.chat.completions.parse({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a dream analyis expert. Given the following details, and emotions associated with the dream, determine the themes present in the dream. 2-3 maximum for each. Do not return special characters, only letters",
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+      response_format: zodResponseFormat(ThemesAndSymbols, "themesAndSymbols"),
+      temperature: 0.8,
+    });
+
+    let themes = response.choices[0].message.parsed?.themes;
+    let symbols = response.choices[0].message.parsed?.symbols;
+
+    if (!themes || themes.length === 0 || !symbols || symbols.length === 0) {
+      throw new Error("Failed to generate themes or symbols");
+    }
+
+    for (const symbol of symbols) {
+      await ctx.runMutation(
+        internal.mutations.commonElements.upsertDreamElement,
+        {
+          name: symbol.name.toLowerCase(),
+          type: "symbol",
+          category: symbol.category.toLowerCase(),
+          confidence: symbol.confidence,
+          freeInterpretationId: interpretationId,
+        }
+      );
+    }
+
+    for (const theme of themes) {
+      await ctx.runMutation(
+        internal.mutations.commonElements.upsertDreamElement,
+        {
+          name: theme.name.toLowerCase(),
+          type: "theme",
+          category: theme.category.toLowerCase(),
+          confidence: theme.confidence,
+          freeInterpretationId: interpretationId,
+        }
+      );
     }
   },
 });

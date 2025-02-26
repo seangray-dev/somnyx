@@ -2,6 +2,7 @@ export * from "./mutations/deleteAccountFeedback";
 export * from "./mutations/dreams";
 export * from "./mutations/emails";
 export * from "./mutations/insights";
+export * from "./mutations/interpretations";
 export * from "./mutations/message";
 export * from "./mutations/notificationPreferences";
 export * from "./mutations/notifications";

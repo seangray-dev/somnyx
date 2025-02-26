@@ -4,6 +4,7 @@ import DreamMeaningFaqSection from "@/components/dream-dictionary/faq-section";
 import FooterCtaSection from "@/components/dream-dictionary/footer-cta-section";
 import { SEO } from "@/config/app";
 import Analysis from "@/features/free-analysis/components/analysis";
+import DreamInterpreter from "@/features/free-analysis/components/dream-interpreter";
 
 export default function page() {
   return (
@@ -29,7 +30,8 @@ export default function page() {
         </div>
       </section>
       <section className="container mx-auto flex max-w-3xl flex-col gap-6 pb-28">
-        <Analysis />
+        {/* <Analysis /> */}
+        <DreamInterpreter />
       </section>
 
       <div></div>
