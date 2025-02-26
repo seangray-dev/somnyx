@@ -52,6 +52,5 @@ export async function GET() {
 
   return NextResponse.json({
     ip: detectedIP,
-    source: process.env.VERCEL ? "vercel" : "local",
   });
 }
