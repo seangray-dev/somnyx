@@ -10,7 +10,7 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { useSession } from "@/lib/client-auth";
 import { cn } from "@/lib/utils";
 
-import { shouldShowLayout } from "../hidden-paths";
+import { shouldShowMobileHeader } from "../hidden-paths";
 import HeaderActions from "./header-actions";
 import SideNavigation from "./side-navigation";
 
@@ -19,7 +19,7 @@ export default function SiteHeader() {
   const { isLoggedIn } = useSession();
   const isDesktop = useMediaQuery("(min-width: 640px)");
 
-  if (isLoggedIn && !isDesktop && !shouldShowLayout(pathname)) {
+  if (isLoggedIn && !isDesktop && !shouldShowMobileHeader(pathname)) {
     return null;
   }
 
