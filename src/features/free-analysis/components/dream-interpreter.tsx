@@ -216,7 +216,7 @@ export default function DreamInterpreter() {
 
           <div className="space-y-2">
             <p className="text-balance text-sm text-muted-foreground">
-              Don't want to wait? Two ways to continue:
+              Don&apos;t want to wait? Two ways to continue:
             </p>
             <div className="grid gap-2 sm:grid-cols-2">
               <div className="flex items-start gap-2">
