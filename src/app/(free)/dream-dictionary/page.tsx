@@ -194,7 +194,12 @@ export default function Page() {
                                 }}
                                 className="transition-opacity hover:opacity-80"
                               >
-                                <Badge variant="secondary">{name}</Badge>
+                                <Badge
+                                  variant="secondary"
+                                  className="px-4 py-1.5 text-sm hover:underline"
+                                >
+                                  {name}
+                                </Badge>
                               </Link>
                             ))}
                         </div>
@@ -218,7 +223,9 @@ export default function Page() {
                                 }}
                                 className="transition-opacity hover:opacity-80"
                               >
-                                <Badge>{name}</Badge>
+                                <Badge className="px-4 py-1.5 text-sm hover:underline">
+                                  {name}
+                                </Badge>
                               </Link>
                             ))}
                         </div>
