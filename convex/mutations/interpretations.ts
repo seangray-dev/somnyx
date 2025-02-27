@@ -3,6 +3,7 @@ import { v } from "convex/values";
 
 import { internal } from "../_generated/api";
 import { internalMutation } from "../_generated/server";
+import { checkRateLimit, getRateLimitStatus } from "./rateLimit";
 
 const INTERPRETATION_EXPIRY_HOURS = 24; // Interpretations expire after 24 hours
 
@@ -13,6 +14,24 @@ export const saveFreeInterpretation = mutationGeneric({
     sessionId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    if (!args.ipAddress) {
+      throw new Error("IP address is required for rate limiting");
+    }
+
+    const rateLimitStatus = await checkRateLimit(
+      ctx,
+      "FREE_INTERPRETATION",
+      args.ipAddress,
+      args.sessionId
+    );
+
+    if (!rateLimitStatus.isAllowed) {
+      const nextAllowedDate = new Date(rateLimitStatus.nextAllowedTimestamp!);
+      throw new Error(
+        `Rate limit exceeded. Your next free interpretation will be available on ${nextAllowedDate.toLocaleString()}.`
+      );
+    }
+
     const now = Date.now();
     const expiresAt = now + 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
@@ -78,5 +97,15 @@ export const markInterpretationAsExpired = internalMutation({
   },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.interpretationId, { isExpired: true });
+  },
+});
+
+// Add a new query to check rate limit status
+export const checkInterpretationRateLimit = mutationGeneric({
+  args: {
+    ipAddress: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return getRateLimitStatus(ctx, "FREE_INTERPRETATION", args.ipAddress);
   },
 });

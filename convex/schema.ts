@@ -373,4 +373,15 @@ export default defineSchema({
     .index("by_createdAt", ["createdAt"])
     .index("by_expiresAt", ["expiresAt"])
     .index("by_ipAddress_createdAt", ["ipAddress", "createdAt"]),
+
+  rateLimits: defineTable({
+    ipAddress: v.string(),
+    sessionId: v.optional(v.string()),
+    feature: v.string(),
+    requestCount: v.number(),
+    lastRequestTimestamp: v.number(),
+    expiresAt: v.number(),
+  })
+    .index("by_ip", ["ipAddress"])
+    .index("by_ip_and_feature", ["ipAddress", "feature"]),
 });
