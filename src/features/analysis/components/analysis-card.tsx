@@ -174,6 +174,16 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
     }
 
     if (noAnalysis) {
+      if (!isLoggedIn || !isOwner) {
+        return (
+          <div className="flex flex-col gap-8">
+            <p className="text-muted-foreground">
+              No analysis has been generated for this dream yet.
+            </p>
+          </div>
+        );
+      }
+
       return (
         <div className="flex flex-col gap-8">
           <p className="text-muted-foreground">
@@ -213,7 +223,7 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
   };
 
   const renderImageSection = () => {
-    if (isLoading || !isLoggedIn) {
+    if (isLoading) {
       return <ImageSkeleton />;
     }
 
