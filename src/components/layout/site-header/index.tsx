@@ -38,13 +38,14 @@ export default function SiteHeader() {
           <div className="hidden h-full items-center gap-4 sm:flex">
             {!isLoggedIn && (
               <Link
-                href="/interpret"
+                href="/free-dream-interpretation"
                 className={cn(
                   "border-b border-transparent text-sm font-medium transition-all duration-150 hover:border-b-muted-foreground hover:text-muted-foreground",
-                  pathname === "/interpret" && "border-b-primary text-primary"
+                  pathname === "/free-dream-interpretation" &&
+                    "border-b-primary text-primary"
                 )}
               >
-                Interpret
+                Interpretation
               </Link>
             )}
             <Link

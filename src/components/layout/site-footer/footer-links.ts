@@ -7,7 +7,7 @@ export const navigation = {
   freeResources: [
     { name: "Dreamscape", href: "/dreamscape" },
     { name: "Dream Dictionary", href: "/dream-dictionary" },
-    { name: "Interpret", href: "/interpret" },
+    { name: "Dream Interpretation", href: "/free-dream-interpretation" },
     { name: "Blog", href: "/blog" },
   ],
   support: [
