@@ -20,21 +20,19 @@ export default function MobileHeader() {
   }
 
   return (
-    <section className="sticky top-0 z-50 border-b">
-      <div className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex items-center justify-between py-2 sm:hidden">
-          <Button
-            onClick={() => router.back()}
-            size="sm"
-            variant="ghost"
-            className="pl-0"
-          >
-            <ChevronLeftIcon className="size-4" />
-            Back
-          </Button>
-          <SideNavigation side="right" />
-        </div>
+    <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex items-center justify-between py-2 sm:hidden">
+        <Button
+          onClick={() => router.back()}
+          size="sm"
+          variant="ghost"
+          className="pl-0"
+        >
+          <ChevronLeftIcon className="size-4" />
+          Back
+        </Button>
+        <SideNavigation side="right" />
       </div>
-    </section>
+    </div>
   );
 }
