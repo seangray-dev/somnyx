@@ -24,25 +24,42 @@ const Analysis = z.object({
   actionableTakeaway: z.string(),
 });
 
-const Themes = z.object({
-  themes: z.array(z.string()),
-});
+const DreamCategory = z.enum([
+  "relationships_social",
+  "emotional_states",
+  "physical_elements",
+  "animals_creatures",
+  "objects_symbols",
+  "settings_places",
+  "actions_events",
+  "personal_growth",
+  "body_health",
+  "nature_environment",
+  "travel_journey",
+  "time_memory",
+  "power_control",
+  "spiritual_mystical",
+]);
 
 const ThemesAndSymbols = z.object({
   themes: z.array(
     z.object({
       name: z.string(),
       confidence: z.number(),
-      category: z.string(),
+      category: DreamCategory,
     })
   ),
   symbols: z.array(
     z.object({
       name: z.string(),
       confidence: z.number(),
-      category: z.string(),
+      category: DreamCategory,
     })
   ),
+});
+
+const Themes = z.object({
+  themes: z.array(z.string()),
 });
 
 const DreamElement = z.object({
@@ -472,14 +489,53 @@ export const generateDreamThemesFree = internalAction({
     const { interpretationId, details } = args;
 
     const userPrompt = `Details: ${details}`;
+    const systemPrompt = `You are a dream analysis expert. Given the following dream details, identify key themes and symbols, categorizing them into these specific predetermined categories:
+
+    Categories:
+    - relationships_social: social connections, interactions, family, romance
+    - emotional_states: feelings, moods, psychological experiences
+    - physical_elements: basic elements, material objects
+    - animals_creatures: all living beings except humans
+    - objects_symbols: significant items and their symbolic meanings
+    - settings_places: locations and environments
+    - actions_events: activities, occurrences, patterns
+    - personal_growth: development, learning, transformation
+    - body_health: physical sensations, health themes
+    - nature_environment: natural world, weather, seasons
+    - travel_journey: movement, paths, destinations
+    - time_memory: past, future, memories, cycles
+    - power_control: authority, influence, freedom
+    - spiritual_mystical: transcendent experiences, beliefs
+
+    For each theme or symbol identified:
+    1. ALWAYS extract the universal archetype, not the specific instance
+    2. Keep names VERY concise (maximum 30 characters)
+    3. Use simple, clear terms that capture the core meaning
+    4. Assign to the most appropriate predetermined category
+    5. Provide a confidence score (0.0-1.0)
+    6. Limit to 2-3 most prominent themes and 2-3 most significant symbols
+
+    Examples of concise naming:
+    TOO LONG -> CONCISE
+    - "struggles with mental health" -> "mental health"
+    - "feelings of isolation and sadness" -> "isolation"
+    - "school dynamics and peer interactions" -> "peer dynamics"
+    - "difficulty with authority figures" -> "authority conflict"
+
+    Key Rules:
+    - Analyze each dream independently
+    - Use universal/archetypal interpretations
+    - Keep names brief but meaningful
+    - Emotional themes ONLY go under "emotional_states"
+    - Relationship dynamics ONLY go under "relationships_social"
+    - Never mix categories (e.g., emotions should not be under "physical_elements")`;
 
     const response = await openai.beta.chat.completions.parse({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content:
-            "You are a dream analyis expert. Given the following details, and emotions associated with the dream, determine the themes present in the dream. 2-3 maximum for each. Do not return special characters, only letters",
+          content: systemPrompt,
         },
         {
           role: "user",

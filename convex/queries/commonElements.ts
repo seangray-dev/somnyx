@@ -127,3 +127,19 @@ export const getCommonElementByName = internalQuery({
     return element;
   },
 });
+
+export const getAllUniqueCategories = internalQuery({
+  handler: async (ctx) => {
+    const elements = await ctx.db.query("commonElements").collect();
+
+    const uniqueCategories = [
+      ...new Set(
+        elements
+          .map((element) => element.category?.toLowerCase().trim())
+          .filter(Boolean) // Remove null/undefined/empty strings
+      ),
+    ].sort();
+
+    return uniqueCategories;
+  },
+});
