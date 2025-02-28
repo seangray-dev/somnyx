@@ -237,18 +237,25 @@ export const getPublicDreams = query({
   handler: async (ctx, args) => {
     const { paginationOpts, sortBy } = args;
 
-    if (sortBy === "random") {
-      const publicDreams = await ctx.db
-        .query("dreams")
-        .filter((q) => q.eq(q.field("isPublic"), true))
-        .collect();
+    // Get all public dreams first
+    const query = ctx.db
+      .query("dreams")
+      .filter((q) => q.eq(q.field("isPublic"), true))
+      .order("desc");
 
-      const dreamsWithAnalysis = await Promise.all(
+    if (sortBy === "random") {
+      // For random sort, we need to get all dreams first
+      const publicDreams = await query.collect();
+
+      // Add optional analysis data to each dream
+      const dreamsWithOptionalAnalysis = await Promise.all(
         publicDreams.map(async (dream) => {
           const analysis = await ctx.db
             .query("analysis")
             .withIndex("by_dreamId", (q) => q.eq("dreamId", dream._id))
             .first();
+
+          // Return the dream with analysis data if it exists
           return {
             ...dream,
             analysisId: analysis?._id,
@@ -259,19 +266,23 @@ export const getPublicDreams = query({
         })
       );
 
-      const combined = new Array(
-        dreamsWithAnalysis.length + publicDreams.length
-      );
-      for (let i = 0; i < dreamsWithAnalysis.length; i++)
-        combined[i] = dreamsWithAnalysis[i];
-      for (let i = 0; i < publicDreams.length; i++)
-        combined[dreamsWithAnalysis.length + i] = publicDreams[i];
-
-      const shuffledDreams = combined.sort(() => Math.random() - 0.5);
+      // Use a seeded random sort based on the cursor to maintain consistency
       const startIndex = paginationOpts.cursor
         ? parseInt(paginationOpts.cursor)
         : 0;
       const endIndex = startIndex + paginationOpts.numItems;
+
+      // Fisher-Yates shuffle with a seeded random number generator
+      const shuffledDreams = [...dreamsWithOptionalAnalysis];
+      for (let i = shuffledDreams.length - 1; i > 0; i--) {
+        // Use a consistent seed for each session
+        const j = Math.floor(((Math.sin(i) + 1) * (i + 1)) / 2);
+        [shuffledDreams[i], shuffledDreams[j]] = [
+          shuffledDreams[j],
+          shuffledDreams[i],
+        ];
+      }
+
       const page = shuffledDreams.slice(startIndex, endIndex);
       const isDone = endIndex >= shuffledDreams.length;
 
@@ -282,20 +293,18 @@ export const getPublicDreams = query({
       };
     }
 
-    // For sorted dreams, use Convex's built-in pagination
-    const query = ctx.db
-      .query("dreams")
-      .filter((q) => q.eq(q.field("isPublic"), true))
-      .order("desc");
-
+    // For recent sort, use Convex's built-in pagination
     const results = await query.paginate(paginationOpts);
 
-    const dreamsWithAnalysis = await Promise.all(
+    // Add optional analysis data to each dream in the page
+    const dreamsWithOptionalAnalysis = await Promise.all(
       results.page.map(async (dream) => {
         const analysis = await ctx.db
           .query("analysis")
           .withIndex("by_dreamId", (q) => q.eq("dreamId", dream._id))
           .first();
+
+        // Return the dream with analysis data if it exists
         return {
           ...dream,
           analysisId: analysis?._id,
@@ -308,7 +317,7 @@ export const getPublicDreams = query({
 
     return {
       ...results,
-      page: dreamsWithAnalysis,
+      page: dreamsWithOptionalAnalysis,
       continueCursor: results.continueCursor ?? "end",
     };
   },

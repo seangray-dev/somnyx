@@ -1,5 +1,10 @@
-import { Preloaded, usePreloadedQuery } from "convex/react";
+import Link from "next/link";
 
+import { Preloaded, usePreloadedQuery } from "convex/react";
+import { useAtomValue } from "jotai";
+import { ExternalLinkIcon } from "lucide-react";
+
+import { themePageMapAtom } from "@/atoms/theme-pages";
 import {
   Card,
   CardContent,
@@ -22,6 +27,30 @@ type AboutDreamCardProps = {
   role: Preloaded<typeof api.queries.roles.getRoleById>;
 };
 
+const ThemeBadge = ({ name }: { name: string }) => {
+  const themePageMap = useAtomValue(themePageMapAtom);
+  const slug = themePageMap[name.toLowerCase()];
+
+  if (slug) {
+    return (
+      <Link href={`/dream-dictionary/${slug}`}>
+        <Badge
+          variant="outline"
+          className="px-3 py-2 hover:bg-secondary hover:underline"
+        >
+          {name} <ExternalLinkIcon className="ml-2 size-3" />
+        </Badge>
+      </Link>
+    );
+  }
+
+  return (
+    <Badge variant="outline" className="px-3 py-2 hover:cursor-default">
+      {name}
+    </Badge>
+  );
+};
+
 export default function AboutDreamCard(props: AboutDreamCardProps) {
   const dream = usePreloadedQuery(props.dream);
   const emotions = usePreloadedQuery(props.emotions);
@@ -32,7 +61,17 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
     return null;
   }
 
-  const { _id, isPublic, title, details, date, people, places, things } = dream;
+  const {
+    _id,
+    isPublic,
+    title,
+    details,
+    date,
+    people,
+    places,
+    things,
+    symbols,
+  } = dream;
 
   return (
     <Card>
@@ -77,15 +116,17 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <h3 className="font-bold">Themes</h3>
+            <h3 className="font-bold">Themes & Symbols</h3>
             <div className="flex flex-wrap gap-2">
-              {themes
-                ? themes.map((theme) => (
-                    <Badge key={theme} variant={"outline"}>
-                      {theme}
-                    </Badge>
-                  ))
-                : "None"}
+              {themes &&
+                themes.map((theme) => <ThemeBadge key={theme} name={theme} />)}
+              {symbols &&
+                symbols.map((symbol) => (
+                  <ThemeBadge key={symbol} name={symbol} />
+                ))}
+              {themes?.length === 0 && symbols?.length === 0 && (
+                <div className="text-sm text-muted-foreground">N/A</div>
+              )}
             </div>
           </div>
         </div>

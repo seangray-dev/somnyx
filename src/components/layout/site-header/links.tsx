@@ -63,8 +63,8 @@ export const navigationLinks: NavLink[] = [
     visibility: "private",
   },
   {
-    label: "Interpret",
-    href: "/interpret",
+    label: "Dream Interpretation",
+    href: "/free-dream-interpretation",
     icon: <SparklesIcon size={16} />,
     visibility: "public",
   },

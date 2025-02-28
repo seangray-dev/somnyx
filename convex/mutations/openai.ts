@@ -24,6 +24,40 @@ const Analysis = z.object({
   actionableTakeaway: z.string(),
 });
 
+const DreamCategory = z.enum([
+  "relationships_social",
+  "emotional_states",
+  "physical_elements",
+  "animals_creatures",
+  "objects_symbols",
+  "settings_places",
+  "actions_events",
+  "personal_growth",
+  "body_health",
+  "nature_environment",
+  "travel_journey",
+  "time_memory",
+  "power_control",
+  "spiritual_mystical",
+]);
+
+const ThemesAndSymbols = z.object({
+  themes: z.array(
+    z.object({
+      name: z.string(),
+      confidence: z.number(),
+      category: DreamCategory,
+    })
+  ),
+  symbols: z.array(
+    z.object({
+      name: z.string(),
+      confidence: z.number(),
+      category: DreamCategory,
+    })
+  ),
+});
+
 const Themes = z.object({
   themes: z.array(z.string()),
 });
@@ -279,11 +313,6 @@ export const generateDreamThemes = internalAction({
     if (themes.length > 3) {
       themes = themes.slice(0, 3);
     }
-
-    await ctx.runMutation(internal.mutations.dreams.updateDreamInternal, {
-      id: args.dreamId,
-      themes,
-    });
   },
 });
 
@@ -392,6 +421,188 @@ export const generateAnalysis = internalAction({
     } catch (err) {
       console.error("Error generating analysis image:", err);
       throw err;
+    }
+  },
+});
+
+export const generateAnalysisFree = internalAction({
+  args: {
+    interpretationId: v.id("freeInterpretations"),
+  },
+  async handler(ctx, args) {
+    const { interpretationId } = args;
+
+    const interpretation = await ctx.runQuery(
+      internal.queries.interpretations.getInterpretationByIdInternal,
+      {
+        interpretationId,
+      }
+    );
+
+    if (!interpretation) {
+      throw new Error("Interpretation not found");
+    }
+
+    const userPrompt = `
+      Dream Details:
+      --------------
+      "${interpretation.dreamText}"
+    `;
+
+    const response = await openai.beta.chat.completions.parse({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: SYSTEM_PROMPT,
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+      response_format: zodResponseFormat(Analysis, "analysis"),
+    });
+
+    const analysis = response.choices[0].message.parsed;
+
+    if (!analysis) {
+      throw new Error("Failed to generate analysis");
+    }
+
+    await ctx.runMutation(
+      internal.mutations.interpretations.patchInterpretation,
+      {
+        interpretationId,
+        analysis,
+      }
+    );
+  },
+});
+
+export const generateDreamThemesFree = internalAction({
+  args: {
+    source: v.union(
+      v.object({
+        type: v.literal("interpretation"),
+        sourceType: v.union(v.literal("reddit"), v.literal("free")),
+        id: v.union(v.id("redditPosts"), v.id("freeInterpretations")),
+      }),
+      v.object({
+        type: v.literal("dream"),
+        id: v.id("dreams"),
+      })
+    ),
+    details: v.string(),
+  },
+  async handler(ctx, args) {
+    const { source, details } = args;
+
+    const userPrompt = `Details: ${details}`;
+    const systemPrompt = `You are a dream analysis expert. Given the following dream details, identify key themes and symbols, categorizing them into these specific predetermined categories:
+
+    Categories:
+    - relationships_social: social connections, interactions, family, romance
+    - emotional_states: feelings, moods, psychological experiences
+    - physical_elements: basic elements, material objects
+    - animals_creatures: all living beings except humans
+    - objects_symbols: significant items and their symbolic meanings
+    - settings_places: locations and environments
+    - actions_events: activities, occurrences, patterns
+    - personal_growth: development, learning, transformation
+    - body_health: physical sensations, health themes
+    - nature_environment: natural world, weather, seasons
+    - travel_journey: movement, paths, destinations
+    - time_memory: past, future, memories, cycles
+    - power_control: authority, influence, freedom
+    - spiritual_mystical: transcendent experiences, beliefs
+
+    For each theme or symbol identified:
+    1. ALWAYS extract the universal archetype, not the specific instance
+    2. Keep names VERY concise (maximum 30 characters)
+    3. Use simple, clear terms that capture the core meaning
+    4. Assign to the most appropriate predetermined category
+    5. Provide a confidence score (0.0-1.0)
+    6. Limit to 2-3 most prominent themes and 2-3 most significant symbols
+
+    Examples of concise naming:
+    TOO LONG -> CONCISE
+    - "struggles with mental health" -> "mental health"
+    - "feelings of isolation and sadness" -> "isolation"
+    - "school dynamics and peer interactions" -> "peer dynamics"
+    - "difficulty with authority figures" -> "authority conflict"
+
+    Key Rules:
+    - Analyze each dream independently
+    - Use universal/archetypal interpretations
+    - Keep names brief but meaningful
+    - Emotional themes ONLY go under "emotional_states"
+    - Relationship dynamics ONLY go under "relationships_social"
+    - Never mix categories (e.g., emotions should not be under "physical_elements")`;
+
+    const response = await openai.beta.chat.completions.parse({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt,
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+      response_format: zodResponseFormat(ThemesAndSymbols, "themesAndSymbols"),
+      temperature: 0.8,
+    });
+
+    let themes = response.choices[0].message.parsed?.themes;
+    let symbols = response.choices[0].message.parsed?.symbols;
+
+    if (!themes || themes.length === 0 || !symbols || symbols.length === 0) {
+      throw new Error("Failed to generate themes or symbols");
+    }
+
+    for (const symbol of symbols) {
+      await ctx.runMutation(
+        internal.mutations.commonElements.upsertDreamElement,
+        {
+          name: symbol.name.toLowerCase(),
+          type: "symbol",
+          category: symbol.category.toLowerCase(),
+          confidence: symbol.confidence,
+          ...(source.type === "interpretation"
+            ? source.sourceType === "reddit"
+              ? { redditPostId: source.id as Id<"redditPosts"> }
+              : { freeInterpretationId: source.id as Id<"freeInterpretations"> }
+            : { dreamId: source.id }),
+        }
+      );
+    }
+
+    for (const theme of themes) {
+      await ctx.runMutation(
+        internal.mutations.commonElements.upsertDreamElement,
+        {
+          name: theme.name.toLowerCase(),
+          type: "theme",
+          category: theme.category.toLowerCase(),
+          confidence: theme.confidence,
+          ...(source.type === "interpretation"
+            ? source.sourceType === "reddit"
+              ? { redditPostId: source.id as Id<"redditPosts"> }
+              : { freeInterpretationId: source.id as Id<"freeInterpretations"> }
+            : { dreamId: source.id }),
+        }
+      );
+    }
+
+    if (source.type === "dream") {
+      await ctx.runMutation(internal.mutations.dreams.updateDreamInternal, {
+        id: source.id,
+        themes: themes.map((theme) => theme.name),
+        symbols: symbols.map((symbol) => symbol.name),
+      });
     }
   },
 });

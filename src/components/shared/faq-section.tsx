@@ -28,13 +28,13 @@ export default function FAQSection() {
       question: "Will my dreams be private?",
       answer: (
         <>
-          Yes, all dreams are private by default and visible only to you. You
-          have the option to share specific dreams publicly in our{" "}
+          Your dreams are always private by default. Dreams marked as public may
+          be shown in the{" "}
           <Link href="/dreamscape" className="text-foreground hover:underline">
             Dreamscape
           </Link>{" "}
-          community or via direct links, but this is completely optional and
-          under your control.
+          community feed. You have full control over which dreams you share -
+          only those you specifically mark as public will be visible to others.
         </>
       ),
     },

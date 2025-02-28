@@ -13,6 +13,9 @@ export const upsertDreamElement = internalMutation({
     type: v.union(v.literal("symbol"), v.literal("theme")),
     category: v.string(),
     confidence: v.number(),
+    freeInterpretationId: v.optional(v.id("freeInterpretations")),
+    dreamId: v.optional(v.id("dreams")),
+    redditPostId: v.optional(v.id("redditPosts")),
   },
   async handler(ctx, args) {
     const existing = await ctx.db
@@ -26,10 +29,27 @@ export const upsertDreamElement = internalMutation({
         (existing.confidence * existing.count + args.confidence) /
         (existing.count + 1);
 
+      // Prepare arrays for update
+      const freeInterpretationIds = [
+        ...(existing.freeInterpretationIds || []),
+        ...(args.freeInterpretationId ? [args.freeInterpretationId] : []),
+      ];
+      const dreamIds = [
+        ...(existing.dreamIds || []),
+        ...(args.dreamId ? [args.dreamId] : []),
+      ];
+      const redditPostIds = [
+        ...(existing.redditPostIds || []),
+        ...(args.redditPostId ? [args.redditPostId] : []),
+      ];
+
       await ctx.db.patch(existing._id, {
         count: existing.count + 1,
         updatedAt: Date.now(),
         confidence: newConfidence,
+        freeInterpretationIds,
+        dreamIds,
+        redditPostIds,
       });
     } else {
       // Create new entry
@@ -40,6 +60,11 @@ export const upsertDreamElement = internalMutation({
         count: 1,
         confidence: args.confidence,
         updatedAt: Date.now(),
+        freeInterpretationIds: args.freeInterpretationId
+          ? [args.freeInterpretationId]
+          : undefined,
+        dreamIds: args.dreamId ? [args.dreamId] : undefined,
+        redditPostIds: args.redditPostId ? [args.redditPostId] : undefined,
       });
     }
   },

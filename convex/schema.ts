@@ -74,6 +74,7 @@ export default defineSchema({
     places: v.optional(v.array(v.string())),
     things: v.optional(v.array(v.string())),
     themes: v.optional(v.array(v.string())),
+    symbols: v.optional(v.array(v.string())),
     title: v.optional(v.string()),
     details: v.string(),
   })
@@ -262,6 +263,9 @@ export default defineSchema({
     type: v.union(v.literal("symbol"), v.literal("theme")),
     category: v.string(),
     confidence: v.number(),
+    freeInterpretationIds: v.optional(v.array(v.id("freeInterpretations"))),
+    dreamIds: v.optional(v.array(v.id("dreams"))),
+    redditPostIds: v.optional(v.array(v.id("redditPosts"))),
   })
     .index("by_count", ["count"])
     .index("by_name", ["name"])
@@ -350,4 +354,46 @@ export default defineSchema({
     newFeatures: v.boolean(),
     updatedAt: v.number(),
   }).index("by_userId", ["userId"]),
+
+  freeInterpretations: defineTable({
+    dreamText: v.string(),
+    analysis: v.optional(
+      v.object({
+        summary: v.string(),
+        emotionalBreakdown: v.string(),
+        symbolicInterpretation: v.string(),
+        underlyingMessage: v.string(),
+        actionableTakeaway: v.string(),
+      })
+    ),
+    isExpired: v.boolean(),
+    expiresAt: v.number(),
+    createdAt: v.number(),
+    ipAddress: v.optional(v.string()),
+    sessionId: v.optional(v.string()),
+  })
+    .index("by_createdAt", ["createdAt"])
+    .index("by_expiresAt", ["expiresAt"])
+    .index("by_ipAddress_createdAt", ["ipAddress", "createdAt"]),
+
+  rateLimits: defineTable({
+    ipAddress: v.string(),
+    sessionId: v.optional(v.string()),
+    feature: v.string(),
+    requestCount: v.number(),
+    lastRequestTimestamp: v.number(),
+    expiresAt: v.number(),
+  })
+    .index("by_ip", ["ipAddress"])
+    .index("by_ip_and_feature", ["ipAddress", "feature"]),
+
+  redditPosts: defineTable({
+    title: v.string(),
+    content: v.string(),
+    url: v.string(),
+    subreddit: v.string(),
+    scrapedAt: v.string(),
+    processed: v.optional(v.boolean()),
+    processedAt: v.optional(v.string()),
+  }).index("by_url", ["url"]),
 });

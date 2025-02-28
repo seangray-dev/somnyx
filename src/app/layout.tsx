@@ -2,10 +2,12 @@ import type { Metadata, Viewport } from "next";
 
 import SiteFooter from "@/components/layout/site-footer";
 import SiteHeader from "@/components/layout/site-header";
+import MobileHeader from "@/components/layout/site-header/mobile-header";
 import { Toaster } from "@/components/ui/sonner";
 import { SEO, applicationName, baseUrl } from "@/config/app";
 import { Lora, OpenSans } from "@/fonts";
 import { ContextProvider } from "@/providers/context-provider";
+import { ThemePagesProvider } from "@/providers/theme-pages-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { TimezoneProvider } from "@/providers/timezone-provider";
 
@@ -255,10 +257,12 @@ export default function RootLayout({
         <body className="flex min-h-screen flex-col antialiased">
           <ThemeProvider attribute="class" defaultTheme="system">
             <SiteHeader />
-            <main className="relative flex-1 flex flex-col">{children}</main>
+            <MobileHeader />
+            <main className="relative flex flex-1 flex-col">{children}</main>
             <SiteFooter />
             <Toaster richColors position="top-center" duration={5000} />
             <TimezoneProvider />
+            <ThemePagesProvider />
           </ThemeProvider>
         </body>
       </html>

@@ -1,10 +1,7 @@
 import { GenericId, Validator, v } from "convex/values";
 
-
-
 import { TableNames } from "./_generated/dataModel";
 import { ActionCtx, MutationCtx, QueryCtx } from "./_generated/server";
-
 
 export const NOTIFICATION_TYPES = {
   ANALYSIS_COMPLETE: "ANALYSIS_COMPLETE",
