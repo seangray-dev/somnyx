@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { SEO, applicationName, baseUrl } from "@/config/app";
 import { Lora, OpenSans } from "@/fonts";
 import { ContextProvider } from "@/providers/context-provider";
+import { ThemePagesProvider } from "@/providers/theme-pages-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { TimezoneProvider } from "@/providers/timezone-provider";
 
@@ -261,6 +262,7 @@ export default function RootLayout({
             <SiteFooter />
             <Toaster richColors position="top-center" duration={5000} />
             <TimezoneProvider />
+            <ThemePagesProvider />
           </ThemeProvider>
         </body>
       </html>

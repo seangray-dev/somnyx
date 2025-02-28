@@ -74,6 +74,7 @@ export default defineSchema({
     places: v.optional(v.array(v.string())),
     things: v.optional(v.array(v.string())),
     themes: v.optional(v.array(v.string())),
+    symbols: v.optional(v.array(v.string())),
     title: v.optional(v.string()),
     details: v.string(),
   })

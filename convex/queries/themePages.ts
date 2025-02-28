@@ -137,3 +137,21 @@ export const getThemePageWithImageByNamePublic = query({
     };
   },
 });
+
+export const getThemePageMapping = query({
+  handler: async (ctx) => {
+    const pages = await ctx.db
+      .query("themePages")
+      .filter((q) => q.eq(q.field("isPublished"), true))
+      .collect();
+
+    // Return minimal data structure
+    return pages.reduce(
+      (acc, page) => ({
+        ...acc,
+        [page.name.toLowerCase()]: page.seo_slug,
+      }),
+      {} as { [key: string]: string }
+    );
+  },
+});

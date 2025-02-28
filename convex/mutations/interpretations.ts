@@ -64,7 +64,13 @@ export const saveFreeInterpretation = mutationGeneric({
     await ctx.scheduler.runAfter(
       0,
       internal.mutations.openai.generateDreamThemesFree,
-      { interpretationId, details: args.dreamText }
+      {
+        source: {
+          id: interpretationId,
+          type: "interpretation",
+        },
+        details: args.dreamText,
+      }
     );
 
     return interpretationId;

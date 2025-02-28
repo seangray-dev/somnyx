@@ -482,11 +482,20 @@ export const generateAnalysisFree = internalAction({
 
 export const generateDreamThemesFree = internalAction({
   args: {
-    interpretationId: v.id("freeInterpretations"),
+    source: v.union(
+      v.object({
+        type: v.literal("interpretation"),
+        id: v.id("freeInterpretations"),
+      }),
+      v.object({
+        type: v.literal("dream"),
+        id: v.id("dreams"),
+      })
+    ),
     details: v.string(),
   },
   async handler(ctx, args) {
-    const { interpretationId, details } = args;
+    const { source, details } = args;
 
     const userPrompt = `Details: ${details}`;
     const systemPrompt = `You are a dream analysis expert. Given the following dream details, identify key themes and symbols, categorizing them into these specific predetermined categories:
@@ -555,28 +564,44 @@ export const generateDreamThemesFree = internalAction({
 
     for (const symbol of symbols) {
       await ctx.runMutation(
+        // @ts-ignore
         internal.mutations.commonElements.upsertDreamElement,
         {
           name: symbol.name.toLowerCase(),
           type: "symbol",
           category: symbol.category.toLowerCase(),
           confidence: symbol.confidence,
-          freeInterpretationId: interpretationId,
+          // Use the discriminated union to set the correct ID
+          ...(source.type === "interpretation"
+            ? { freeInterpretationId: source.id }
+            : { dreamId: source.id }),
         }
       );
     }
 
     for (const theme of themes) {
       await ctx.runMutation(
+        // @ts-ignore
         internal.mutations.commonElements.upsertDreamElement,
         {
           name: theme.name.toLowerCase(),
           type: "theme",
           category: theme.category.toLowerCase(),
           confidence: theme.confidence,
-          freeInterpretationId: interpretationId,
+          // Use the discriminated union to set the correct ID
+          ...(source.type === "interpretation"
+            ? { freeInterpretationId: source.id }
+            : { dreamId: source.id }),
         }
       );
+    }
+
+    if (source.type === "dream") {
+      await ctx.runMutation(internal.mutations.dreams.updateDreamInternal, {
+        id: source.id,
+        themes: themes.map((theme) => theme.name),
+        symbols: symbols.map((symbol) => symbol.name),
+      });
     }
   },
 });
