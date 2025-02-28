@@ -48,6 +48,13 @@ export default function Page() {
   const isSearching = inputValue.length > 0;
   const isLoading = isSearching && themePages === null;
 
+  const formatCategoryName = (category: string) => {
+    return category
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   if (!elements || publishedNames === undefined) {
     return (
       <div className="container py-12">
@@ -60,16 +67,15 @@ export default function Page() {
 
   // Group elements by category and type
   const groupedElements = elements.reduce<GroupedElements>((acc, element) => {
-    const category =
-      element.category.charAt(0).toUpperCase() + element.category.slice(1);
+    const formattedCategory = formatCategoryName(element.category);
 
     // Skip elements that don't have a published page (unless admin)
     if (!isAdmin && !publishedNames.includes(element.name.toLowerCase())) {
       return acc;
     }
 
-    if (!acc[category]) {
-      acc[category] = { symbols: [], themes: [] };
+    if (!acc[formattedCategory]) {
+      acc[formattedCategory] = { symbols: [], themes: [] };
     }
 
     // Format the slug for navigation
@@ -80,13 +86,13 @@ export default function Page() {
       .replace(/^-+|-+$/g, "");
 
     if (element.type === "symbol") {
-      acc[category].symbols.push({
+      acc[formattedCategory].symbols.push({
         name: element.name,
         confidence: element.confidence,
         seo_slug,
       });
     } else {
-      acc[category].themes.push({
+      acc[formattedCategory].themes.push({
         name: element.name,
         confidence: element.confidence,
         seo_slug,
