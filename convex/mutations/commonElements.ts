@@ -15,6 +15,7 @@ export const upsertDreamElement = internalMutation({
     confidence: v.number(),
     freeInterpretationId: v.optional(v.id("freeInterpretations")),
     dreamId: v.optional(v.id("dreams")),
+    redditPostId: v.optional(v.id("redditPosts")),
   },
   async handler(ctx, args) {
     const existing = await ctx.db
@@ -37,6 +38,10 @@ export const upsertDreamElement = internalMutation({
         ...(existing.dreamIds || []),
         ...(args.dreamId ? [args.dreamId] : []),
       ];
+      const redditPostIds = [
+        ...(existing.redditPostIds || []),
+        ...(args.redditPostId ? [args.redditPostId] : []),
+      ];
 
       await ctx.db.patch(existing._id, {
         count: existing.count + 1,
@@ -44,6 +49,7 @@ export const upsertDreamElement = internalMutation({
         confidence: newConfidence,
         freeInterpretationIds,
         dreamIds,
+        redditPostIds,
       });
     } else {
       // Create new entry
@@ -58,6 +64,7 @@ export const upsertDreamElement = internalMutation({
           ? [args.freeInterpretationId]
           : undefined,
         dreamIds: args.dreamId ? [args.dreamId] : undefined,
+        redditPostIds: args.redditPostId ? [args.redditPostId] : undefined,
       });
     }
   },

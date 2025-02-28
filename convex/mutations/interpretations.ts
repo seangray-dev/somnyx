@@ -68,6 +68,7 @@ export const saveFreeInterpretation = mutationGeneric({
         source: {
           id: interpretationId,
           type: "interpretation",
+          sourceType: "free",
         },
         details: args.dreamText,
       }

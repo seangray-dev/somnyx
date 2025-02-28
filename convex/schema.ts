@@ -265,6 +265,7 @@ export default defineSchema({
     confidence: v.number(),
     freeInterpretationIds: v.optional(v.array(v.id("freeInterpretations"))),
     dreamIds: v.optional(v.array(v.id("dreams"))),
+    redditPostIds: v.optional(v.array(v.id("redditPosts"))),
   })
     .index("by_count", ["count"])
     .index("by_name", ["name"])
@@ -385,4 +386,14 @@ export default defineSchema({
   })
     .index("by_ip", ["ipAddress"])
     .index("by_ip_and_feature", ["ipAddress", "feature"]),
+
+  redditPosts: defineTable({
+    title: v.string(),
+    content: v.string(),
+    url: v.string(),
+    subreddit: v.string(),
+    scrapedAt: v.string(),
+    processed: v.optional(v.boolean()),
+    processedAt: v.optional(v.string()),
+  }).index("by_url", ["url"]),
 });

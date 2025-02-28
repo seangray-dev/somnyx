@@ -485,7 +485,8 @@ export const generateDreamThemesFree = internalAction({
     source: v.union(
       v.object({
         type: v.literal("interpretation"),
-        id: v.id("freeInterpretations"),
+        sourceType: v.union(v.literal("reddit"), v.literal("free")),
+        id: v.union(v.id("redditPosts"), v.id("freeInterpretations")),
       }),
       v.object({
         type: v.literal("dream"),
@@ -564,16 +565,16 @@ export const generateDreamThemesFree = internalAction({
 
     for (const symbol of symbols) {
       await ctx.runMutation(
-        // @ts-ignore
         internal.mutations.commonElements.upsertDreamElement,
         {
           name: symbol.name.toLowerCase(),
           type: "symbol",
           category: symbol.category.toLowerCase(),
           confidence: symbol.confidence,
-          // Use the discriminated union to set the correct ID
           ...(source.type === "interpretation"
-            ? { freeInterpretationId: source.id }
+            ? source.sourceType === "reddit"
+              ? { redditPostId: source.id as Id<"redditPosts"> }
+              : { freeInterpretationId: source.id as Id<"freeInterpretations"> }
             : { dreamId: source.id }),
         }
       );
@@ -581,16 +582,16 @@ export const generateDreamThemesFree = internalAction({
 
     for (const theme of themes) {
       await ctx.runMutation(
-        // @ts-ignore
         internal.mutations.commonElements.upsertDreamElement,
         {
           name: theme.name.toLowerCase(),
           type: "theme",
           category: theme.category.toLowerCase(),
           confidence: theme.confidence,
-          // Use the discriminated union to set the correct ID
           ...(source.type === "interpretation"
-            ? { freeInterpretationId: source.id }
+            ? source.sourceType === "reddit"
+              ? { redditPostId: source.id as Id<"redditPosts"> }
+              : { freeInterpretationId: source.id as Id<"freeInterpretations"> }
             : { dreamId: source.id }),
         }
       );

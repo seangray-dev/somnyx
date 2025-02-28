@@ -39,6 +39,7 @@ import type * as mutations_notificationPreferences from "../mutations/notificati
 import type * as mutations_notifications from "../mutations/notifications.js";
 import type * as mutations_openai from "../mutations/openai.js";
 import type * as mutations_rateLimit from "../mutations/rateLimit.js";
+import type * as mutations_reddit from "../mutations/reddit.js";
 import type * as mutations_themePages from "../mutations/themePages.js";
 import type * as mutations_users from "../mutations/users.js";
 import type * as mutations from "../mutations.js";
@@ -94,6 +95,7 @@ declare const fullApi: ApiFromModules<{
   "mutations/notifications": typeof mutations_notifications;
   "mutations/openai": typeof mutations_openai;
   "mutations/rateLimit": typeof mutations_rateLimit;
+  "mutations/reddit": typeof mutations_reddit;
   "mutations/themePages": typeof mutations_themePages;
   "mutations/users": typeof mutations_users;
   mutations: typeof mutations;

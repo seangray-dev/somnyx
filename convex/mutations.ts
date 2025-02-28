@@ -6,5 +6,6 @@ export * from "./mutations/interpretations";
 export * from "./mutations/message";
 export * from "./mutations/notificationPreferences";
 export * from "./mutations/notifications";
+export * from "./mutations/reddit";
 export * from "./mutations/themePages";
 export * from "./mutations/users";
