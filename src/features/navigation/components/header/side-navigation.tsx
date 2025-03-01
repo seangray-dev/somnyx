@@ -1,9 +1,10 @@
+import { Route } from "next";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useAuth, useSession } from "@clerk/nextjs";
-import { LogOutIcon, MenuIcon } from "lucide-react";
+import { LogInIcon, LogOutIcon, MenuIcon } from "lucide-react";
 
 import Logo from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
-import { getPrivateLinks, getPublicLinks } from "./links";
+import { navigationLinks } from "../../config/links";
 import { navigation } from "./footer-links";
 
 export default function SideNavigation({
@@ -28,8 +29,48 @@ export default function SideNavigation({
   const pathname = usePathname();
   const { isSignedIn } = useSession();
   const { signOut } = useAuth();
+  const router = useRouter();
 
-  const navigationLinks = isSignedIn ? getPrivateLinks() : getPublicLinks();
+  const handleAuthClick = () => {
+    if (isSignedIn) {
+      signOut();
+    } else {
+      setOpen(false);
+      router.push("/sign-in" as Route);
+    }
+  };
+
+  // Filter links based on authentication state
+  const visibleLinks = navigationLinks.filter((link) =>
+    isSignedIn
+      ? link.visibility === "private" || link.visibility === "both"
+      : link.visibility === "public" || link.visibility === "both"
+  );
+
+  // Separate authenticated features
+  const authenticatedLinks = visibleLinks.filter(
+    (link) => link.visibility === "private"
+  );
+  const publicLinks = visibleLinks.filter(
+    (link) => link.visibility !== "private"
+  );
+
+  const renderNavLink = (link: any) => (
+    <Button
+      onClick={() => setOpen(false)}
+      variant={"link"}
+      key={link.label}
+      className={cn(
+        "flex w-fit items-center gap-4 text-foreground hover:text-muted-foreground",
+        ((pathname.startsWith(link.href) && link.href !== "/") ||
+          pathname === link.href) &&
+          "text-primary underline"
+      )}
+    >
+      {link.icon}
+      <Link href={link.href}>{link.label}</Link>
+    </Button>
+  );
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -46,35 +87,32 @@ export default function SideNavigation({
         </SheetHeader>
         <div className="flex h-full flex-col justify-between">
           <div className="flex flex-1 flex-col gap-2">
-            {navigationLinks.map((link) => (
-              <Button
-                onClick={() => setOpen(false)}
-                variant={"link"}
-                key={link.label}
-                className={cn(
-                  "flex w-fit items-center gap-4 text-foreground hover:text-muted-foreground",
-                  ((pathname.startsWith(link.href) && link.href !== "/") ||
-                    pathname === link.href) &&
-                    "text-primary underline"
-                )}
-              >
-                {link.icon}
-                {/* @ts-expect-error */}
-                <Link href={link.href}>{link.label}</Link>
-              </Button>
-            ))}
+            {/* Show authenticated features first if logged in */}
+            {isSignedIn && (
+              <>
+                {authenticatedLinks.map(renderNavLink)}
+                <div className="my-2 border-t" />
+              </>
+            )}
+            {/* Always show public links */}
+            {publicLinks.map(renderNavLink)}
           </div>
           <div className="flex flex-col gap-2">
-            {isSignedIn && (
-              <Button
-                className="w-fit flex-row items-center gap-4"
-                variant={"ghost"}
-                onClick={() => signOut()}
-              >
-                <LogOutIcon size={16} />
-                Sign Out
-              </Button>
-            )}
+            <Button
+              className="flex w-fit items-center gap-4 text-foreground hover:text-muted-foreground"
+              variant={"link"}
+              onClick={handleAuthClick}
+            >
+              {isSignedIn ? (
+                <>
+                  <LogOutIcon size={16} /> Sign Out
+                </>
+              ) : (
+                <>
+                  <LogInIcon size={16} /> Sign In
+                </>
+              )}
+            </Button>
             <div className="border-t pt-4">
               {navigation.legal.map((link) => (
                 <Button
@@ -88,8 +126,7 @@ export default function SideNavigation({
                       "text-primary underline"
                   )}
                 >
-                  {/* @ts-expect-error */}
-                  <Link href={link.href}>{link.name}</Link>
+                  <Link href={link.href as Route}>{link.name}</Link>
                 </Button>
               ))}
             </div>

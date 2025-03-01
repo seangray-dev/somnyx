@@ -10,22 +10,26 @@ import {
   SparklesIcon,
 } from "lucide-react";
 
-type LinkVisibility = "public" | "private" | "both";
+import { NavLink } from "../types";
 
-interface NavLink {
-  label: string;
-  href: string;
-  icon: JSX.Element;
-  visibility: LinkVisibility;
-}
-
+/**
+ * Navigation Links Configuration
+ *
+ * Visibility types:
+ * - "public": Only shown to logged out users
+ * - "private": Only shown to logged in users
+ * - "both": Shown to all users
+ */
 export const navigationLinks: NavLink[] = [
+  // Core navigation
   {
     label: "Home",
     href: "/",
     icon: <HomeIcon size={16} />,
     visibility: "both",
   },
+
+  // Authenticated user features
   {
     label: "Dashboard",
     href: "/dashboard",
@@ -38,6 +42,14 @@ export const navigationLinks: NavLink[] = [
     icon: <LibraryBigIcon size={16} />,
     visibility: "private",
   },
+  {
+    label: "Settings",
+    href: "/settings",
+    icon: <CogIcon size={16} />,
+    visibility: "private",
+  },
+
+  // Public features
   {
     label: "Dreamscape",
     href: "/dreamscape",
@@ -57,31 +69,34 @@ export const navigationLinks: NavLink[] = [
     visibility: "both",
   },
   {
-    label: "Settings",
-    href: "/settings",
-    icon: <CogIcon size={16} />,
-    visibility: "private",
-  },
-  {
     label: "Dream Interpretation",
     href: "/free-dream-interpretation",
     icon: <SparklesIcon size={16} />,
     visibility: "public",
   },
+
+  // Support & Help
   {
     label: "Support",
     href: "/support",
     icon: <HelpCircleIcon size={16} />,
-    visibility: "public",
+    visibility: "both",
   },
 ];
 
-// Helper functions to filter links
+/**
+ * Helper function to get links visible to logged out users
+ * Returns links with visibility "public" or "both"
+ */
 export const getPublicLinks = () =>
   navigationLinks.filter(
     (link) => link.visibility === "public" || link.visibility === "both"
   );
 
+/**
+ * Helper function to get links visible to logged in users
+ * Returns links with visibility "private" or "both"
+ */
 export const getPrivateLinks = () =>
   navigationLinks.filter(
     (link) => link.visibility === "private" || link.visibility === "both"
