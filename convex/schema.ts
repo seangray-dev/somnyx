@@ -66,17 +66,19 @@ export default defineSchema({
 
   dreams: defineTable({
     userId: v.string(),
-    isPublic: v.optional(v.boolean()),
+    details: v.string(),
     date: v.string(),
+    isRecurring: v.optional(v.boolean()),
+    isLucid: v.optional(v.boolean()),
     emotions: v.array(v.id("emotions")),
     role: v.optional(v.id("roles")),
     people: v.optional(v.array(v.string())),
     places: v.optional(v.array(v.string())),
     things: v.optional(v.array(v.string())),
+    title: v.optional(v.string()),
     themes: v.optional(v.array(v.string())),
     symbols: v.optional(v.array(v.string())),
-    title: v.optional(v.string()),
-    details: v.string(),
+    isPublic: v.optional(v.boolean()),
   })
     .index("by_userId", ["userId"])
     .index("by_userId_and_date", ["userId", "date"]),

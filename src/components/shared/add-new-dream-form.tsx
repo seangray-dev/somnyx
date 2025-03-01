@@ -48,6 +48,8 @@ const FormSchema = z.object({
     .refine((date) => !isBefore(date, new Date(2024, 7, 1)), {
       message: "Dreams can only be logged from August 2024 onwards.",
     }),
+  isRecurring: z.boolean().default(false),
+  isLucid: z.boolean().default(false),
   emotions: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: "You have to select at least one emotion.",
   }),
@@ -87,6 +89,8 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       date: new Date(),
+      isRecurring: false,
+      isLucid: false,
       emotions: [],
       people: [],
       places: [],
@@ -101,6 +105,8 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
     try {
       const {
         date,
+        isRecurring,
+        isLucid,
         emotions,
         role,
         people,
@@ -112,6 +118,8 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
 
       const result = await addNewDream({
         date: date.toISOString(),
+        isRecurring,
+        isLucid,
         emotions: emotions as Id<"emotions">[],
         role: role as Id<"roles">,
         people: people,
@@ -219,6 +227,50 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
           )}
         />
 
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="isRecurring"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Recurring Dream</FormLabel>
+                  <FormDescription className="text-pretty">
+                    I've had this dream (or very similar) before
+                  </FormDescription>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="isLucid"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Lucid Dream</FormLabel>
+                  <FormDescription className="text-pretty">
+                    I was aware I was dreaming during the experience
+                  </FormDescription>
+                </div>
+              </FormItem>
+            )}
+          />
+        </div>
+
         <FormField
           control={form.control}
           name="emotions"
@@ -325,7 +377,7 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                         </FormControl>
                         <FormLabel className="flex flex-col gap-1 font-normal">
                           <span>{role.name}</span>
-                          <span className="text-pretty text-xs text-muted-foreground">
+                          <span className="text-pretty text-sm text-muted-foreground">
                             {role.description}
                           </span>
                         </FormLabel>

@@ -71,12 +71,14 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
     places,
     things,
     symbols,
+    isRecurring,
+    isLucid,
   } = dream;
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-baseline justify-between">
-        <div className="space-y-1">
+        <div className="flex flex-col gap-2">
           <CardTitle className="w-fit text-3xl">
             {title ? (
               // replace double quotes with empty string
@@ -88,7 +90,21 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
               </div>
             )}
           </CardTitle>
-          <CardDescription className="max-w-[80ch] text-base">
+          {(isRecurring || isLucid) && (
+            <div className="flex flex-wrap gap-2 pt-2">
+              {isRecurring && (
+                <Badge variant="secondary" className="select-none">
+                  Recurring Dream
+                </Badge>
+              )}
+              {isLucid && (
+                <Badge variant="secondary" className="select-none">
+                  Lucid Dream
+                </Badge>
+              )}
+            </div>
+          )}
+          <CardDescription className="-mt-2 max-w-[80ch] text-base">
             <div className="pb-2 text-sm">
               {!title && "Your title is being generated"}
             </div>

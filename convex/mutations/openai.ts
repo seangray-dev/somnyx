@@ -353,6 +353,8 @@ export const generateAnalysis = internalAction({
     const things = dream.things?.join(", ") || "N/A";
     const roleDescription = role?.name || "Unknown Role";
     const details = dream.details;
+    const isRecurring = dream.isRecurring;
+    const isLucid = dream.isLucid;
 
     const userPrompt = `
       Dream Details:
@@ -364,6 +366,8 @@ export const generateAnalysis = internalAction({
       People Involved: ${people},
       Places Involved: ${places},
       Important Symbols or Things: ${things}
+      ${isRecurring ? "This is a recurring dream" : ""}
+      ${isLucid ? "This is a lucid dream" : ""}
     `;
 
     const response = await openai.beta.chat.completions.parse({

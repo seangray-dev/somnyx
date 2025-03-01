@@ -9,13 +9,15 @@ import { CREDIT_COSTS, getUserId } from "../util";
 export const addNewDream = mutation({
   args: {
     date: v.string(),
+    details: v.string(),
+    isRecurring: v.optional(v.boolean()),
+    isLucid: v.optional(v.boolean()),
     emotions: v.array(v.id("emotions")),
     role: v.id("roles"),
     people: v.optional(v.array(v.string())),
     places: v.optional(v.array(v.string())),
     things: v.optional(v.array(v.string())),
     title: v.optional(v.string()),
-    details: v.string(),
     withAnalysis: v.boolean(),
   },
   handler: async (ctx, args) => {
@@ -34,6 +36,8 @@ export const addNewDream = mutation({
       things: args.things,
       title: args.title,
       details: args.details,
+      isRecurring: args.isRecurring,
+      isLucid: args.isLucid,
     });
 
     // Generate title and themes (these are free features)
