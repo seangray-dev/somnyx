@@ -13,13 +13,8 @@ export const generateInsight = mutation({
 
     if (!user) throw new Error("You must be logged in.");
 
-    // @ts-ignore
-    await ctx.runMutation(internal.users.consumeCredits, {
-      userId: user.userId,
-      cost: CREDIT_COSTS.INSIGHT,
-    });
-
     const dreams = await ctx.runQuery(
+      // @ts-ignore
       internal.queries.dreams.getDreamsByMonth,
       {
         userId: user.userId,
@@ -27,18 +22,43 @@ export const generateInsight = mutation({
       }
     );
 
-    const functionId = await ctx.scheduler.runAfter(
-      0,
-      // @ts-ignore
-      internal.mutations.openai.generateInsight,
-      {
-        dreams,
-        userId: user.userId,
-        monthYear: args.monthYear,
-      }
-    );
+    if (!dreams || dreams.length <= 1) {
+      throw new Error(
+        "You need more than one dream in a month to generate insights."
+      );
+    }
 
-    return functionId;
+    // Consume credits first - this will validate and fail if insufficient
+    await ctx.runMutation(internal.users.consumeCredits, {
+      userId: user.userId,
+      cost: CREDIT_COSTS.INSIGHT,
+    });
+
+    try {
+      const functionId = await ctx.scheduler.runAfter(
+        0,
+        internal.mutations.openai.generateInsight,
+        {
+          dreams,
+          userId: user.userId,
+          monthYear: args.monthYear,
+        }
+      );
+
+      if (!functionId) {
+        throw new Error("Failed to schedule insight generation.");
+      }
+
+      return functionId;
+    } catch (error) {
+      // @ts-ignore
+      await ctx.runMutation(internal.users.updateUserCredits, {
+        userId: user.userId,
+        amount: CREDIT_COSTS.INSIGHT,
+      });
+      console.error("Failed to generate insight:", error);
+      throw error;
+    }
   },
 });
 

@@ -268,6 +268,12 @@ export const updateUserCredits = internalMutation({
     const newCredits = (user.credits || 0) + args.amount;
     if (newCredits < 0) throw new Error("Insufficient credits.");
 
+    console.log(`updating user ${user.userId} credits:`, {
+      amount: args.amount,
+      oldCredits: user.credits,
+      newCredits:newCredits,
+    });
+
     await ctx.db.patch(user._id, { credits: newCredits });
   },
 });

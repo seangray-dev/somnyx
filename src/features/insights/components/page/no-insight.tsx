@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 import { format, parse } from "date-fns";
 import { Loader2Icon } from "lucide-react";
@@ -6,23 +7,70 @@ import { toast } from "sonner";
 
 import LoadingButton from "@/components/shared/loading-button";
 import { CREDIT_COSTS } from "@/convex/util";
+import useUserCredits from "@/features/credits/api/use-user-credits";
 
 import { useGenerateInsight } from "../../api/use-generate-insight";
 
 export default function NoInsight({ monthYear }: { monthYear: string }) {
   const { generate, isGenerating } = useGenerateInsight();
-  // const hasSufficientCredits = useHasSufficientCredits();
+  const { data: credits } = useUserCredits();
+  const hasSufficientCredits = credits && credits >= CREDIT_COSTS.INSIGHT;
+  const router = useRouter();
 
   async function handleGenerateInsight() {
+    if (!hasSufficientCredits) {
+      toast.error("Insufficient credits", {
+        description: "Please purchase more credits to generate insights.",
+      });
+      return;
+    }
+
     try {
       await generate(monthYear);
-      toast.success("Insight is being generated...", {
-        description: "Hang tight while we generate your insight.",
+      toast.success("Generating your insight!", {
+        description: "This may take a minute...",
       });
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong while generating the insight.");
+    } catch (error: any) {
+      console.error("Insight generation error:", error);
+
+      // Handle specific error cases
+      if (error.message?.includes("need more than one dream")) {
+        toast.error("More dreams needed", {
+          description:
+            "You need at least two dreams in a month to generate insights.",
+        });
+      } else if (error.message?.includes("insufficient credits")) {
+        toast.error("Insufficient credits", {
+          description: "Please purchase more credits to generate insights.",
+        });
+      } else if (error.message?.includes("Failed to schedule")) {
+        toast.error("Scheduling failed", {
+          description:
+            "Unable to schedule insight generation. Please try again.",
+        });
+      } else {
+        toast.error("Failed to generate insight", {
+          description:
+            "Please try again later or contact support if the issue persists.",
+        });
+      }
     }
+  }
+
+  async function handleRedirectToPricing() {
+    toast.error("Not enough credits", {
+      description: (
+        <p className="text-balance">
+          Please purchase more credits to generate an insight.
+        </p>
+      ),
+      action: {
+        label: "Purchase",
+        onClick: () => {
+          router.push("/#pricing");
+        },
+      },
+    });
   }
 
   const formattedMonthYear = format(
@@ -61,7 +109,12 @@ export default function NoInsight({ monthYear }: { monthYear: string }) {
           size={"lg"}
           className="w-full capitalize sm:w-fit"
           isLoading={isGenerating}
-          onClick={handleGenerateInsight}
+          disabled={isGenerating}
+          onClick={
+            hasSufficientCredits
+              ? handleGenerateInsight
+              : handleRedirectToPricing
+          }
         >
           <div>
             <span>

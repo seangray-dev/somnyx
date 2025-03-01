@@ -7,6 +7,7 @@ import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import { action, internalAction } from "../_generated/server";
 import {
+  CREDIT_COSTS,
   SYSTEM_PROMPT,
   analysisImagePrompt,
   getSystemPromptForThemePage,
@@ -689,7 +690,6 @@ export const regenerateAnalysisImage = action({
 });
 
 export const generateInsight = internalAction({
-  // TODO: Refactor the arguments to reduce payload (_id, _creationTime, title, isPublic, userId)
   args: {
     dreams: v.array(
       v.object({
@@ -713,272 +713,87 @@ export const generateInsight = internalAction({
     monthYear: v.string(),
   },
   async handler(ctx, args) {
-    const formattedDreams = await Promise.all(
-      args.dreams.map(async (dream) => {
-        const {
-          date,
-          emotions: emotionIds,
-          role: roleId,
-          people = [],
-          places = [],
-          things = [],
-          themes = [],
-          details,
-        } = dream;
+    try {
+      const formattedDreams = await Promise.all(
+        args.dreams.map(async (dream) => {
+          const {
+            date,
+            people = [],
+            places = [],
+            things = [],
+            themes = [],  
+            symbols = [],
+            details,
+          } = dream;
 
-        // Fetch emotions and role details for the dream
-        const emotions = await ctx.runQuery(
-          internal.queries.emotions.getEmotionsByDreamIdInternal,
-          { id: dream._id }
-        );
+          // Fetch emotions and role details for the dream
+          const emotions = await ctx.runQuery(
+            internal.queries.emotions.getEmotionsByDreamIdInternal,
+            { id: dream._id }
+          );
 
-        const role = await ctx.runQuery(
-          // @ts-ignore
-          internal.queries.roles.getRoleByIdInternal,
+          const role = await ctx.runQuery(
+            // @ts-ignore
+            internal.queries.roles.getRoleByIdInternal,
+            {
+              id: dream.role as Id<"roles">,
+            }
+          );
+
+          return `
+          Dream Date: ${date}
+          Role: ${role?.name || "N/A"}
+          Emotions: ${emotions.length ? emotions.map((e) => e?.name).join(", ") : "None"}
+          People: ${people.length ? people.join(", ") : "None"}
+          Places: ${places.length ? places.join(", ") : "None"}
+          Things: ${things.length ? things.join(", ") : "None"}
+          Themes: ${themes.length ? themes.join(", ") : "None"}
+          Symbols: ${symbols.length ? symbols.join(", ") : "None"}
+          Details: ${details}
+          `;
+        })
+      );
+
+      const userPrompt = `Dreams: ${formattedDreams.join("\n\n")}`;
+
+      const response = await openai.beta.chat.completions.parse({
+        model: "gpt-4o-mini",
+        messages: [
           {
-            id: dream.role as Id<"roles">,
-          }
-        );
+            role: "system",
+            content: SYSTEM_PROMPT,
+          },
+          {
+            role: "user",
+            content: userPrompt,
+          },
+        ],
+        response_format: zodResponseFormat(Insight, "insight"),
+      });
 
-        // Format dream into a string for the prompt
-        return `
-        Dream Date: ${date}
-        Role: ${role?.name || "N/A"}
-        Emotions: ${
-          emotions.length ? emotions.map((e) => e?.name).join(", ") : "None"
-        }
-        People: ${people.length ? people.join(", ") : "None"}
-        Places: ${places.length ? places.join(", ") : "None"}
-        Things: ${things.length ? things.join(", ") : "None"}
-        Themes: ${themes.length ? themes.join(", ") : "None"}
-        Details: ${details}
-        `;
-      })
-    );
+      const insight = response.choices[0].message.parsed;
 
-    const userPrompt = `
-      Dreams: ${formattedDreams.join("\n\n")}
-    `;
+      if (!insight) {
+        throw new Error("Failed to generate insight");
+      }
 
-    const response = await openai.beta.chat.completions.parse({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: SYSTEM_PROMPT,
-        },
-        {
-          role: "user",
-          content: userPrompt,
-        },
-      ],
-      response_format: zodResponseFormat(Insight, "insight"),
-    });
-
-    const insight = response.choices[0].message.parsed;
-
-    if (!insight) {
-      throw new Error("Failed to generate insight");
+      // Save the generated insight
+      await ctx.runMutation(internal.mutations.insights.addNewInsight, {
+        userId: args.userId,
+        monthYear: args.monthYear,
+        insight,
+      });
+    } catch (error) {
+      // Refund credits if anything fails
+      await ctx.runMutation(internal.users.updateUserCredits, {
+        userId: args.userId,
+        amount: CREDIT_COSTS.INSIGHT,
+      });
+      console.error("Failed to generate insight:", error);
+      throw error;
     }
-
-    // Save the generated insight
-    await ctx.runMutation(internal.mutations.insights.addNewInsight, {
-      userId: args.userId,
-      monthYear: args.monthYear,
-      insight,
-    });
   },
 });
-
-// export const determineDreamThemesFree = internalAction({
-//   args: {
-//     details: v.string(),
-//   },
-//   async handler(ctx, args) {
-//     const userPrompt = `Details: ${args.details}`;
-
-//     const response = await openai.beta.chat.completions.parse({
-//       model: "gpt-4o-mini",
-//       messages: [
-//         {
-//           role: "system",
-//           content: SYSTEM_PROMPT_THEMES,
-//         },
-//         {
-//           role: "user",
-//           content: userPrompt,
-//         },
-//       ],
-//       response_format: zodResponseFormat(CommonElements, "commonElements"),
-//       temperature: 0.1,
-//     });
-
-//     console.info(response);
-
-//     try {
-//       const commonElements = response.choices[0].message.parsed;
-
-//       if (!commonElements) {
-//         console.warn("No common elements found in response");
-//         return;
-//       }
-
-//       const { themes, symbols } = commonElements;
-
-//       if (!themes || !symbols) {
-//         console.warn("No themes or symbols found in response");
-//         return;
-//       }
-
-//       for (const symbol of symbols) {
-//         if (symbol.confidence >= 0.7) {
-//           await ctx.runMutation(internal.mutations.commonElements.upsertDreamElement, {
-//             name: symbol.name.toLowerCase(),
-//             type: "symbol",
-//             category: symbol.category.toLowerCase(),
-//             confidence: symbol.confidence,
-//           });
-//         }
-//       }
-//       for (const theme of themes) {
-//         if (theme.confidence >= 0.7) {
-//           await ctx.runMutation(internal.mutations.commonElements.upsertDreamElement, {
-//               name: theme.name.toLowerCase(),
-//               type: "theme",
-//               category: theme.category.toLowerCase(),
-//               confidence: theme.confidence,
-//             });
-//           }
-//         }
-
-//       return;
-//     } catch (error) {
-//       console.error(error);
-//       throw new Error("Failed to generate common elements");
-//     }
-//   },
-// });
-
-// export const generateThemeOrSymbolPage = action({
-//   args: {
-//     name: v.string(),
-//     type: v.union(v.literal("theme"), v.literal("symbol")),
-//   },
-//   handler: async (
-//     ctx,
-//     args
-//   ): Promise<{
-//     success: boolean;
-//     pageId?: Id<"themePages">;
-//     reason?: string;
-//   }> => {
-//     try {
-//       // Check if page already exists
-//       const existingPage = await ctx.runQuery(
-//         internal.queries.themePages.getThemePageByName,
-//         { name: args.name }
-//       );
-
-//       if (existingPage) {
-//         console.warn(
-//           `[GenerateThemeOrSymbolPage]: Page for "${args.name}" already exists, skipping`
-//         );
-//         return { success: false, reason: "Page already exists" };
-//       }
-
-//       const systemPrompt = getSystemPromptForThemePage(args.name, args.type);
-
-//       // Generate page content
-//       const response = await openai.beta.chat.completions.parse({
-//         model: "gpt-4o",
-//         messages: [
-//           {
-//             role: "system",
-//             content: systemPrompt,
-//           },
-//           {
-//             role: "user",
-//             content: `Generate detailed content for ${args.name} ${args.type === "symbol" ? "as a dream symbol" : "dreams"}.`,
-//           },
-//         ],
-//         response_format: zodResponseFormat(ThemePage, "themePage"),
-//         temperature: 0.7,
-//       });
-
-//       const page = response.choices[0].message.parsed;
-
-//       if (!page) {
-//         throw new Error(`No page content generated for ${args.name}`);
-//       }
-
-//       // Create the page first
-//       const result = await ctx.runMutation(
-//         internal.mutations.themePages.createThemePage,
-//         {
-//           name: args.name,
-//           seo_title: page.seo_title,
-//           seo_slug: args.name.toLowerCase(),
-//           seo_description:
-//             page.seo_description ||
-//             `Learn about ${args.name} ${args.type === "symbol" ? "as a dream symbol" : "dreams"} and their meaning`,
-//           content: page.content,
-//           summary: page.summary,
-//           commonSymbols: page.commonSymbols || [],
-//           psychologicalMeaning: page.psychologicalMeaning || "",
-//           culturalContext: page.culturalContext || "",
-//           commonScenarios: page.commonScenarios || [],
-//           tips: page.tips || "",
-//           updatedAt: Date.now(),
-//           isPublished: false,
-//         }
-//       );
-
-//       if (!result) {
-//         throw new Error("Failed to create theme page");
-//       }
-
-//       // Generate and store image
-//       const imagePrompt = `Create a dreamy, ethereal illustration for the theme of "${args.name}" in dreams.
-//       The image should be surreal and symbolic, incorporating elements from this description: ${page.summary}.
-//       Style: Use soft, atmospheric colors with a mix of light and shadow. The composition should be artistic and metaphorical,
-//       suitable for a professional dream interpretation website. Make it mystical and thought-provoking, but not scary or disturbing.
-//       Include some of these symbolic elements: ${page.commonSymbols.join(", ")}.`;
-
-//       // Generate image using DALL-E 3
-//       const imageResponse = await openai.images.generate({
-//         model: "dall-e-3",
-//         prompt: imagePrompt,
-//         n: 1,
-//         size: "512x512",
-//         quality: "standard",
-//         style: "natural",
-//       });
-
-//       const imageUrl = imageResponse.data[0]?.url;
-
-//       if (imageUrl) {
-//         // Fetch and store the image
-//         const response = await fetch(imageUrl);
-//         const blob = await response.blob();
-//         const storageId = await ctx.storage.store(blob);
-
-//         // Update the theme page with the image
-//         await ctx.runMutation(
-//           internal.mutations.themePages.updateThemePageImage,
-//           {
-//             id: result,
-//             storageId,
-//           }
-//         );
-//       }
-
-//       return { success: true, pageId: result };
-//     } catch (error: any) {
-//       console.error("[GenerateThemeOrSymbolPage]: Error:", error);
-//       throw error;
-//     }
-//   },
-// });
 
 export const generateThemeOrSymbolPageWithElement = action({
   args: {
