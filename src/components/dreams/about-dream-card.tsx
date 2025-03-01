@@ -191,6 +191,7 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
                 return combinedItems.length > 0 ? (
                   combinedItems.map(({ label }, index) => (
                     <Badge
+                      key={label}
                       variant="outline"
                       className="px-3 py-2 hover:cursor-default"
                     >
