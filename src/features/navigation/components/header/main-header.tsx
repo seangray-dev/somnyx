@@ -3,23 +3,23 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useSession } from "@clerk/nextjs";
+
 import IconLogo from "@/components/shared/icon-logo";
 import Logo from "@/components/shared/logo";
 import { Separator } from "@/components/ui/separator";
-import { useMediaQuery } from "@/hooks/use-media-query";
-import { useSession } from "@/lib/client-auth";
 import { cn } from "@/lib/utils";
 
-import { shouldShowMobileHeader } from "../hidden-paths";
+import { useHeaderVisibility } from "../../hooks/use-header-visibility";
 import HeaderActions from "./header-actions";
 import SideNavigation from "./side-navigation";
 
-export default function SiteHeader() {
+export default function MainHeader() {
   const pathname = usePathname();
-  const { isLoggedIn } = useSession();
-  const isDesktop = useMediaQuery("(min-width: 640px)");
+  const { isSignedIn } = useSession();
+  const { shouldShowMainHeader } = useHeaderVisibility();
 
-  if (isLoggedIn && !isDesktop && !shouldShowMobileHeader(pathname)) {
+  if (!shouldShowMainHeader()) {
     return null;
   }
 
@@ -36,7 +36,7 @@ export default function SiteHeader() {
             <Separator orientation="vertical" className="h-full bg-border" />
           </div>
           <div className="hidden h-full items-center gap-4 sm:flex">
-            {!isLoggedIn && (
+            {!isSignedIn && (
               <Link
                 href="/free-dream-interpretation"
                 className={cn(

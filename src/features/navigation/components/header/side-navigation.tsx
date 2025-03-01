@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
-import { navigation } from "../site-footer/footer-links";
 import { getPrivateLinks, getPublicLinks } from "./links";
+import { navigation } from "./footer-links";
 
 export default function SideNavigation({
   side = "left",

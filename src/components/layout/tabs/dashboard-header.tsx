@@ -3,11 +3,10 @@
 import { format } from "date-fns";
 
 import { Skeleton } from "@/components/ui/skeleton";
+import UserDropdownMenu from "@/features/navigation/components/header/user-dropdown-menu";
 import PushNotificationManager from "@/features/notifications/components/push-notification-manager";
 import { useSession } from "@/lib/client-auth";
 import getGreeting from "@/utils/get-greeting";
-
-import UserDropdownMenu from "../site-header/user-dropdown-menu";
 
 export default function DashboardHeader() {
   const { session, isLoaded, isLoggedIn } = useSession();

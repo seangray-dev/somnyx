@@ -5,10 +5,10 @@ import { SignInButton } from "@clerk/nextjs";
 import { AddDreamButton } from "@/components/shared/add-dream-button";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Button } from "@/components/ui/button";
+import PushNotificationManager from "@/features/notifications/components/push-notification-manager";
 import { useSession } from "@/lib/client-auth";
 
 import UserDropdownMenu from "./user-dropdown-menu";
-import PushNotificationManager from "@/features/notifications/components/push-notification-manager";
 
 export default function HeaderActions() {
   const session = useSession();

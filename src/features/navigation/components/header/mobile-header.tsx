@@ -1,21 +1,19 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-import { useSession } from "@clerk/nextjs";
 import { ChevronLeftIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import SideNavigation from "../site-header/side-navigation";
+import { useHeaderVisibility } from "../../hooks/use-header-visibility";
+import SideNavigation from "./side-navigation";
 
 export default function MobileHeader() {
   const router = useRouter();
-  const pathname = usePathname();
-  const { isSignedIn } = useSession();
-  const hiddenPaths = ["/", "/free-dream-interpretation"];
+  const { shouldShowMobileHeader } = useHeaderVisibility();
 
-  if (hiddenPaths.includes(pathname) || !isSignedIn) {
+  if (!shouldShowMobileHeader()) {
     return null;
   }
 
