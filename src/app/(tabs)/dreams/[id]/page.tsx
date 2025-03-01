@@ -7,7 +7,7 @@ import { fetchQuery, preloadQuery } from "convex/nextjs";
 import AboutDream from "@/components/dreams/about-dream";
 import { SEO } from "@/config/app";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import AnalysisCard from "@/features/analysis/components/analysis-card";
 
 export default async function DreamPage({
@@ -22,6 +22,15 @@ export default async function DreamPage({
     userId: (userId as Id<"users">) ?? undefined,
   });
 
+  // If dream is null, either it doesn't exist or user doesn't have access
+  // @ts-ignore - Convex data typing issue with _valueJSON
+  if (!dream?._valueJSON) {
+    return notFound();
+  }
+
+  // @ts-ignore - Convex data typing issue with _valueJSON
+  const dreamData = dream._valueJSON as Doc<"dreams">;
+
   const emotions = await preloadQuery(
     api.queries.emotions.getEmotionsByDreamId,
     {
@@ -30,23 +39,14 @@ export default async function DreamPage({
   );
 
   const role = await preloadQuery(api.queries.roles.getRoleById, {
-    // @ts-ignore
-    id: dream._valueJSON.role as Id<"roles">,
+    id: dreamData.role as Id<"roles">,
   });
-
-  if (
-    // @ts-ignore
-    (!dream._valueJSON.isPublic && dream._valueJSON.userId !== userId) ||
-    !dream
-  ) {
-    return notFound();
-  }
 
   return (
     <div>
       <div className="container flex flex-col gap-12">
         <AboutDream {...{ dream, emotions, role }} />
-        <AnalysisCard dreamId={params.id} />
+        <AnalysisCard dreamId={params.id} ownerId={dreamData.userId} />
       </div>
     </div>
   );

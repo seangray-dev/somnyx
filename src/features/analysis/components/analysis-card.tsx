@@ -30,6 +30,7 @@ import { cn } from "@/lib/utils";
 
 type AnalysisProps = {
   dreamId: string;
+  ownerId: string;
 };
 
 const renderSection = (
@@ -114,7 +115,7 @@ const RegenerateImageSection = ({
   </div>
 );
 
-export default function AnalysisCard({ dreamId }: AnalysisProps) {
+export default function AnalysisCard({ dreamId, ownerId }: AnalysisProps) {
   const {
     data: analysis,
     isLoading,
@@ -135,7 +136,7 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
   const regenerateImage = useAction(
     api.mutations.openai.regenerateAnalysisImage
   );
-  const isOwner = session?.user.id === analysis?.userId;
+  const isOwner = session?.user.id === ownerId;
 
   const handleGenerateAnalysis = async () => {
     setGenerateAnalyisLoading(true);

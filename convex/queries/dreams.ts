@@ -30,7 +30,7 @@ export const getDreamById = query({
     const dream = await ctx.db.get(args.id);
 
     if (!dream) {
-      throw new Error(`Dream with ID ${args.id} not found.`);
+      return null;
     }
 
     if (dream.isPublic) {
@@ -38,7 +38,7 @@ export const getDreamById = query({
     }
 
     if (args.userId !== dream?.userId) {
-      throw new Error("You do not have access to this dream.");
+      return null;
     }
 
     return dream;
