@@ -141,7 +141,7 @@ export default function PricingSection() {
 
   return (
     <section id="pricing" className="bg-secondary">
-      <div className="container flex flex-col gap-14 py-12">
+      <div className="container flex flex-col gap-14 py-20">
         <div className="space-y-7 text-center">
           <div className="space-y-2">
             <h3 className="text-3xl font-bold md:text-4xl">Pricing</h3>

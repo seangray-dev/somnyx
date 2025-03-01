@@ -1,26 +1,63 @@
-import { BrainCircuitIcon, LineChartIcon, PencilIcon } from "lucide-react";
+import { Route } from "next";
+import Link from "next/link";
+
+import {
+  BookOpenIcon,
+  Globe2Icon,
+  PencilIcon,
+  SparklesIcon,
+} from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function FeaturesSection() {
   const features = [
     {
-      title: "Capture Dreams Your Way",
+      title: "Your Personal Dream Sanctuary",
       description:
-        "Whether you prefer to speak or write, saving your morning dreams is as easy as telling a friend about them. The quicker you capture them, the more you'll remember.",
+        "Start your free dream journal and never lose another meaningful dream. Our prompts guide you to capture every detail while it's still vivid—available instantly on your phone when you wake up.",
       icon: PencilIcon,
     },
     {
-      title: "Unlock Dream Meanings",
+      title: "Unlock Your Dream's Hidden Message",
       description:
-        "When a dream feels important, let our AI guide you through its hidden message. Use your credits to understand the dreams that matter most to you.",
-      icon: BrainCircuitIcon,
+        "When a dream feels significant, let our AI guide you deeper. Transform your written dreams into personalized insights and stunning visuals that bring your subconscious to life.",
+      icon: SparklesIcon,
     },
     {
-      title: "Discover Monthly Insights",
-      description:
-        "See how your dreams connect at the end of each month. Our AI looks at all your dreams together, showing you patterns and messages you might have missed.",
-      icon: LineChartIcon,
+      title: "Discover Dreamscape",
+      description: (
+        <>
+          Explore an ever-growing collection of anonymous dream stories in our{" "}
+          <Link
+            href={"/dreamscape" as Route}
+            className="underline underline-offset-4 transition-colors duration-150 hover:text-primary"
+          >
+            Dreamscape
+          </Link>
+          . Each shared dream adds to our understanding of the collective
+          unconscious.
+        </>
+      ),
+      icon: Globe2Icon,
+    },
+    {
+      title: "Explore the Dream Dictionary",
+      description: (
+        <>
+          Dive into our{" "}
+          <Link
+            href={"/dictionary" as Route}
+            className="underline underline-offset-4 transition-colors duration-150 hover:text-primary"
+          >
+            Dream Dictionary
+          </Link>
+          , a growing collection of dream symbols and themes. Discover meanings
+          that evolve with our shared experiences, backed by AI-powered insights
+          from thousands of dreams.
+        </>
+      ),
+      icon: BookOpenIcon,
     },
   ];
 
@@ -38,7 +75,7 @@ export default function FeaturesSection() {
             messages are lost in translation.
           </p>
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {features.map((feature) => (
             <Card
               key={feature.title}
@@ -53,7 +90,7 @@ export default function FeaturesSection() {
                 <CardTitle>{feature.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-pretty text-muted-foreground">
+                <p className="text-balance text-muted-foreground">
                   {feature.description}
                 </p>
               </CardContent>
