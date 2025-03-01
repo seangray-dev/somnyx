@@ -61,8 +61,8 @@ const FormSchema = z.object({
     .min(50, {
       message: "Details must be at least 50 characters long.",
     })
-    .max(1000, {
-      message: "Details must not exceed 1000 characters.",
+    .max(2000, {
+      message: "Details must not exceed 2000 characters.",
     }),
   withAnalysis: z.boolean(),
 });
@@ -141,10 +141,35 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
       >
         <FormField
           control={form.control}
+          name="details"
+          render={({ field }) => (
+            <FormItem>
+              <div className="mb-4">
+                <FormLabel>What happened in your dream?</FormLabel>
+                <FormDescription className="text-pretty">
+                  Share your dream story - every detail matters, no matter how
+                  small or strange it might seem.
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Textarea
+                  placeholder="Start with 'In my dream...' and let the story flow naturally. What did you see, feel, or experience?"
+                  className="resize-none"
+                  rows={8}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="date"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>My dream was on</FormLabel>
+              <FormLabel>When did you have this dream?</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -158,7 +183,7 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                       {field.value ? (
                         format(field.value, "PPP")
                       ) : (
-                        <span>Pick a date</span>
+                        <span>Select date</span>
                       )}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
@@ -200,9 +225,10 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
           render={() => (
             <FormItem>
               <div className="mb-4">
-                <FormLabel>Emotions</FormLabel>
-                <FormDescription>
-                  Select the emotions you had while dreaming.
+                <FormLabel>How did the dream make you feel?</FormLabel>
+                <FormDescription className="text-pretty">
+                  Select all emotions you experienced - this helps create more
+                  accurate interpretations.
                 </FormDescription>
               </div>
               {emotionsLoading ? (
@@ -223,13 +249,13 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                             <FormLabel>
                               <Badge
                                 variant={"outline"}
-                                className={`flex items-center gap-2 ${
+                                className={`flex items-center px-3 py-2 ${
                                   field.value?.includes(emotion._id)
                                     ? "bg-primary text-primary-foreground"
                                     : ""
                                 }`}
                               >
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-2">
                                   <div>{emotion.emoji}</div>
                                   <div>{emotion.name}</div>
                                 </div>
@@ -271,9 +297,10 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
           render={({ field }) => (
             <FormItem>
               <div className="mb-4">
-                <FormLabel>Role</FormLabel>
-                <FormDescription>
-                  What role did you play in the dream?
+                <FormLabel>What was your perspective?</FormLabel>
+                <FormDescription className="text-pretty">
+                  Understanding your role helps reveal how you see yourself in
+                  different situations.
                 </FormDescription>
               </div>
               {rolesLoading ? (
@@ -298,7 +325,7 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                         </FormControl>
                         <FormLabel className="flex flex-col gap-1 font-normal">
                           <span>{role.name}</span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-pretty text-xs text-muted-foreground">
                             {role.description}
                           </span>
                         </FormLabel>
@@ -312,16 +339,17 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="people"
-          render={({ field }) => {
-            return (
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="people"
+            render={({ field }) => (
               <FormItem>
                 <div className="mb-4">
-                  <FormLabel>People</FormLabel>
-                  <FormDescription>
-                    List the people involved in your dream, separated by commas.
+                  <FormLabel>Who appeared in your dream?</FormLabel>
+                  <FormDescription className="text-pretty">
+                    List the people you remember - they often represent
+                    important relationships or aspects of yourself.
                   </FormDescription>
                 </div>
                 <FormControl>
@@ -374,20 +402,19 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                   ))}
                 </div>
               </FormItem>
-            );
-          }}
-        />
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="places"
-          render={({ field }) => {
-            return (
+          <FormField
+            control={form.control}
+            name="places"
+            render={({ field }) => (
               <FormItem>
                 <div className="mb-4">
-                  <FormLabel>Places</FormLabel>
-                  <FormDescription>
-                    List the places involved in your dream, separated by commas.
+                  <FormLabel>Where did your dream take place?</FormLabel>
+                  <FormDescription className="text-pretty">
+                    Locations in dreams can symbolize different areas of your
+                    life or states of mind.
                   </FormDescription>
                 </div>
                 <FormControl>
@@ -440,21 +467,21 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                   ))}
                 </div>
               </FormItem>
-            );
-          }}
-        />
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="things"
-          render={({ field }) => {
-            return (
+          <FormField
+            control={form.control}
+            name="things"
+            render={({ field }) => (
               <FormItem>
                 <div className="mb-4">
-                  <FormLabel>Things</FormLabel>
-                  <FormDescription>
-                    List any particular things that were involved in your dream,
-                    separated by commas.
+                  <FormLabel>
+                    What significant objects or symbols stood out?
+                  </FormLabel>
+                  <FormDescription className="text-pretty">
+                    Objects in dreams often carry deeper meaning and can be keys
+                    to understanding your subconscious.
                   </FormDescription>
                 </div>
                 <FormControl>
@@ -507,43 +534,11 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                   ))}
                 </div>
               </FormItem>
-            );
-          }}
-        />
+            )}
+          />
+        </div>
 
-        <FormField
-          control={form.control}
-          name="details"
-          render={({ field }) => (
-            <FormItem>
-              <div className="mb-4">
-                <FormLabel>Details</FormLabel>
-                <FormDescription>
-                  Tell us more about your dream.
-                </FormDescription>
-              </div>
-              <FormControl>
-                <Textarea
-                  placeholder="In my dream, I...."
-                  className="resize-none"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="flex flex-col gap-2">
-          <LoadingButton
-            variant={"secondary"}
-            isLoading={loading}
-            className="w-full"
-            onClick={() => {
-              form.setValue("withAnalysis", false);
-            }}
-          >
-            Log Dream (No Analysis)
-          </LoadingButton>
+        <div className="flex flex-col gap-2 pt-4">
           <LoadingButton
             disabled={!canAddDreamWithAnalysis}
             isLoading={loading}
@@ -555,6 +550,40 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
             <SparklesIcon size={16} className="mr-2" />
             Analyze Dream ({CREDIT_COSTS.ANALYSIS} Credits)
           </LoadingButton>
+          <p className="text-center text-xs text-muted-foreground">
+            AI-powered analysis helps you understand the deeper meaning of your
+            dreams
+          </p>
+          {!canAddDreamWithAnalysis && (
+            <p className="text-center text-sm text-muted-foreground">
+              Save your dream now and unlock AI analysis later when you have
+              enough credits
+            </p>
+          )}
+          <div className="relative my-2">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                or
+              </span>
+            </div>
+          </div>
+          <LoadingButton
+            variant={"secondary"}
+            isLoading={loading}
+            className="w-full"
+            onClick={() => {
+              form.setValue("withAnalysis", false);
+            }}
+          >
+            Save Dream
+          </LoadingButton>
+          <p className="text-center text-xs text-muted-foreground">
+            Your dream will be safely stored and ready for analysis whenever you
+            choose
+          </p>
         </div>
       </form>
     </Form>

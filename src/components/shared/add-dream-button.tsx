@@ -41,9 +41,10 @@ export function AddDreamButton(props: AddDreamButtonProps) {
       </DialogTrigger>
       <DialogContent className="max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add a new dream</DialogTitle>
+          <DialogTitle>Capture Your Dream</DialogTitle>
           <DialogDescription>
-            Please provide details about your dream.
+            Record your dream while it's fresh. Each detail helps unlock deeper
+            insights into your subconscious.
           </DialogDescription>
         </DialogHeader>
         <AddNewDreamForm
