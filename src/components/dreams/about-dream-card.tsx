@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Preloaded, usePreloadedQuery } from "convex/react";
 import { useAtomValue } from "jotai";
-import { ExternalLinkIcon } from "lucide-react";
+import { ExternalLinkIcon, HelpCircleIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { themePageMapAtom } from "@/atoms/theme-pages";
@@ -24,6 +24,7 @@ import DreamCardActions from "../shared/dream-card-actions";
 import EmotionsBadge from "../shared/emotions-badge";
 import Loader from "../shared/loader";
 import { Badge } from "../ui/badge";
+import ThemeSymbolTooltip from "./theme-symbol-tooltip";
 
 type AboutDreamCardProps = {
   dream: Preloaded<typeof api.queries.dreams.getDreamById>;
@@ -84,9 +85,9 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-baseline justify-between gap-4">
-        <div className="flex flex-col gap-2">
-          <CardTitle className="w-fit text-balance text-3xl">
+      <CardHeader className="flex flex-col">
+        <div className="flex flex-row items-baseline justify-between gap-4">
+          <CardTitle className="w-fit text-balance text-2xl md:text-3xl">
             {title ? (
               // replace double quotes with empty string
               title.replace(/"/g, "")
@@ -97,18 +98,28 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
               </div>
             )}
           </CardTitle>
+          <div className="flex items-center gap-2">
+            <ShareButton
+              url={shareUrl}
+              title={title || "Check out my dream"}
+              disabled={!isPublic}
+              shrink={isMobile}
+              onDisabledClick={() => {
+                toast.error("This dream is not public", {
+                  description: "Please make it public to share it with others",
+                });
+              }}
+            />
+            <DreamCardActions {...{ _id, isPublic }} />
+          </div>
+        </div>
+        <div className="flex flex-col gap-2">
           {(isRecurring || isLucid) && (
             <div className="flex flex-wrap gap-2 pt-2">
               {isRecurring && (
-                <Badge variant="secondary" className="select-none">
-                  Recurring Dream
-                </Badge>
+                <Badge className="select-none">Recurring Dream</Badge>
               )}
-              {isLucid && (
-                <Badge variant="secondary" className="select-none">
-                  Lucid Dream
-                </Badge>
-              )}
+              {isLucid && <Badge className="select-none">Lucid Dream</Badge>}
             </div>
           )}
           <CardDescription className="-mt-2 max-w-[80ch] text-base">
@@ -118,31 +129,11 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
             {details}
           </CardDescription>
         </div>
-        <div className="flex items-center gap-2">
-          <ShareButton
-            url={shareUrl}
-            title={title || "Check out my dream"}
-            disabled={!isPublic}
-            shrink={isMobile}
-            onDisabledClick={() => {
-              toast.error("This dream is not public", {
-                description: "Please make it public to share it with others",
-              });
-            }}
-          />
-          <DreamCardActions {...{ _id, isPublic }} />
-        </div>
       </CardHeader>
       <CardContent className="flex flex-grow flex-col gap-4">
-        <div>
-          <h2 className="pb-2 font-bold">Role</h2>
-          <div className="text-sm text-muted-foreground">
-            <p>{role?.name}</p>
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           <div className="flex flex-col gap-2">
-            <h3 className="font-bold">Emotions</h3>
+            <h3 className="text-lg font-bold">Emotions</h3>
             <div className="flex flex-wrap gap-2">
               {emotions.map((emotion) => (
                 <EmotionsBadge key={emotion} emotionId={emotion} />
@@ -150,7 +141,26 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <h3 className="font-bold">Themes & Symbols</h3>
+            <div className="flex items-baseline gap-2">
+              <h3 className="text-lg font-bold">Themes & Symbols</h3>
+              <ThemeSymbolTooltip
+                content={
+                  <>
+                    <p className="text-sm">
+                      Themes and symbols identified by AI analysis of your
+                      dream.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Look for the{" "}
+                      <ExternalLinkIcon className="inline size-3" /> icon to
+                      read an article about the theme or symbol.
+                    </p>
+                  </>
+                }
+              >
+                <HelpCircleIcon className="size-5 text-muted-foreground transition-all duration-150 hover:text-foreground" />
+              </ThemeSymbolTooltip>
+            </div>
             <div className="flex flex-wrap gap-2">
               {themes &&
                 themes.map((theme) => <ThemeBadge key={theme} name={theme} />)}
@@ -163,34 +173,46 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
               )}
             </div>
           </div>
-        </div>
-        <div className="flex flex-col gap-2">
-          <h3 className="font-bold">People, Places & Things</h3>
-          <div className="flex flex-wrap gap-2">
-            {(() => {
-              const combinedItems = [
-                ...(people?.map((item) => ({ label: item, type: "person" })) ??
-                  []),
-                ...(places?.map((item) => ({ label: item, type: "place" })) ??
-                  []),
-                ...(things?.map((item) => ({ label: item, type: "thing" })) ??
-                  []),
-              ];
+          <div className="flex flex-col gap-2">
+            <h3 className="text-lg font-bold">People, Places & Things</h3>
+            <div className="flex flex-wrap gap-2">
+              {(() => {
+                const combinedItems = [
+                  ...(people?.map((item) => ({
+                    label: item,
+                    type: "person",
+                  })) ?? []),
+                  ...(places?.map((item) => ({ label: item, type: "place" })) ??
+                    []),
+                  ...(things?.map((item) => ({ label: item, type: "thing" })) ??
+                    []),
+                ];
 
-              return combinedItems.length > 0 ? (
-                combinedItems.map(({ label }, index) => (
-                  <Badge
-                    key={index}
-                    variant="outline"
-                    className="hover:cursor-default"
-                  >
-                    {label}
-                  </Badge>
-                ))
-              ) : (
-                <div className="text-sm text-muted-foreground">N/A</div>
-              );
-            })()}
+                return combinedItems.length > 0 ? (
+                  combinedItems.map(({ label }, index) => (
+                    <Badge
+                      variant="outline"
+                      className="px-3 py-2 hover:cursor-default"
+                    >
+                      {label}
+                    </Badge>
+                  ))
+                ) : (
+                  <div className="text-sm text-muted-foreground">N/A</div>
+                );
+              })()}
+            </div>
+          </div>
+          <div>
+            <h2 className="pb-2 text-lg font-bold">Role</h2>
+            <div className="text-sm text-muted-foreground">
+              <Badge
+                variant="outline"
+                className="px-3 py-2 hover:cursor-default"
+              >
+                {role?.name}
+              </Badge>
+            </div>
           </div>
         </div>
       </CardContent>

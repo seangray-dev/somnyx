@@ -33,7 +33,7 @@ export default function DreamCard({
 }) {
   return (
     <Card className="flex w-full flex-col">
-      <CardHeader className="flex flex-row items-center justify-between gap-2">
+      <CardHeader className="flex flex-row items-center justify-between gap-4">
         <div>
           <CardTitle className="w-fit">
             <Link
