@@ -19,6 +19,10 @@ export async function GET(request: Request) {
     }
 
     const today = new Date();
+    // Ensure we're using the current month by subtracting one day
+    const currentMonth = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+
+    console.log("Current month:", currentMonth);
 
     // Get all users with notification preferences
     const preferences = await fetchQuery(
@@ -33,9 +37,9 @@ export async function GET(request: Request) {
     );
 
     // Format month for display (e.g., "December")
-    const displayMonth = format(today, "MMMM");
+    const displayMonth = format(currentMonth, "MMMM");
     // Format month-year for URL (e.g., "12-2024")
-    const monthYearUrl = format(today, "MM-yyyy");
+    const monthYearUrl = format(currentMonth, "MM-yyyy");
 
     const results = await Promise.allSettled(
       usersToNotify.map(async (pref) => {
@@ -44,7 +48,7 @@ export async function GET(request: Request) {
           NOTIFICATION_TYPES.MONTHLY_INSIGHTS,
           {
             month: displayMonth,
-            year: today.getFullYear(),
+            year: currentMonth.getFullYear(),
             monthYear: monthYearUrl,
           }
         );
@@ -61,7 +65,7 @@ export async function GET(request: Request) {
       usersToNotify: usersToNotify.length,
       devicesNotified,
       devicesFailed,
-      date: today.toISOString(),
+      date: currentMonth.toISOString(),
       monthYear: monthYearUrl,
     };
 
