@@ -122,7 +122,6 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
           <ShareButton
             url={shareUrl}
             title={title || "Check out my dream"}
-            text={details}
             disabled={!isPublic}
             shrink={isMobile}
             onDisabledClick={() => {
