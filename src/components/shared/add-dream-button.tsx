@@ -43,8 +43,8 @@ export function AddDreamButton(props: AddDreamButtonProps) {
         <DialogHeader>
           <DialogTitle>Capture Your Dream</DialogTitle>
           <DialogDescription>
-            Record your dream while it's fresh. Each detail helps unlock deeper
-            insights into your subconscious.
+            Record your dream while it&apos;s fresh. Each detail helps unlock
+            deeper insights into your subconscious.
           </DialogDescription>
         </DialogHeader>
         <AddNewDreamForm

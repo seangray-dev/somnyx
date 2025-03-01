@@ -242,7 +242,7 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                 <div className="space-y-1 leading-none">
                   <FormLabel>Recurring Dream</FormLabel>
                   <FormDescription className="text-pretty">
-                    I've had this dream (or very similar) before
+                    I&apos;ve had this dream (or very similar) before
                   </FormDescription>
                 </div>
               </FormItem>
