@@ -705,6 +705,7 @@ export const generateInsight = internalAction({
         places: v.optional(v.array(v.string())),
         things: v.optional(v.array(v.string())),
         themes: v.optional(v.array(v.string())),
+        symbols: v.optional(v.array(v.string())),
         details: v.string(),
       })
     ),
@@ -732,6 +733,7 @@ export const generateInsight = internalAction({
         );
 
         const role = await ctx.runQuery(
+          // @ts-ignore
           internal.queries.roles.getRoleByIdInternal,
           {
             id: dream.role as Id<"roles">,

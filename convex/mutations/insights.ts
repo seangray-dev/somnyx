@@ -13,6 +13,7 @@ export const generateInsight = mutation({
 
     if (!user) throw new Error("You must be logged in.");
 
+    // @ts-ignore
     await ctx.runMutation(internal.users.consumeCredits, {
       userId: user.userId,
       cost: CREDIT_COSTS.INSIGHT,
@@ -28,6 +29,7 @@ export const generateInsight = mutation({
 
     const functionId = await ctx.scheduler.runAfter(
       0,
+      // @ts-ignore
       internal.mutations.openai.generateInsight,
       {
         dreams,
