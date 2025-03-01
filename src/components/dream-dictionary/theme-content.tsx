@@ -56,9 +56,11 @@ export default function ThemeContent({ themePage }: ThemeContentProps) {
             <p className="text-balance text-lg text-muted-foreground">
               {summary}
             </p>
-            <ShareButton
-              url={`${baseUrl}/dream-dictionary/${themePage.seo_slug}`}
-            />
+            <div className="flex justify-center md:justify-start">
+              <ShareButton
+                url={`${baseUrl}/dream-dictionary/${themePage.seo_slug}`}
+              />
+            </div>
           </div>
           {imageUrl ? (
             <div>

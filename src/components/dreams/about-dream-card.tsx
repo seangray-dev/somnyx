@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Preloaded, usePreloadedQuery } from "convex/react";
 import { useAtomValue } from "jotai";
 import { ExternalLinkIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { themePageMapAtom } from "@/atoms/theme-pages";
 import {
@@ -13,7 +14,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { baseUrl } from "@/config/app";
 import { api } from "@/convex/_generated/api";
+import ShareButton from "@/features/share/components/share-button";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { timeAgo } from "@/utils/date-time";
 
 import DreamCardActions from "../shared/dream-card-actions";
@@ -56,6 +60,7 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
   const emotions = usePreloadedQuery(props.emotions);
   const role = usePreloadedQuery(props.role);
   const themes = dream?.themes;
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   if (!dream) {
     return null;
@@ -75,11 +80,13 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
     isLucid,
   } = dream;
 
+  const shareUrl = `${baseUrl}/dreams/${_id}`;
+
   return (
     <Card>
-      <CardHeader className="flex flex-row items-baseline justify-between">
+      <CardHeader className="flex flex-row items-baseline justify-between gap-4">
         <div className="flex flex-col gap-2">
-          <CardTitle className="w-fit text-3xl">
+          <CardTitle className="w-fit text-balance text-3xl">
             {title ? (
               // replace double quotes with empty string
               title.replace(/"/g, "")
@@ -111,7 +118,19 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
             {details}
           </CardDescription>
         </div>
-        <div>
+        <div className="flex items-center gap-2">
+          <ShareButton
+            url={shareUrl}
+            title={title || "Check out my dream"}
+            text={details}
+            disabled={!isPublic}
+            shrink={isMobile}
+            onDisabledClick={() => {
+              toast.error("This dream is not public", {
+                description: "Please make it public to share it with others",
+              });
+            }}
+          />
           <DreamCardActions {...{ _id, isPublic }} />
         </div>
       </CardHeader>

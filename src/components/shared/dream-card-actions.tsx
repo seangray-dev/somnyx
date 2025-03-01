@@ -63,7 +63,7 @@ export default function DreamCardActions({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="outline" size="icon">
           <EllipsisIcon size={16} />
         </Button>
       </DropdownMenuTrigger>

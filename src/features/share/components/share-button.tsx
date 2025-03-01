@@ -6,15 +6,36 @@ import { ShareIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface ShareButtonProps {
   url: string;
   title?: string;
   text?: string;
+  disabled?: boolean;
+  onDisabledClick?: () => void;
+  className?: string;
+  shrink?: boolean;
 }
 
-export default function ShareButton({ url, title, text }: ShareButtonProps) {
+export default function ShareButton({
+  url,
+  title,
+  text,
+  disabled,
+  onDisabledClick,
+  className,
+  shrink,
+}: ShareButtonProps) {
   const [isSharing, setIsSharing] = useState(false);
+
+  const handleClick = () => {
+    if (disabled) {
+      onDisabledClick?.();
+      return;
+    }
+    handleShare();
+  };
 
   const handleShare = async () => {
     setIsSharing(true);
@@ -42,13 +63,20 @@ export default function ShareButton({ url, title, text }: ShareButtonProps) {
   return (
     <Button
       variant="outline"
-      size="lg"
-      className="flex w-full items-center gap-2"
-      onClick={handleShare}
+      size={shrink ? "icon" : "default"}
+      className={cn(
+        shrink ? "h-9 w-9" : "flex items-center gap-2",
+        {
+          "opacity-50": disabled,
+        },
+        className
+      )}
+      onClick={handleClick}
       disabled={isSharing}
+      title={disabled ? "Make this dream public to share" : "Share"}
     >
       <ShareIcon className="size-4" />
-      <span>Share</span>
+      {!shrink && <span>Share</span>}
     </Button>
   );
 }
