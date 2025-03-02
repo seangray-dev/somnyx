@@ -67,6 +67,7 @@
     "nextjs-toploader": "1.6.12",
     "npm-run-all": "^4.1.5",
     "openai": "^4.67.2",
+    "posthog-js": "^1.225.0",
     "puppeteer": "^24.3.0",
     "react": "^18",
     "react-day-picker": "^8.10.1",

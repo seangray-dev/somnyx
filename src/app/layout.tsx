@@ -3,14 +3,12 @@ import type { Metadata, Viewport } from "next";
 import SiteFooter from "@/components/layout/site-footer";
 import { Toaster } from "@/components/ui/sonner";
 import { SEO, applicationName, baseUrl } from "@/config/app";
+import { Header } from "@/features/navigation";
 import { Lora, OpenSans } from "@/fonts";
-import { ContextProvider } from "@/providers/context-provider";
-import { ThemePagesProvider } from "@/providers/theme-pages-provider";
-import { ThemeProvider } from "@/providers/theme-provider";
-import { TimezoneProvider } from "@/providers/timezone-provider";
+import AppProviders from "@/providers";
+import { AuthProvider } from "@/providers/auth-provider";
 
 import "../styles/globals.css";
-import { Header } from "@/features/navigation";
 
 export const metadata: Metadata = {
   title: {
@@ -251,19 +249,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ContextProvider>
+    <AuthProvider>
       <html lang="en" className={`${Lora.variable} ${OpenSans.variable}`}>
         <body className="flex min-h-screen flex-col antialiased">
-          <ThemeProvider attribute="class" defaultTheme="system">
+          <AppProviders>
             <Header />
             <main className="relative flex flex-1 flex-col">{children}</main>
             <SiteFooter />
             <Toaster richColors position="top-center" duration={5000} />
-            <TimezoneProvider />
-            <ThemePagesProvider />
-          </ThemeProvider>
+          </AppProviders>
         </body>
       </html>
-    </ContextProvider>
+    </AuthProvider>
   );
 }
