@@ -1,8 +1,8 @@
 import Image from "next/image";
 
-import { AddDreamButton } from "./add-dream-button";
+import AddDreamButton from "./dream-form/add-dream-button";
 
-export default function NoDreams() {
+export function NoDreams() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center text-muted-foreground">
       <div className="container flex flex-col items-center justify-center gap-6">

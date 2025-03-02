@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function DreamCardSkeleton() {
+export function DreamCardSkeleton() {
   return (
     <Card className="flex w-full flex-col">
       <CardHeader className="flex flex-row items-center justify-between gap-2">

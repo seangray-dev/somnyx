@@ -2,8 +2,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
-import { useSession } from "@clerk/nextjs";
-import { useMutation, useQuery } from "convex/react";
 import {
   EllipsisIcon,
   EyeIcon,
@@ -12,10 +10,7 @@ import {
   PencilIcon,
   Share2Icon,
 } from "lucide-react";
-import { toast } from "sonner";
 
-import { AddDreamButton } from "@/components/shared/add-dream-button";
-import DeleteDreamDialog from "@/components/shared/delete-dream-dialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -25,43 +20,32 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { baseUrl } from "@/config/app";
-import { api } from "@/convex/_generated/api";
-import { Doc, Id } from "@/convex/_generated/dataModel";
+import { Id } from "@/convex/_generated/dataModel";
 import copyToClipboard from "@/utils/copy-to-clipboard";
+
+import { useDreamAccess } from "../../api/use-dream-access";
+import { useUpdateDream } from "../../api/use-update-dream";
+import { DreamCardActionsProps } from "../../types";
+import AddDreamButton from "../dream-form/add-dream-button";
+import { DeleteDreamDialog } from "./delete-dream-dialog";
 
 export default function DreamCardActions({
   _id,
   isPublic,
   dream,
-}: {
-  _id: string;
-  isPublic?: boolean;
-  dream: Doc<"dreams">;
-}) {
-  const { isSignedIn, session } = useSession();
-  const userId = session?.user?.id;
+}: DreamCardActionsProps) {
   const pathname = usePathname();
   const isAnalysisPage = pathname === `/dreams/${_id}`;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // @ts-ignore
-  const hasAccessToDream = useQuery(api.queries.dreams.hasAccessToDream, {
-    dreamId: _id as Id<"dreams">,
-    userId: userId ?? "",
-  });
-
-  const updateDream = useMutation(api.mutations.dreams.updateDream);
+  const { hasAccess, isSignedIn } = useDreamAccess(_id);
+  const updateDream = useUpdateDream();
 
   const handleTogglePublic = async () => {
-    try {
-      await updateDream({ id: _id as Id<"dreams">, isPublic: !isPublic });
-      toast.success(`Dream is now ${!isPublic ? "public" : "private"}`);
-    } catch (err) {
-      toast.error(`Failed to make dream ${!isPublic ? "public" : "private"}`);
-    }
+    await updateDream({ id: _id as Id<"dreams">, isPublic: !isPublic });
   };
 
-  if (!hasAccessToDream || !isSignedIn || !session) {
+  if (!hasAccess || !isSignedIn) {
     return null;
   }
 

@@ -1,7 +1,7 @@
 import { SparklesIcon } from "lucide-react";
 
-import { AddDreamButton } from "@/components/shared/add-dream-button";
 import { Button } from "@/components/ui/button";
+import AddDreamButton from "@/features/dreams/components/dream-form/add-dream-button";
 import { useSession } from "@/lib/client-auth";
 
 export default function ExhaustedList() {

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
-import JournalEntries from "@/components/journal/entries";
 import { SEO } from "@/config/app";
+import JournalEntries from "@/features/dreams/components/journal/entries";
 
 export default function JournalPage() {
   return (

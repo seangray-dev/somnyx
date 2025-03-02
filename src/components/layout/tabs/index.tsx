@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 import { BookOpenIcon, CogIcon, LayoutDashboardIcon } from "lucide-react";
 
-import { AddDreamButton } from "@/components/shared/add-dream-button";
+import AddDreamButton from "@/features/dreams/components/dream-form/add-dream-button";
 import { useSession } from "@/lib/client-auth";
 
 const navItems = [

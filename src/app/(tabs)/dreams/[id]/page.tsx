@@ -4,11 +4,11 @@ import { notFound } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { fetchQuery, preloadQuery } from "convex/nextjs";
 
-import AboutDream from "@/components/dreams/about-dream";
 import { SEO } from "@/config/app";
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import AnalysisCard from "@/features/analysis/components/analysis-card";
+import AboutDream from "@/features/dreams/components/dream-card/about-dream";
 
 export default async function DreamPage({
   params,

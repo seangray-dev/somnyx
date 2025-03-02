@@ -1,7 +1,7 @@
-"use client";
-
 import Link from "next/link";
 
+import EmotionsBadge from "@/components/shared/emotions-badge";
+import Loader from "@/components/shared/loader";
 import {
   Card,
   CardContent,
@@ -10,27 +10,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Id } from "@/convex/_generated/dataModel";
 import { timeAgo } from "@/utils/date-time";
 
-import DreamCardActions from "../shared/dream-card-actions";
-import EmotionsBadge from "../shared/emotions-badge";
-import Loader from "../shared/loader";
+import DreamCardActions from "./dream-card-actions";
 
-export default function DreamCard({
+export interface DreamCardProps {
+  _id: Id<"dreams">;
+  isPublic?: boolean;
+  title?: string;
+  details: string;
+  date: string;
+  emotions: Id<"emotions">[];
+}
+
+export function DreamCard({
   _id,
   isPublic,
   title,
   details,
   date,
   emotions,
-}: {
-  _id: string;
-  isPublic?: boolean;
-  title?: string;
-  details: string;
-  date: string;
-  emotions: string[];
-}) {
+}: DreamCardProps) {
   return (
     <Card className="flex w-full flex-col">
       <CardHeader className="flex flex-row items-center justify-between gap-4">
@@ -41,7 +42,6 @@ export default function DreamCard({
               className="hover:underline"
             >
               {title ? (
-                // replace double quotes with empty string
                 title.replace(/"/g, "")
               ) : (
                 <div className="flex items-center gap-2 text-muted-foreground">
@@ -56,7 +56,7 @@ export default function DreamCard({
           </CardDescription>
         </div>
         <div>
-          <DreamCardActions {...{ _id, isPublic }} />
+          <DreamCardActions _id={_id} isPublic={isPublic} />
         </div>
       </CardHeader>
       <CardContent className="flex flex-grow flex-col gap-4 text-muted-foreground">

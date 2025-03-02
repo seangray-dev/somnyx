@@ -2,7 +2,6 @@ import { useState } from "react";
 
 import { PencilIcon, SparklesIcon } from "lucide-react";
 
-import { AddNewDreamForm } from "@/components/shared/add-new-dream-form";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,18 +11,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Doc } from "@/convex/_generated/dataModel";
+import { DreamForm } from "@/features/dreams/components/dream-form/dream-form";
+import { AddDreamButtonProps } from "@/features/dreams/types";
 
-type AddDreamButtonProps = {
-  isTab?: boolean;
-  editMode?: boolean;
-  setIsDropdownOpen?: (isOpen: boolean) => void;
-  initialData?: Doc<"dreams">;
-  trigger?: React.ReactNode;
-};
-
-export function AddDreamButton(props: AddDreamButtonProps) {
-  const { isTab, editMode, initialData, trigger, setIsDropdownOpen } = props;
+export default function AddDreamButton({
+  isTab,
+  editMode,
+  initialData,
+  trigger,
+  setIsDropdownOpen,
+}: AddDreamButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const closeDialog = () => setIsOpen(false);
@@ -71,7 +68,7 @@ export function AddDreamButton(props: AddDreamButtonProps) {
               : "Record your dream while it's fresh. Each detail helps unlock deeper insights into your subconscious."}
           </DialogDescription>
         </DialogHeader>
-        <AddNewDreamForm
+        <DreamForm
           setIsDropdownOpen={setIsDropdownOpen}
           closeDialog={closeDialog}
           minDate={new Date(2024, 7, 1)}

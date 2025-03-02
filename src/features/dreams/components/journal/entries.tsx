@@ -4,12 +4,11 @@ import { useState } from "react";
 
 import { usePaginatedQuery, useQuery } from "convex/react";
 
+import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
+import { DreamCard } from "@/features/dreams/components/dream-card";
+import { NoDreams } from "@/features/dreams/components/no-dreams";
 import { useSession } from "@/lib/client-auth";
-
-import DreamCard from "../shared/dream-card";
-import NoDreams from "../shared/no-dreams";
-import { Button } from "../ui/button";
 
 export default function JournalEntries() {
   const { session } = useSession();

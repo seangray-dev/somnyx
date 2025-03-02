@@ -5,6 +5,7 @@ import { useMutation } from "convex/react";
 import { Trash2Icon, UndoIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import LoadingButton from "@/components/shared/loading-button";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -15,24 +16,22 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
-import { Button } from "../ui/button";
-import LoadingButton from "./loading-button";
-
-type DeleteDreamDialogProps = {
+interface DeleteDreamDialogProps {
   dreamId: string;
-};
+}
 
-export default function DeleteDreamDialog(props: DeleteDreamDialogProps) {
+export function DeleteDreamDialog({ dreamId }: DeleteDreamDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const deleteDream = useMutation(api.mutations.dreams.deleteDream);
   const cancelScheduledDeletion = useMutation(
     api.mutations.dreams.cancelScheduledDeletion
   );
-  const isDreamPage = usePathname() === `/dreams/${props.dreamId}`;
+  const isDreamPage = usePathname() === `/dreams/${dreamId}`;
   const router = useRouter();
 
   const handleDelete = async () => {
@@ -40,7 +39,7 @@ export default function DeleteDreamDialog(props: DeleteDreamDialogProps) {
       setIsLoading(true);
 
       const taskId = await deleteDream({
-        id: props.dreamId as Id<"dreams">,
+        id: dreamId as Id<"dreams">,
       });
 
       let isCancelled = false;

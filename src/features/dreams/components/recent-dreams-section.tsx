@@ -1,12 +1,12 @@
 "use client";
 
-import DreamCard from "@/components/shared/dream-card";
-import DreamCardSkeleton from "@/components/shared/dream-card-skeleton";
-import NoDreams from "@/components/shared/no-dreams";
+import { DreamCard } from "@/features/dreams/components/dream-card";
+import { DreamCardSkeleton } from "@/features/dreams/components/dream-card/dream-card-skeleton";
+import { NoDreams } from "@/features/dreams/components/no-dreams";
 
 import useRecentDreams from "../api/use-recent-dreams";
 
-export default function RecentDreams() {
+export default function RecentDreamsSection() {
   const { data: recentDreams, isLoading } = useRecentDreams();
 
   if (!isLoading && (!recentDreams || recentDreams.length === 0)) {

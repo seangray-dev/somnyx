@@ -17,13 +17,13 @@ import {
 } from "@/components/ui/card";
 import { baseUrl } from "@/config/app";
 import { api } from "@/convex/_generated/api";
+import DreamCardActions from "@/features/dreams/components/dream-card/dream-card-actions";
 import ShareButton from "@/features/share/components/share-button";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { timeAgo } from "@/utils/date-time";
 
-import DreamCardActions from "../shared/dream-card-actions";
-import EmotionsBadge from "../shared/emotions-badge";
-import Loader from "../shared/loader";
+import EmotionsBadge from "../../../../components/shared/emotions-badge";
+import Loader from "../../../../components/shared/loader";
 import ThemeSymbolTooltip from "./theme-symbol-tooltip";
 
 type AboutDreamCardProps = {

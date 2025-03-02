@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { toast } from "sonner";
 
+import LoadingButton from "@/components/shared/loading-button";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -18,12 +19,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 
-import LoadingButton from "../shared/loading-button";
-
 export default function DeleteDreamsDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const deleteAllUserDreams = useMutation(
+    // @ts-ignore
     api.mutations.dreams.deleteAllUserDreams
   );
 
