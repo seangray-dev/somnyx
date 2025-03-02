@@ -3,26 +3,16 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
-import { useUser } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { usePostHog } from "posthog-js/react";
 
 export default function PostHogPageView(): null {
-  const posthog = usePostHog();
-  const userInfo = useUser();
-  const { user } = userInfo;
-
-  useEffect(() => {
-    if (user?.id) {
-      posthog.identify(user.id, {
-        email: user.emailAddresses[0]?.emailAddress,
-      });
-    } else {
-      posthog.reset();
-    }
-  }, [posthog, user]);
-
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const posthog = usePostHog();
+  const { isSignedIn, userId } = useAuth();
+  const { user } = useUser();
+
   // Track pageviews
   useEffect(() => {
     if (pathname && posthog) {
@@ -34,6 +24,18 @@ export default function PostHogPageView(): null {
       posthog.capture("$pageview", { $current_url: url });
     }
   }, [pathname, searchParams, posthog]);
+
+  // Handle user identification and reset
+  useEffect(() => {
+    if (isSignedIn && userId && user && !posthog._isIdentified()) {
+      posthog.identify(userId, {
+        email: user.primaryEmailAddress?.emailAddress,
+      });
+    }
+    if (!isSignedIn && posthog._isIdentified()) {
+      posthog.reset();
+    }
+  }, [posthog, user, isSignedIn, userId]);
 
   return null;
 }
