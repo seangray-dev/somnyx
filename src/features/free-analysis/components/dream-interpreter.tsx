@@ -128,7 +128,7 @@ export default function DreamInterpreter() {
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
-  }, [rateLimitInfo.nextAllowedTimestamp]);
+  }, [rateLimitInfo.nextAllowedTimestamp, checkRateLimitStatus]);
 
   const handleAnalysis = useCallback(async () => {
     if (!dream.trim() || isAnalyzing || isOverLimit) return;

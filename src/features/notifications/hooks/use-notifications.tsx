@@ -144,7 +144,7 @@ export default function useNotifications() {
       console.error("Error unsubscribing from push:", error);
       return false;
     }
-  }, [browserSubscription, subscription, setSubscription]);
+  }, [browserSubscription, subscription, setSubscription, deviceId]);
 
   const sendTestNotification = useCallback(async () => {
     if (!subscription) return false;
