@@ -114,6 +114,9 @@ export const updateDream = mutation({
     places: v.optional(v.array(v.string())),
     things: v.optional(v.array(v.string())),
     themes: v.optional(v.array(v.id("themes"))),
+    date: v.optional(v.string()),
+    isRecurring: v.optional(v.boolean()),
+    isLucid: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const dream = await ctx.db.get(args.id);

@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { CREDIT_COSTS } from "@/convex/util";
 import useUserCredits from "@/features/credits/api/use-user-credits";
 import { useGetAllEmotions } from "@/features/store/emotions";
@@ -73,10 +73,13 @@ type AddNewDreamFormProps = {
   className?: string;
   closeDialog: () => void;
   minDate: Date;
+  editMode?: boolean;
+  initialData?: Doc<"dreams">;
+  setIsDropdownOpen?: (isOpen: boolean) => void;
 };
 
 export function AddNewDreamForm(props: AddNewDreamFormProps) {
-  const { className, closeDialog, minDate } = props;
+  const { className, closeDialog, minDate, editMode, initialData, setIsDropdownOpen } = props;
   const { emotions, isLoading: emotionsLoading } = useGetAllEmotions();
   const { data: userCredits } = useUserCredits();
   const { roles, isLoading: rolesLoading } = useGetAllRoles();
@@ -85,16 +88,20 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
   const [placesInputValue, setPlacesInputValue] = useState("");
   const [thingsInputValue, setThingsInputValue] = useState("");
   const addNewDream = useMutation(api.mutations.dreams.addNewDream);
+  const updateDream = useMutation(api.mutations.dreams.updateDream);
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      date: new Date(),
-      isRecurring: false,
-      isLucid: false,
-      emotions: [],
-      people: [],
-      places: [],
-      things: [],
+      date: editMode && initialData ? new Date(initialData.date) : new Date(),
+      isRecurring: editMode && initialData ? initialData.isRecurring : false,
+      isLucid: editMode && initialData ? initialData.isLucid : false,
+      emotions: editMode && initialData ? initialData.emotions : [],
+      role: editMode && initialData ? initialData.role : undefined,
+      people: editMode && initialData ? initialData.people : [],
+      places: editMode && initialData ? initialData.places : [],
+      things: editMode && initialData ? initialData.things : [],
+      details: editMode && initialData ? initialData.details : "",
       withAnalysis: false,
     },
   });
@@ -116,24 +123,41 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
         withAnalysis,
       } = data;
 
-      const result = await addNewDream({
-        date: date.toISOString(),
-        isRecurring,
-        isLucid,
-        emotions: emotions as Id<"emotions">[],
-        role: role as Id<"roles">,
-        people: people,
-        places: places,
-        things: things,
-        details: details,
-        withAnalysis,
-      });
+      if (editMode && initialData) {
+        await updateDream({
+          id: initialData._id,
+          date: initialData.date,
+          isRecurring,
+          isLucid,
+          emotions: emotions as Id<"emotions">[],
+          role: role as Id<"roles">,
+          people,
+          places,
+          things,
+          details,
+        });
+        toast.success("Dream updated successfully!");
+      } else {
+        await addNewDream({
+          date: date.toISOString(),
+          isRecurring,
+          isLucid,
+          emotions: emotions as Id<"emotions">[],
+          role: role as Id<"roles">,
+          people,
+          places,
+          things,
+          details,
+          withAnalysis,
+        });
+        toast.success("Dream added successfully!");
+      }
 
-      toast.success("Dream added successfully!");
       closeDialog();
       form.reset();
+      editMode && setIsDropdownOpen?.(false);
     } catch (error) {
-      toast.error("Oops, something went wrong!", {
+      toast.error(editMode ? "Failed to update dream" : "Failed to add dream", {
         description: "Please try again later.",
       });
     } finally {
@@ -165,6 +189,8 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                   className="resize-none"
                   rows={8}
                   {...field}
+                  readOnly={editMode}
+                  disabled={editMode}
                 />
               </FormControl>
               <FormMessage />
@@ -187,6 +213,7 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                         "pl-3 text-left font-normal",
                         !field.value && "text-muted-foreground"
                       )}
+                      disabled={editMode}
                     >
                       {field.value ? (
                         format(field.value, "PPP")
@@ -205,18 +232,11 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                   <Calendar
                     mode="single"
                     selected={field.value}
-                    onSelect={(date) => {
-                      if (date && isBefore(date, minDate)) {
-                        toast.error("Invalid date", {
-                          description:
-                            "Dreams can only be logged from August 2024 onwards.",
-                        });
-                        return;
-                      }
-                      field.onChange(date);
-                    }}
-                    disabled={(date) =>
-                      date > new Date() || isBefore(date, minDate)
+                    onSelect={field.onChange}
+                    disabled={(date: Date): boolean =>
+                      Boolean(
+                        date > new Date() || isBefore(date, minDate) || editMode
+                      )
                     }
                     initialFocus
                   />
@@ -258,6 +278,7 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    disabled={editMode}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
@@ -327,6 +348,7 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                                             )
                                           );
                                     }}
+                                    disabled={editMode}
                                   />
                                 </FormControl>
                               </Badge>
@@ -366,6 +388,7 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                     className="space-y-2"
+                    disabled={editMode}
                   >
                     {roles?.map((role) => (
                       <FormItem
@@ -373,7 +396,10 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                         className="flex items-center space-x-3 space-y-0"
                       >
                         <FormControl>
-                          <RadioGroupItem value={role._id} />
+                          <RadioGroupItem
+                            value={role._id}
+                            disabled={editMode}
+                          />
                         </FormControl>
                         <FormLabel className="flex flex-col gap-1 font-normal">
                           <span>{role.name}</span>
@@ -431,6 +457,8 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                         setPeopleInputValue("");
                       }
                     }}
+                    disabled={editMode}
+                    readOnly={editMode}
                   />
                 </FormControl>
                 <FormMessage />
@@ -438,18 +466,20 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                   {field.value?.map((person, index) => (
                     <Badge key={index} className="flex items-center text-xs">
                       <span className="cursor-default">{person}</span>
-                      <Button
-                        size={"icon"}
-                        type="button"
-                        className="ml-2 h-fit w-fit rounded-full p-1 hover:bg-destructive hover:text-destructive-foreground"
-                        onClick={() => {
-                          field.onChange(
-                            field.value?.filter((p) => p !== person)
-                          );
-                        }}
-                      >
-                        <XIcon size={12} />
-                      </Button>
+                      {!editMode && (
+                        <Button
+                          size={"icon"}
+                          type="button"
+                          className="ml-2 h-fit w-fit rounded-full p-1 hover:bg-destructive hover:text-destructive-foreground"
+                          onClick={() => {
+                            field.onChange(
+                              field.value?.filter((p) => p !== person)
+                            );
+                          }}
+                        >
+                          <XIcon size={12} />
+                        </Button>
+                      )}
                     </Badge>
                   ))}
                 </div>
@@ -496,6 +526,8 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                         setPlacesInputValue("");
                       }
                     }}
+                    disabled={editMode}
+                    readOnly={editMode}
                   />
                 </FormControl>
                 <FormMessage />
@@ -503,18 +535,20 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                   {field.value?.map((place, index) => (
                     <Badge key={index} className="flex items-center text-xs">
                       <span className="cursor-default">{place}</span>
-                      <Button
-                        size={"icon"}
-                        type="button"
-                        className="ml-2 h-fit w-fit rounded-full p-1 hover:bg-destructive hover:text-destructive-foreground"
-                        onClick={() => {
-                          field.onChange(
-                            field.value?.filter((p) => p !== place)
-                          );
-                        }}
-                      >
-                        <XIcon size={12} />
-                      </Button>
+                      {!editMode && (
+                        <Button
+                          size={"icon"}
+                          type="button"
+                          className="ml-2 h-fit w-fit rounded-full p-1 hover:bg-destructive hover:text-destructive-foreground"
+                          onClick={() => {
+                            field.onChange(
+                              field.value?.filter((p) => p !== place)
+                            );
+                          }}
+                        >
+                          <XIcon size={12} />
+                        </Button>
+                      )}
                     </Badge>
                   ))}
                 </div>
@@ -563,6 +597,8 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                         setThingsInputValue("");
                       }
                     }}
+                    disabled={editMode}
+                    readOnly={editMode}
                   />
                 </FormControl>
                 <FormMessage />
@@ -570,18 +606,20 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
                   {field.value?.map((thing, index) => (
                     <Badge key={index} className="flex items-center text-xs">
                       <span className="cursor-default">{thing}</span>
-                      <Button
-                        size={"icon"}
-                        type="button"
-                        className="ml-2 h-fit w-fit rounded-full p-1 hover:bg-destructive hover:text-destructive-foreground"
-                        onClick={() => {
-                          field.onChange(
-                            field.value?.filter((t) => t !== thing)
-                          );
-                        }}
-                      >
-                        <XIcon size={12} />
-                      </Button>
+                      {!editMode && (
+                        <Button
+                          size={"icon"}
+                          type="button"
+                          className="ml-2 h-fit w-fit rounded-full p-1 hover:bg-destructive hover:text-destructive-foreground"
+                          onClick={() => {
+                            field.onChange(
+                              field.value?.filter((t) => t !== thing)
+                            );
+                          }}
+                        >
+                          <XIcon size={12} />
+                        </Button>
+                      )}
                     </Badge>
                   ))}
                 </div>
@@ -591,51 +629,57 @@ export function AddNewDreamForm(props: AddNewDreamFormProps) {
         </div>
 
         <div className="flex flex-col gap-2 pt-4">
-          <LoadingButton
-            disabled={!canAddDreamWithAnalysis}
-            isLoading={loading}
-            className="w-full"
-            onClick={() => {
-              form.setValue("withAnalysis", true);
-            }}
-          >
-            <SparklesIcon size={16} className="mr-2" />
-            Analyze Dream ({CREDIT_COSTS.ANALYSIS} Credits)
-          </LoadingButton>
-          <p className="text-center text-xs text-muted-foreground">
-            AI-powered analysis helps you understand the deeper meaning of your
-            dreams
-          </p>
-          {!canAddDreamWithAnalysis && (
-            <p className="text-center text-sm text-muted-foreground">
-              Save your dream now and unlock AI analysis later when you have
-              enough credits
-            </p>
+          {!editMode && (
+            <>
+              <LoadingButton
+                disabled={!canAddDreamWithAnalysis}
+                isLoading={loading}
+                className="w-full"
+                onClick={() => {
+                  form.setValue("withAnalysis", true);
+                }}
+              >
+                <SparklesIcon size={16} className="mr-2" />
+                Analyze Dream ({CREDIT_COSTS.ANALYSIS} Credits)
+              </LoadingButton>
+              <p className="text-center text-xs text-muted-foreground">
+                AI-powered analysis helps you understand the deeper meaning of
+                your dreams
+              </p>
+              {!canAddDreamWithAnalysis && (
+                <p className="text-center text-sm text-muted-foreground">
+                  Save your dream now and unlock AI analysis later when you have
+                  enough credits
+                </p>
+              )}
+              <div className="relative my-2">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    or
+                  </span>
+                </div>
+              </div>
+            </>
           )}
-          <div className="relative my-2">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                or
-              </span>
-            </div>
-          </div>
           <LoadingButton
-            variant={"secondary"}
+            variant={editMode ? "default" : "secondary"}
             isLoading={loading}
             className="w-full"
             onClick={() => {
               form.setValue("withAnalysis", false);
             }}
           >
-            Save Dream
+            {editMode ? "Save Changes" : "Save Dream"}
           </LoadingButton>
-          <p className="text-center text-xs text-muted-foreground">
-            Your dream will be safely stored and ready for analysis whenever you
-            choose
-          </p>
+          {!editMode && (
+            <p className="text-center text-xs text-muted-foreground">
+              Your dream will be safely stored and ready for analysis whenever
+              you choose
+            </p>
+          )}
         </div>
       </form>
     </Form>

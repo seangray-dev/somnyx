@@ -6,6 +6,7 @@ import { ExternalLinkIcon, HelpCircleIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { themePageMapAtom } from "@/atoms/theme-pages";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -23,7 +24,6 @@ import { timeAgo } from "@/utils/date-time";
 import DreamCardActions from "../shared/dream-card-actions";
 import EmotionsBadge from "../shared/emotions-badge";
 import Loader from "../shared/loader";
-import { Badge } from "../ui/badge";
 import ThemeSymbolTooltip from "./theme-symbol-tooltip";
 
 type AboutDreamCardProps = {
@@ -110,7 +110,7 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
                 });
               }}
             />
-            <DreamCardActions {...{ _id, isPublic }} />
+            <DreamCardActions _id={_id} isPublic={isPublic} dream={dream} />
           </div>
         </div>
         <div className="flex flex-col gap-2">
