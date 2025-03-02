@@ -70,7 +70,8 @@ export function DreamForm({
   const { data: userCredits } = useUserCredits();
   const { addDream } = useAddDream();
   const updateDream = useUpdateDream();
-  const [loading, setLoading] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
@@ -91,8 +92,13 @@ export function DreamForm({
   const canAddDreamWithAnalysis = userCredits! >= CREDIT_COSTS.ANALYSIS;
 
   async function onSubmit(data: FormValues) {
+    const isAnalyzing = data.withAnalysis;
     try {
-      setLoading(true);
+      if (isAnalyzing) {
+        setIsAnalyzing(true);
+      } else {
+        setIsSaving(true);
+      }
 
       if (editMode && initialData) {
         const success = await updateDream({
@@ -121,7 +127,8 @@ export function DreamForm({
         }
       }
     } finally {
-      setLoading(false);
+      setIsAnalyzing(false);
+      setIsSaving(false);
     }
   }
 
@@ -140,7 +147,7 @@ export function DreamForm({
             <>
               <LoadingButton
                 disabled={!canAddDreamWithAnalysis}
-                isLoading={loading}
+                isLoading={isAnalyzing}
                 className="w-full"
                 onClick={() => {
                   form.setValue("withAnalysis", true);
@@ -173,7 +180,7 @@ export function DreamForm({
           )}
           <LoadingButton
             variant={editMode ? "default" : "secondary"}
-            isLoading={loading}
+            isLoading={isSaving}
             className="w-full"
             onClick={() => {
               form.setValue("withAnalysis", false);
