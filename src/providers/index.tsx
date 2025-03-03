@@ -1,6 +1,7 @@
 import { ThemeProvider } from "next-themes";
 
-import { PostHogProvider } from "./posthog-provider";
+import AnalyticsProvider from "@/features/_analytics/providers/analytics-provider";
+
 import { ThemePagesProvider } from "./theme-pages-provider";
 import { TimezoneProvider } from "./timezone-provider";
 
@@ -11,7 +12,7 @@ export default function AppProviders({
 }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system">
-      <PostHogProvider>{children}</PostHogProvider>
+      <AnalyticsProvider>{children}</AnalyticsProvider>
       <TimezoneProvider />
       <ThemePagesProvider />
     </ThemeProvider>

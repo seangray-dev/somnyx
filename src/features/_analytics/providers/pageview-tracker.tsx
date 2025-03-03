@@ -25,17 +25,20 @@ export default function PostHogPageView(): null {
     }
   }, [pathname, searchParams, posthog]);
 
-  // Handle user identification and reset
+  // Handle user identification and reset with only necessary data
   useEffect(() => {
     if (isSignedIn && userId && user && !posthog._isIdentified()) {
+      const metadata = user.publicMetadata;
       posthog.identify(userId, {
         email: user.primaryEmailAddress?.emailAddress,
+        dreamInterpreterSessionId: metadata.dreamInterpreterSessionId,
+        signUpSource: metadata.signUpSource,
       });
     }
     if (!isSignedIn && posthog._isIdentified()) {
       posthog.reset();
     }
-  }, [posthog, user, isSignedIn, userId]);
+  }, [posthog, isSignedIn, userId, user]);
 
   return null;
 }

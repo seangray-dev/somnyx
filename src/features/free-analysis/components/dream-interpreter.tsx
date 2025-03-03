@@ -1,6 +1,8 @@
 "use client";
 
+import { Route } from "next";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 import { useMutation, useQuery } from "convex/react";
@@ -21,6 +23,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { createDreamInterpreterEvent } from "@/features/_analytics/events/dream-interpreter";
+import { useAnalytics } from "@/features/_analytics/hooks/use-analytics";
 import { cn } from "@/lib/utils";
 
 const MAX_CHARS = 2000;
@@ -35,6 +39,8 @@ function formatTimeRemaining(ms: number) {
 }
 
 export default function DreamInterpreter() {
+  const { track } = useAnalytics();
+  const router = useRouter();
   const [dream, setDream] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem(STORAGE_KEY) || "";
@@ -133,6 +139,13 @@ export default function DreamInterpreter() {
   const handleAnalysis = useCallback(async () => {
     if (!dream.trim() || isAnalyzing || isOverLimit) return;
 
+    track(
+      createDreamInterpreterEvent("STARTED", {
+        sessionId,
+        dreamLength: dream.length,
+      })
+    );
+
     setIsAnalyzing(true);
     try {
       console.log("[Dream Analysis] Starting analysis process");
@@ -149,7 +162,14 @@ export default function DreamInterpreter() {
       });
 
       setInterpretationId(id);
-      await checkRateLimitStatus(); // Update rate limit status after analysis
+      await checkRateLimitStatus();
+
+      track(
+        createDreamInterpreterEvent("COMPLETED", {
+          sessionId,
+          dreamLength: dream.length,
+        })
+      );
     } catch (error: any) {
       console.error("[Dream Analysis] Error:", error);
       toast.error(
@@ -165,6 +185,7 @@ export default function DreamInterpreter() {
     sessionId,
     isOverLimit,
     checkRateLimitStatus,
+    track,
   ]);
 
   useEffect(() => {
@@ -182,6 +203,31 @@ export default function DreamInterpreter() {
       setInterpretationId(null);
     }
   }, [interpretation, interpretationId]);
+
+  // Track when interpretation is viewed
+  useEffect(() => {
+    if (interpretation?.analysis) {
+      track(
+        createDreamInterpreterEvent("ANALYSIS_VIEWED", {
+          sessionId,
+          dreamLength: dream.length,
+        })
+      );
+    }
+  }, [interpretation?.analysis, sessionId, dream.length, track]);
+
+  // Add tracking to signup CTA
+  const handleSignupClick = useCallback(() => {
+    track(
+      createDreamInterpreterEvent("SIGNUP_CLICKED", {
+        sessionId,
+        dreamLength: dream.length,
+      })
+    );
+    router.push(
+      `/sign-up?source=dream_interpreter&sessionId=${sessionId}` as Route
+    );
+  }, [sessionId, dream.length, track, router]);
 
   const isButtonDisabled =
     !dream.trim() || isAnalyzing || isOverLimit || !rateLimitInfo.isAllowed;
@@ -392,7 +438,7 @@ export default function DreamInterpreter() {
                   <Button
                     variant="default"
                     className="mt-2"
-                    onClick={() => (window.location.href = "/signup")}
+                    onClick={handleSignupClick}
                   >
                     Start Free Journal
                   </Button>
