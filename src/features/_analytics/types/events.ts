@@ -2,13 +2,24 @@ export type EventName =
   | "[DREAM INTERPRETER] - STARTED"
   | "[DREAM INTERPRETER] - COMPLETED"
   | "[DREAM INTERPRETER] - ANALYSIS VIEWED"
-  | "[DREAM INTERPRETER] - CHARACTER_LIMIT_EXCEEDED";
+  | "[DREAM INTERPRETER] - CHARACTER_LIMIT_EXCEEDED"
+  | "[DREAM] - SAVED"
+  | "[DREAM] - ANALYZED"
+  | "[DREAM] - FORM_OPENED";
 
 export interface BaseEventProperties {
   deviceType: "mobile" | "tablet" | "desktop";
   isPwa: boolean;
   url?: string;
   path?: string;
+}
+
+export interface DreamEventProperties extends BaseEventProperties {
+  dreamLength?: number;
+  isLucid?: boolean;
+  isRecurring?: boolean;
+  hasAnalysis?: boolean;
+  emotionCount?: number;
 }
 
 export interface DreamInterpreterEventProperties extends BaseEventProperties {
@@ -25,6 +36,7 @@ export interface AuthEventProperties extends BaseEventProperties {
 
 export type EventProperties =
   | BaseEventProperties
+  | DreamEventProperties
   | DreamInterpreterEventProperties
   | AuthEventProperties;
 

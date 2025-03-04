@@ -17,7 +17,7 @@ export function useAnalytics() {
   const { instance } = useAnalyticsContext();
 
   const track = useCallback(
-    (
+    async (
       event: Omit<AnalyticsEvent, "properties"> & {
         properties?: Partial<AnalyticsEvent["properties"]>;
       }
@@ -32,7 +32,7 @@ export function useAnalytics() {
         },
       };
 
-      instance.track(enhancedEvent as AnalyticsEvent);
+      return instance.track(enhancedEvent as AnalyticsEvent);
     },
     [instance]
   );
