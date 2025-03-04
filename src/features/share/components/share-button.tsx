@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { ShareIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { createDreamEvent } from "@/features/_analytics/events/dreams";
+import { useAnalytics } from "@/features/_analytics/hooks/use-analytics";
 import { cn } from "@/lib/utils";
 
 interface ShareButtonProps {
@@ -16,6 +18,7 @@ interface ShareButtonProps {
   onDisabledClick?: () => void;
   className?: string;
   shrink?: boolean;
+  isOwnDream?: boolean;
 }
 
 export default function ShareButton({
@@ -26,7 +29,9 @@ export default function ShareButton({
   onDisabledClick,
   className,
   shrink,
+  isOwnDream,
 }: ShareButtonProps) {
+  const { track } = useAnalytics();
   const [isSharing, setIsSharing] = useState(false);
 
   const handleClick = () => {
@@ -37,7 +42,12 @@ export default function ShareButton({
     handleShare();
   };
 
-  const handleShare = async () => {
+  const handleShare = useCallback(async () => {
+    if (disabled) {
+      onDisabledClick?.();
+      return;
+    }
+
     setIsSharing(true);
     try {
       if (navigator.share) {
@@ -46,11 +56,20 @@ export default function ShareButton({
           title: title?.trim(),
           text: text?.trim(),
         });
-        toast.success("Thanks for sharing!");
+        track(
+          createDreamEvent(isOwnDream ? "SHARED-OWN" : "SHARED-OTHER", {
+            shareMethod: "native",
+          })
+        );
       } else {
         await navigator.clipboard.writeText(url.trim());
-        toast.success("Link copied to clipboard!");
+        track(
+          createDreamEvent(isOwnDream ? "SHARED-OWN" : "SHARED-OTHER", {
+            shareMethod: "copy",
+          })
+        );
       }
+      toast.success("Thanks for sharing!");
     } catch (error) {
       if (error instanceof Error && error.name !== "AbortError") {
         toast.error("Failed to share");
@@ -58,7 +77,7 @@ export default function ShareButton({
     } finally {
       setIsSharing(false);
     }
-  };
+  }, [url, title, text, disabled, onDisabledClick, track, isOwnDream]);
 
   return (
     <Button

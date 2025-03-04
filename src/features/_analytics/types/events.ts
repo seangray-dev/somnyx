@@ -2,10 +2,12 @@ export type EventName =
   | "[DREAM INTERPRETER] - STARTED"
   | "[DREAM INTERPRETER] - COMPLETED"
   | "[DREAM INTERPRETER] - ANALYSIS VIEWED"
-  | "[DREAM INTERPRETER] - CHARACTER_LIMIT_EXCEEDED"
+  | "[DREAM INTERPRETER] - CHARACTER LIMIT EXCEEDED"
   | "[DREAM] - SAVED"
   | "[DREAM] - ANALYZED"
-  | "[DREAM] - FORM_OPENED";
+  | "[DREAM] - FORM OPENED"
+  | "[DREAM] - SHARED-OWN"
+  | "[DREAM] - SHARED-OTHER";
 
 export interface BaseEventProperties {
   deviceType: "mobile" | "tablet" | "desktop";
@@ -19,6 +21,7 @@ export interface DreamEventProperties extends BaseEventProperties {
   isLucid?: boolean;
   isRecurring?: boolean;
   emotionCount?: number;
+  shareMethod?: "copy" | "native";
 }
 
 export interface DreamInterpreterEventProperties extends BaseEventProperties {
