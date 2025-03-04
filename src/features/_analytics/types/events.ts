@@ -1,7 +1,8 @@
 export type EventName =
   | "[DREAM INTERPRETER] - STARTED"
   | "[DREAM INTERPRETER] - COMPLETED"
-  | "[DREAM INTERPRETER] - ANALYSIS VIEWED";
+  | "[DREAM INTERPRETER] - ANALYSIS VIEWED"
+  | "[DREAM INTERPRETER] - CHARACTER_LIMIT_EXCEEDED";
 
 export interface BaseEventProperties {
   deviceType: "mobile" | "tablet" | "desktop";

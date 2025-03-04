@@ -213,6 +213,19 @@ export default function DreamInterpreter() {
   const isButtonDisabled =
     !dream.trim() || isAnalyzing || isOverLimit || !rateLimitInfo.isAllowed;
 
+  const hasExceededLimit = useRef(false);
+
+  useEffect(() => {
+    if (dream.length > MAX_CHARS && !hasExceededLimit.current) {
+      track(
+        createDreamInterpreterEvent("CHARACTER_LIMIT_EXCEEDED", {
+          dreamLength: dream.length,
+        })
+      );
+      hasExceededLimit.current = true;
+    }
+  }, [dream.length]);
+
   return (
     <div className="flex flex-col gap-8">
       {!rateLimitInfo.isAllowed && rateLimitInfo.nextAllowedTimestamp && (
