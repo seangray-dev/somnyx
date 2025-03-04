@@ -1,8 +1,6 @@
 "use client";
 
-import { Route } from "next";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 import { useMutation, useQuery } from "convex/react";
@@ -40,7 +38,6 @@ function formatTimeRemaining(ms: number) {
 
 export default function DreamInterpreter() {
   const { track } = useAnalytics();
-  const router = useRouter();
   const [dream, setDream] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem(STORAGE_KEY) || "";
@@ -141,7 +138,6 @@ export default function DreamInterpreter() {
 
     track(
       createDreamInterpreterEvent("STARTED", {
-        sessionId,
         dreamLength: dream.length,
       })
     );
@@ -166,7 +162,6 @@ export default function DreamInterpreter() {
 
       track(
         createDreamInterpreterEvent("COMPLETED", {
-          sessionId,
           dreamLength: dream.length,
         })
       );
@@ -209,25 +204,11 @@ export default function DreamInterpreter() {
     if (interpretation?.analysis) {
       track(
         createDreamInterpreterEvent("ANALYSIS_VIEWED", {
-          sessionId,
           dreamLength: dream.length,
         })
       );
     }
-  }, [interpretation?.analysis, sessionId, dream.length, track]);
-
-  // Add tracking to signup CTA
-  const handleSignupClick = useCallback(() => {
-    track(
-      createDreamInterpreterEvent("SIGNUP_CLICKED", {
-        sessionId,
-        dreamLength: dream.length,
-      })
-    );
-    router.push(
-      `/sign-up?source=dream_interpreter&sessionId=${sessionId}` as Route
-    );
-  }, [sessionId, dream.length, track, router]);
+  }, [interpretation?.analysis, dream.length, track]);
 
   const isButtonDisabled =
     !dream.trim() || isAnalyzing || isOverLimit || !rateLimitInfo.isAllowed;
@@ -269,20 +250,6 @@ export default function DreamInterpreter() {
                 <ArrowRightIcon className="mt-1 size-3.5 flex-shrink-0 text-primary" />
                 <div className="space-y-0.5">
                   <Link
-                    href={{ pathname: "/sign-up" }}
-                    className="block text-sm font-medium text-primary hover:text-primary/90"
-                  >
-                    Start your free dream journal
-                  </Link>
-                  <span className="block text-xs text-muted-foreground">
-                    to save this dream for later
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <ArrowRightIcon className="mt-1 size-3.5 flex-shrink-0 text-primary" />
-                <div className="space-y-0.5">
-                  <Link
                     href="/#pricing"
                     className="block text-sm font-medium text-primary hover:text-primary/90"
                   >
@@ -290,6 +257,20 @@ export default function DreamInterpreter() {
                   </Link>
                   <span className="block text-xs text-muted-foreground">
                     for instant dream analysis
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <ArrowRightIcon className="mt-1 size-3.5 flex-shrink-0 text-primary" />
+                <div className="space-y-0.5">
+                  <Link
+                    href={{ pathname: "/sign-up" }}
+                    className="block text-sm font-medium text-primary hover:text-primary/90"
+                  >
+                    Start your free dream journal
+                  </Link>
+                  <span className="block text-xs text-muted-foreground">
+                    to save this dream for later
                   </span>
                 </div>
               </div>
@@ -422,10 +403,10 @@ export default function DreamInterpreter() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                    <Link href={{ pathname: "/signup" }}>
+                    <Link href={{ pathname: "/sign-up" }}>
                       <span>✓ Free Dream Journal</span>
                     </Link>
-                    <Link href={{ pathname: "/signup" }}>
+                    <Link href={{ pathname: "/sign-up" }}>
                       <span>✓ Monthly Insights</span>
                     </Link>
                     <Link href="/dream-dictionary">
@@ -435,12 +416,10 @@ export default function DreamInterpreter() {
                       <span>✓ Dreamscape Community</span>
                     </Link>
                   </div>
-                  <Button
-                    variant="default"
-                    className="mt-2"
-                    onClick={handleSignupClick}
-                  >
-                    Start Free Journal
+                  <Button asChild variant="default" className="mt-2">
+                    <Link href={{ pathname: "/sign-up" }}>
+                      Start Free Journal
+                    </Link>
                   </Button>
                 </div>
               </div>
