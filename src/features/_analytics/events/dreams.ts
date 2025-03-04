@@ -3,6 +3,7 @@ import { getDeviceProperties } from "../utils/device";
 
 export const DREAM_EVENTS = {
   SAVED: "[DREAM] - SAVED",
+  ANALYZED: "[DREAM] - ANALYZED",
   FORM_OPENED: "[DREAM] - FORM_OPENED",
 } as const;
 

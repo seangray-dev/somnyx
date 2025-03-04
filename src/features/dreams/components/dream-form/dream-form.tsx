@@ -127,13 +127,19 @@ export function DreamForm({
       } else {
         const success = await addDream(data);
         if (success) {
-          const event = createDreamEvent("SAVED", {
-            dreamLength: data.details.length,
-            isLucid: data.isLucid,
-            isRecurring: data.isRecurring,
-            emotionCount: data.emotions.length,
-            hasAnalysis: data.withAnalysis,
-          });
+          const event = data.withAnalysis
+            ? createDreamEvent("ANALYZED", {
+                dreamLength: data.details.length,
+                isLucid: data.isLucid,
+                isRecurring: data.isRecurring,
+                emotionCount: data.emotions.length,
+              })
+            : createDreamEvent("SAVED", {
+                dreamLength: data.details.length,
+                isLucid: data.isLucid,
+                isRecurring: data.isRecurring,
+                emotionCount: data.emotions.length,
+              });
           await track(event);
           closeDialog();
           form.reset();

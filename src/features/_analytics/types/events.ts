@@ -18,7 +18,6 @@ export interface DreamEventProperties extends BaseEventProperties {
   dreamLength?: number;
   isLucid?: boolean;
   isRecurring?: boolean;
-  hasAnalysis?: boolean;
   emotionCount?: number;
 }
 
