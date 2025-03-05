@@ -7,7 +7,11 @@ export type EventName =
   | "[DREAM] - ANALYZED"
   | "[DREAM] - FORM OPENED"
   | "[DREAM] - SHARED-OWN"
-  | "[DREAM] - SHARED-OTHER";
+  | "[DREAM] - SHARED-OTHER"
+  | "[CREDITS] - PACKAGE SELECTED"
+  | "[CREDITS] - PURCHASE SUCCESS"
+  | "[CREDITS] - PURCHASE CANCELLED"
+  | "[CREDITS] - PURCHASE ERROR";
 
 export interface BaseEventProperties {
   deviceType: "mobile" | "tablet" | "desktop";
@@ -36,11 +40,21 @@ export interface AuthEventProperties extends BaseEventProperties {
   lastName?: string;
 }
 
+export interface CreditEventProperties extends BaseEventProperties {
+  packageId?: string;
+  packageName?: string;
+  creditAmount?: number;
+  price?: string;
+  stripeSessionId?: string;
+  error?: string;
+}
+
 export type EventProperties =
   | BaseEventProperties
   | DreamEventProperties
   | DreamInterpreterEventProperties
-  | AuthEventProperties;
+  | AuthEventProperties
+  | CreditEventProperties;
 
 export interface AnalyticsEvent<
   T extends EventProperties = BaseEventProperties,
