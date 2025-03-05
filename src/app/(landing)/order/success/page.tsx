@@ -1,12 +1,11 @@
 import { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
 
 import { env } from "process";
 import Stripe from "stripe";
 
-import { Button } from "@/components/ui/button";
 import { SEO } from "@/config/app";
+import OrderError from "@/features/pricing-payments/components/order-error";
+import OrderSuccess from "@/features/pricing-payments/components/order-success";
 
 export const dynamic = "force-dynamic";
 
@@ -22,43 +21,21 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   });
 
   if (!sessionId) {
-    console.error("No session ID provided.");
-    return <p>Error: No session ID provided.</p>;
+    return <OrderError sessionId="none" error="No session ID provided" />;
   }
 
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
-
-    const customerName = session.customer_details?.name;
-
-    return (
-      <div className="container mx-auto flex flex-1 flex-col items-center justify-center gap-8 py-12">
-        <Image
-          width={300}
-          height={300}
-          alt=""
-          src={"/images/order-success.svg"}
-          className="mx-auto size-36"
-        />
-        <div className="flex flex-col items-center justify-center gap-4">
-          <div className="space-y-2 text-center">
-            <h1 className="text-3xl font-bold">Order Success!</h1>
-            <p className="text-muted-foreground">
-              Thanks for your purchase, {customerName}! Happy dreaming!
-            </p>
-          </div>
-          <Link href="/dashboard">
-            <Button>Go to Dashboard</Button>
-          </Link>
-        </div>
-      </div>
-    );
+    return <OrderSuccess session={session} />;
   } catch (error) {
     console.error("Error retrieving session:", error);
     return (
-      <div className="container flex flex-col items-center justify-center py-12">
-        Error retrieving session details. Please try again later.
-      </div>
+      <OrderError
+        sessionId={sessionId}
+        error={
+          error instanceof Error ? error.message : "Failed to retrieve session"
+        }
+      />
     );
   }
 }

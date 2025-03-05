@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +12,8 @@ import LoadingButton from "@/components/shared/loading-button";
 import { Form } from "@/components/ui/form";
 import { Id } from "@/convex/_generated/dataModel";
 import { CREDIT_COSTS } from "@/convex/util";
+import { createDreamEvent } from "@/features/_analytics/events/dreams";
+import { useAnalytics } from "@/features/_analytics/hooks/use-analytics";
 import useUserCredits from "@/features/credits/api/use-user-credits";
 
 import { useAddDream } from "../../api/use-add-dream";
@@ -72,6 +76,7 @@ export function DreamForm({
   const updateDream = useUpdateDream();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const { track } = useAnalytics();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
@@ -122,6 +127,20 @@ export function DreamForm({
       } else {
         const success = await addDream(data);
         if (success) {
+          const event = data.withAnalysis
+            ? createDreamEvent("ANALYZED", {
+                dreamLength: data.details.length,
+                isLucid: data.isLucid,
+                isRecurring: data.isRecurring,
+                emotionCount: data.emotions.length,
+              })
+            : createDreamEvent("SAVED", {
+                dreamLength: data.details.length,
+                isLucid: data.isLucid,
+                isRecurring: data.isRecurring,
+                emotionCount: data.emotions.length,
+              });
+          await track(event);
           closeDialog();
           form.reset();
         }

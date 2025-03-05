@@ -23,6 +23,7 @@ const isPublicRoute = createRouteMatcher([
   "/install-guide",
   "/api/get-ip",
   "/free-dream-interpretation(.*)",
+  "/ingest(.*)",
 ]);
 
 export default clerkMiddleware((auth, req) => {

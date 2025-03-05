@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { useUser } from "@clerk/nextjs";
 import { Preloaded, usePreloadedQuery } from "convex/react";
 import { useAtomValue } from "jotai";
 import { ExternalLinkIcon, HelpCircleIcon } from "lucide-react";
@@ -60,6 +61,7 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
   const dream = usePreloadedQuery(props.dream);
   const emotions = usePreloadedQuery(props.emotions);
   const role = usePreloadedQuery(props.role);
+  const { user } = useUser();
   const themes = dream?.themes;
   const isMobile = useMediaQuery("(max-width: 768px)");
 
@@ -104,6 +106,7 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
               title={title || "Check out my dream"}
               disabled={!isPublic}
               shrink={isMobile}
+              isOwnDream={dream.userId === user?.id}
               onDisabledClick={() => {
                 toast.error("This dream is not public", {
                   description: "Please make it public to share it with others",

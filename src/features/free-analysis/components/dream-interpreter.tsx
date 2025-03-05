@@ -21,6 +21,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { createDreamInterpreterEvent } from "@/features/_analytics/events/dream-interpreter";
+import { useAnalytics } from "@/features/_analytics/hooks/use-analytics";
 import { cn } from "@/lib/utils";
 
 const MAX_CHARS = 2000;
@@ -35,6 +37,7 @@ function formatTimeRemaining(ms: number) {
 }
 
 export default function DreamInterpreter() {
+  const { track } = useAnalytics();
   const [dream, setDream] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem(STORAGE_KEY) || "";
@@ -128,10 +131,16 @@ export default function DreamInterpreter() {
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
-  }, [rateLimitInfo.nextAllowedTimestamp]);
+  }, [rateLimitInfo.nextAllowedTimestamp, checkRateLimitStatus]);
 
   const handleAnalysis = useCallback(async () => {
     if (!dream.trim() || isAnalyzing || isOverLimit) return;
+
+    track(
+      createDreamInterpreterEvent("STARTED", {
+        dreamLength: dream.length,
+      })
+    );
 
     setIsAnalyzing(true);
     try {
@@ -149,7 +158,13 @@ export default function DreamInterpreter() {
       });
 
       setInterpretationId(id);
-      await checkRateLimitStatus(); // Update rate limit status after analysis
+      await checkRateLimitStatus();
+
+      track(
+        createDreamInterpreterEvent("COMPLETED", {
+          dreamLength: dream.length,
+        })
+      );
     } catch (error: any) {
       console.error("[Dream Analysis] Error:", error);
       toast.error(
@@ -165,6 +180,7 @@ export default function DreamInterpreter() {
     sessionId,
     isOverLimit,
     checkRateLimitStatus,
+    track,
   ]);
 
   useEffect(() => {
@@ -183,8 +199,32 @@ export default function DreamInterpreter() {
     }
   }, [interpretation, interpretationId]);
 
+  // Track when interpretation is viewed
+  useEffect(() => {
+    if (interpretation?.analysis) {
+      track(
+        createDreamInterpreterEvent("ANALYSIS_VIEWED", {
+          dreamLength: dream.length,
+        })
+      );
+    }
+  }, [interpretation?.analysis, dream.length, track]);
+
   const isButtonDisabled =
     !dream.trim() || isAnalyzing || isOverLimit || !rateLimitInfo.isAllowed;
+
+  const hasExceededLimit = useRef(false);
+
+  useEffect(() => {
+    if (dream.length > MAX_CHARS && !hasExceededLimit.current) {
+      track(
+        createDreamInterpreterEvent("CHARACTER_LIMIT_EXCEEDED", {
+          dreamLength: dream.length,
+        })
+      );
+      hasExceededLimit.current = true;
+    }
+  }, [dream.length]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -223,20 +263,6 @@ export default function DreamInterpreter() {
                 <ArrowRightIcon className="mt-1 size-3.5 flex-shrink-0 text-primary" />
                 <div className="space-y-0.5">
                   <Link
-                    href={{ pathname: "/sign-up" }}
-                    className="block text-sm font-medium text-primary hover:text-primary/90"
-                  >
-                    Start your free dream journal
-                  </Link>
-                  <span className="block text-xs text-muted-foreground">
-                    to save this dream for later
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <ArrowRightIcon className="mt-1 size-3.5 flex-shrink-0 text-primary" />
-                <div className="space-y-0.5">
-                  <Link
                     href="/#pricing"
                     className="block text-sm font-medium text-primary hover:text-primary/90"
                   >
@@ -244,6 +270,20 @@ export default function DreamInterpreter() {
                   </Link>
                   <span className="block text-xs text-muted-foreground">
                     for instant dream analysis
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <ArrowRightIcon className="mt-1 size-3.5 flex-shrink-0 text-primary" />
+                <div className="space-y-0.5">
+                  <Link
+                    href={{ pathname: "/sign-up" }}
+                    className="block text-sm font-medium text-primary hover:text-primary/90"
+                  >
+                    Start your free dream journal
+                  </Link>
+                  <span className="block text-xs text-muted-foreground">
+                    to save this dream for later
                   </span>
                 </div>
               </div>
@@ -376,10 +416,10 @@ export default function DreamInterpreter() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                    <Link href={{ pathname: "/signup" }}>
+                    <Link href={{ pathname: "/sign-up" }}>
                       <span>✓ Free Dream Journal</span>
                     </Link>
-                    <Link href={{ pathname: "/signup" }}>
+                    <Link href={{ pathname: "/sign-up" }}>
                       <span>✓ Monthly Insights</span>
                     </Link>
                     <Link href="/dream-dictionary">
@@ -389,12 +429,10 @@ export default function DreamInterpreter() {
                       <span>✓ Dreamscape Community</span>
                     </Link>
                   </div>
-                  <Button
-                    variant="default"
-                    className="mt-2"
-                    onClick={() => (window.location.href = "/signup")}
-                  >
-                    Start Free Journal
+                  <Button asChild variant="default" className="mt-2">
+                    <Link href={{ pathname: "/sign-up" }}>
+                      Start Free Journal
+                    </Link>
                   </Button>
                 </div>
               </div>

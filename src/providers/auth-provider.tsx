@@ -10,7 +10,7 @@ import { env } from "@/config/env/client";
 const queryClient = new QueryClient();
 const convex = new ConvexReactClient(env.NEXT_PUBLIC_CONVEX_URL!);
 
-export function ContextProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ClerkProvider
