@@ -5,7 +5,7 @@ import { type ReactNode } from "react";
 import { usePostHog } from "posthog-js/react";
 
 import { AnalyticsContext } from "../hooks/use-analytics";
-import PageViewTracker from "./pageview-tracker";
+import SuspendedPostHogPageView from "./pageview-tracker";
 import { PostHogProvider } from "./posthog-provider";
 
 interface AnalyticsProviderProps {
@@ -35,7 +35,7 @@ export default function AnalyticsProvider({
     >
       <PostHogProvider>
         <PostHogAnalyticsConnector>
-          <PageViewTracker />
+          <SuspendedPostHogPageView />
           {children}
         </PostHogAnalyticsConnector>
       </PostHogProvider>

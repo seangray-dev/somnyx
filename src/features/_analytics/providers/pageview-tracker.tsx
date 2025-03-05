@@ -1,12 +1,12 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
 import { useAuth, useUser } from "@clerk/nextjs";
 import { usePostHog } from "posthog-js/react";
 
-export default function PostHogPageView(): null {
+export function PostHogPageView(): null {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const posthog = usePostHog();
@@ -41,4 +41,12 @@ export default function PostHogPageView(): null {
   }, [posthog, isSignedIn, userId, user]);
 
   return null;
+}
+
+export default function SuspendedPostHogPageView() {
+  return (
+    <Suspense fallback={null}>
+      <PostHogPageView />
+    </Suspense>
+  );
 }
