@@ -7,6 +7,7 @@ import posthog from "posthog-js";
 import { PostHogProvider as PHProvider } from "posthog-js/react";
 
 import { env } from "@/config/env/client";
+import { cookieConsentGiven } from "@/utils/cookie-consent-given";
 
 const SuspendedPostHogPageView = dynamicLoader(
   () => import("./pageview-tracker"),
@@ -23,6 +24,15 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
       capture_pageview: false, // Disable automatic pageview capture, as we capture manually
       person_profiles: "identified_only", // Only create person profiles for identified users
       autocapture: false,
+      persistence:
+        cookieConsentGiven() === "yes" ? "localStorage+cookie" : "memory",
+      opt_out_capturing_by_default: true,
+      loaded: () => {
+        // only start capturing if consent is given
+        if (cookieConsentGiven() === "yes") {
+          posthog.opt_in_capturing();
+        }
+      },
     });
   }, []);
 
