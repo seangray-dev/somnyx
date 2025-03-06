@@ -5,6 +5,7 @@ import DeleteActions from "@/components/settings/delete-actions";
 import NotificationsSection from "@/components/settings/notifications-section";
 import ThemeSection from "@/components/settings/theme-section";
 import { SEO } from "@/config/app";
+import CookieSettingsSection from "@/features/cookie-consent/components/cookie-settings-section";
 import EmailSection from "@/features/email-preferences/components/email-section";
 import { NotificationTester } from "@/features/notifications/components/notification-tester";
 
@@ -17,6 +18,7 @@ export default function SettingsPage() {
         <ThemeSection />
         <NotificationsSection />
         <EmailSection />
+        <CookieSettingsSection />
         <DeleteActions />
         <NotificationTester />
       </div>
