@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import SiteFooter from "@/components/layout/site-footer";
 import { Toaster } from "@/components/ui/sonner";
 import { SEO, applicationName, baseUrl } from "@/config/app";
+import CookieManager from "@/features/cookie-consent/components/cookie-manager";
 import { Header } from "@/features/navigation";
 import { Lora, OpenSans } from "@/fonts";
 import AppProviders from "@/providers";
@@ -257,6 +258,7 @@ export default function RootLayout({
             <main className="relative flex flex-1 flex-col">{children}</main>
             <SiteFooter />
             <Toaster richColors position="top-center" duration={5000} />
+            <CookieManager />
           </AppProviders>
         </body>
       </html>
