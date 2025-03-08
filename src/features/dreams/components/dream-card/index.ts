@@ -1,3 +1,2 @@
 export { DreamCard } from "./dream-card";
-export type { DreamCardProps } from "./dream-card";
 export { DreamCardSkeleton } from "./dream-card-skeleton";
