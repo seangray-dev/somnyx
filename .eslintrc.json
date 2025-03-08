@@ -21,6 +21,136 @@
       {
         "src/**/!^[.*": "KEBAB_CASE"
       }
+    ],
+    "import/no-restricted-paths": [
+      "warn",
+      {
+        "zones": [
+          // Cross-feature import restrictions
+          {
+            "target": "./src/features/auth",
+            "from": "./src/features",
+            "except": ["./auth"]
+          },
+          {
+            "target": "./src/features/dreams",
+            "from": "./src/features",
+            "except": ["./dreams"]
+          },
+          {
+            "target": "./src/features/dreamscape",
+            "from": "./src/features",
+            "except": ["./dreamscape"]
+          },
+          {
+            "target": "./src/features/cookie-consent",
+            "from": "./src/features",
+            "except": ["./cookie-consent"]
+          },
+          {
+            "target": "./src/features/pricing-payments",
+            "from": "./src/features",
+            "except": ["./pricing-payments"]
+          },
+          {
+            "target": "./src/features/_analytics",
+            "from": "./src/features",
+            "except": ["./_analytics"]
+          },
+          {
+            "target": "./src/features/store",
+            "from": "./src/features",
+            "except": ["./store"]
+          },
+          {
+            "target": "./src/features/navigation",
+            "from": "./src/features",
+            "except": ["./navigation"]
+          },
+          {
+            "target": "./src/features/email-preferences",
+            "from": "./src/features",
+            "except": ["./email-preferences"]
+          },
+          {
+            "target": "./src/features/notifications",
+            "from": "./src/features",
+            "except": ["./notifications"]
+          },
+          {
+            "target": "./src/features/share",
+            "from": "./src/features",
+            "except": ["./share"]
+          },
+          {
+            "target": "./src/features/stats",
+            "from": "./src/features",
+            "except": ["./stats"]
+          },
+          {
+            "target": "./src/features/insights",
+            "from": "./src/features",
+            "except": ["./insights"]
+          },
+          {
+            "target": "./src/features/feedback",
+            "from": "./src/features",
+            "except": ["./feedback"]
+          },
+          {
+            "target": "./src/features/free-analysis",
+            "from": "./src/features",
+            "except": ["./free-analysis"]
+          },
+          {
+            "target": "./src/features/blog",
+            "from": "./src/features",
+            "except": ["./blog"]
+          },
+          {
+            "target": "./src/features/contact",
+            "from": "./src/features",
+            "except": ["./contact"]
+          },
+          {
+            "target": "./src/features/credits",
+            "from": "./src/features",
+            "except": ["./credits"]
+          },
+          {
+            "target": "./src/features/dream-mood-map",
+            "from": "./src/features",
+            "except": ["./dream-mood-map"]
+          },
+          {
+            "target": "./src/features/admin",
+            "from": "./src/features",
+            "except": ["./admin"]
+          },
+          {
+            "target": "./src/features/analysis",
+            "from": "./src/features",
+            "except": ["./analysis"]
+          },
+          // enforce unidirectional codebase:
+          // e.g. src/app can import from src/features but not the other way around
+          {
+            "target": "./src/features",
+            "from": "./src/app"
+          },
+          // e.g src/features and src/app can import from these shared modules but not the other way around
+          {
+            "target": [
+              "./src/components",
+              "./src/hooks",
+              "./src/lib",
+              "./src/types",
+              "./src/utils"
+            ],
+            "from": ["./src/features", "./src/app"]
+          }
+        ]
+      }
     ]
   }
 }
