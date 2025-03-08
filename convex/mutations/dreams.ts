@@ -45,7 +45,12 @@ export const addNewDream = mutation({
       0,
       // @ts-ignore
       internal.mutations.openai.generateDreamTitle,
-      { dreamId, details: args.details, emotions: args.emotions }
+      {
+        dreamId,
+        details: args.details,
+        emotions: args.emotions,
+        dreamDate: args.date,
+      }
     );
 
     await ctx.scheduler.runAfter(
@@ -151,6 +156,7 @@ export const updateDreamInternal = internalMutation({
     things: v.optional(v.array(v.string())),
     themes: v.optional(v.array(v.string())),
     symbols: v.optional(v.array(v.string())),
+    slug: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const dream = await ctx.db.get(args.id);

@@ -57,9 +57,8 @@ export const getDreamByDateAndSlug = query({
     // First try to find a public dream with this date/title
     const publicDream = await ctx.db
       .query("dreams")
-      .withIndex(
-        "by_isPublic_date_slug",
-        (q) => q.eq("isPublic", true).eq("date", date).eq("slug", slug)
+      .withIndex("by_isPublic_date_slug", (q) =>
+        q.eq("isPublic", true).eq("date", date).eq("slug", slug)
       )
       .first();
 
@@ -69,9 +68,8 @@ export const getDreamByDateAndSlug = query({
     if (userId) {
       const privateDream = await ctx.db
         .query("dreams")
-        .withIndex(
-          "by_userId_date_slug",
-          (q) => q.eq("userId", userId).eq("date", date).eq("slug", slug)
+        .withIndex("by_userId_date_slug", (q) =>
+          q.eq("userId", userId).eq("date", date).eq("slug", slug)
         )
         .first();
 
@@ -381,5 +379,28 @@ export const check = query({
         .filter((q) => q.eq(q.field("date"), "2025-03-07"))
         .collect(),
     };
+  },
+});
+
+export const getDreamsByDateAndSlugPattern = internalQuery({
+  args: {
+    date: v.string(),
+    slugPattern: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { date, slugPattern } = args;
+
+    // First get all dreams for this date
+    const dreams = await ctx.db
+      .query("dreams")
+      .filter((q) => q.eq(q.field("date"), date))
+      .collect();
+
+    // Then filter in memory for slugs that start with our pattern
+    // Explicitly handle undefined slugs
+    return dreams.filter(
+      (dream): dream is typeof dream & { slug: string } =>
+        typeof dream.slug === "string" && dream.slug.startsWith(slugPattern)
+    );
   },
 });
