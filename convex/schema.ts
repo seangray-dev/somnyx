@@ -85,7 +85,8 @@ export default defineSchema({
     .index("by_userId_and_date", ["userId", "date"])
     .index("by_date_slug", ["date", "slug"])
     .index("by_isPublic_date_slug", ["isPublic", "date", "slug"])
-    .index("by_userId_date_slug", ["userId", "date", "slug"]),
+    .index("by_userId_date_slug", ["userId", "date", "slug"])
+    .index("by_date", ["date"]),
 
   analysis: defineTable({
     dreamId: v.string(),

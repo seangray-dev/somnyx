@@ -404,3 +404,66 @@ export const getDreamsByDateAndSlugPattern = internalQuery({
     );
   },
 });
+
+export const getDreamsByDate = query({
+  args: { date: v.string() },
+  handler: async (ctx, args) => {
+    const dreams = await ctx.db
+      .query("dreams")
+      .withIndex("by_date", (q) => q.eq("date", args.date))
+      .filter((q) => q.eq(q.field("isPublic"), true))
+      .order("desc")
+      .collect();
+
+    const dreamsWithOptionalAnalysis = await Promise.all(
+      dreams.map(async (dream) => {
+        const analysis = await ctx.db
+          .query("analysis")
+          .withIndex("by_dreamId", (q) => q.eq("dreamId", dream._id))
+          .first();
+
+        return {
+          ...dream,
+          analysisId: analysis?._id,
+          imageStorageId: analysis?.imageStorageId as
+            | Id<"_storage">
+            | undefined,
+        };
+      })
+    );
+
+    return dreamsWithOptionalAnalysis;
+  },
+});
+
+export const getDreamCountsByMonth = query({
+  args: {
+    year: v.string(),
+    month: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { year, month } = args;
+    const startDate = `${year}-${month}-01`;
+    const endDate = `${year}-${month}-31`; // This works even for months with less days
+
+    const dreams = await ctx.db
+      .query("dreams")
+      .withIndex("by_date", (q) =>
+        q.gte("date", startDate).lte("date", endDate)
+      )
+      .filter((q) => q.eq(q.field("isPublic"), true))
+      .collect();
+
+    // Group dreams by date and count them
+    const dreamCounts = dreams.reduce(
+      (acc, dream) => {
+        const date = dream.date;
+        acc[date] = (acc[date] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
+    return dreamCounts;
+  },
+});

@@ -11,7 +11,11 @@ export default function Stats() {
   const pathname = usePathname();
   const { isLoggedIn, isLoaded } = useSession();
 
-  if (pathname === "/settings" || (!isLoggedIn && isLoaded)) {
+  if (
+    pathname === "/settings" ||
+    pathname === "/dreams" ||
+    (!isLoggedIn && isLoaded)
+  ) {
     return null;
   }
 

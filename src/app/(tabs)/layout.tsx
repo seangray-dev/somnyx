@@ -31,7 +31,7 @@ export default function TabsLayout({
       <InstallPrompt />
       <DashboardHeader />
       <Stats />
-      <div className="flex flex-1 flex-col pb-28 pt-8">{children}</div>
+      <div className="flex flex-1 flex-col pb-28">{children}</div>
       <Tabs />
     </div>
   );

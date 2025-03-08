@@ -1,5 +1,7 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import { format } from "date-fns";
 
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,8 +12,9 @@ import getGreeting from "@/utils/get-greeting";
 
 export default function DashboardHeader() {
   const { session, isLoaded, isLoggedIn } = useSession();
+  const pathname = usePathname();
 
-  if (!isLoggedIn && isLoaded) {
+  if ((!isLoggedIn && isLoaded) || pathname === "/dreams") {
     return null;
   }
 
