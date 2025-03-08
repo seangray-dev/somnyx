@@ -45,7 +45,7 @@ export function DreamPreviewCard({ dream }: DreamPreviewCardProps) {
       </div>
       <div className="flex flex-1 flex-col">
         <CardHeader>
-          <CardTitle className="line-clamp-2">
+          <CardTitle className="text-balance">
             {title ? title.replace(/"/g, "") : "Untitled Dream"}
           </CardTitle>
           <CardDescription>{formatDate(date)}</CardDescription>
