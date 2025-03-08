@@ -34,7 +34,7 @@ export default function RecentDreamsSection() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {recentDreams?.map((dream) => (
-              <DreamCard key={dream._id} {...dream} />
+              <DreamCard key={dream._id} dream={dream} />
             ))}
           </div>
         )}

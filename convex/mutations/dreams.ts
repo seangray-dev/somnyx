@@ -45,7 +45,12 @@ export const addNewDream = mutation({
       0,
       // @ts-ignore
       internal.mutations.openai.generateDreamTitle,
-      { dreamId, details: args.details, emotions: args.emotions }
+      {
+        dreamId,
+        details: args.details,
+        emotions: args.emotions,
+        dreamDate: args.date,
+      }
     );
 
     await ctx.scheduler.runAfter(
@@ -151,6 +156,7 @@ export const updateDreamInternal = internalMutation({
     things: v.optional(v.array(v.string())),
     themes: v.optional(v.array(v.string())),
     symbols: v.optional(v.array(v.string())),
+    slug: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const dream = await ctx.db.get(args.id);
@@ -229,5 +235,92 @@ export const deleteAllUserDreams = mutation({
 
     await Promise.all(dreams.map((d) => ctx.db.delete(d._id)));
     await Promise.all(analysis.map((a) => ctx.db.delete(a._id)));
+  },
+});
+
+export const migrateToSlugs = internalMutation({
+  handler: async (ctx) => {
+    // Get all dreams
+    const dreams = await ctx.db.query("dreams").collect();
+    let updated = 0;
+    let errors = 0;
+
+    for (const dream of dreams) {
+      try {
+        if (!dream.title) continue; // Skip if no title
+
+        // Create base slug from title
+        let baseSlug = dream.title
+          .toLowerCase()
+          // Replace special characters with space
+          .replace(/[^a-z0-9]+/g, " ")
+          // Remove extra spaces and trim
+          .trim()
+          // Replace spaces with hyphens
+          .replace(/\s+/g, "-");
+
+        // Check for existing dreams with same date and similar slug
+        const existingDreams = await ctx.db
+          .query("dreams")
+          .withIndex("by_userId_date_slug")
+          .filter((q) =>
+            q.and(
+              q.eq(q.field("userId"), dream.userId),
+              q.eq(q.field("date"), dream.date),
+              q.neq(q.field("_id"), dream._id)
+            )
+          )
+          .collect();
+
+        // If we find dreams with similar slugs, append a number
+        const similarSlugs = existingDreams
+          .map((d) => d.slug)
+          .filter((slug) => slug?.startsWith(baseSlug));
+
+        let finalSlug = baseSlug;
+        if (similarSlugs.length > 0) {
+          finalSlug = `${baseSlug}-${similarSlugs.length + 1}`;
+        }
+
+        // Update the dream with the new slug
+        await ctx.db.patch(dream._id, { slug: finalSlug });
+        updated++;
+      } catch (error) {
+        errors++;
+        console.error(`Error processing dream ${dream._id}:`, error);
+      }
+    }
+
+    return { updated, errors, total: dreams.length };
+  },
+});
+
+// convex/mutations/dreams.ts
+export const migrateDreamDates = internalMutation({
+  handler: async (ctx) => {
+    const dreams = await ctx.db.query("dreams").collect();
+    let updated = 0;
+    let errors = 0;
+
+    for (const dream of dreams) {
+      try {
+        // Convert ISO string to YYYY-MM-DD
+        const simpleDate = new Date(dream.date).toISOString().split("T")[0];
+
+        // Update the dream with the new date format
+        await ctx.db.patch(dream._id, { date: simpleDate });
+        updated++;
+      } catch (error) {
+        errors++;
+        console.error(`Error processing dream ${dream._id}:`, error);
+      }
+    }
+
+    return {
+      updated,
+      errors,
+      total: dreams.length,
+      message: `Updated ${updated} dreams to YYYY-MM-DD format`,
+    };
   },
 });

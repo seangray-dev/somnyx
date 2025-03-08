@@ -21,7 +21,7 @@ interface DreamPreviewCardProps {
 }
 
 export function DreamPreviewCard({ dream }: DreamPreviewCardProps) {
-  const { _id, title, details, date, imageStorageId } = dream;
+  const { title, details, date, slug, imageStorageId } = dream;
   const imageUrl = useGetAnalysisImageUrl(imageStorageId);
 
   return (
@@ -56,7 +56,7 @@ export function DreamPreviewCard({ dream }: DreamPreviewCardProps) {
           </p>
         </CardContent>
         <CardFooter className="mt-auto">
-          <Link href={`/dreams/${_id}`} className="w-full">
+          <Link href={`/dreams/${date}/${slug}`} className="w-full">
             <Button variant="outline" size="sm" className="w-full">
               Explore
             </Button>

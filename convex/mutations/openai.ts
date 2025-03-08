@@ -221,6 +221,7 @@ const Insight = z.object({
 export const generateDreamTitle = internalAction({
   args: {
     dreamId: v.id("dreams"),
+    dreamDate: v.string(),
     details: v.string(),
     emotions: v.array(v.id("emotions")),
   },
@@ -261,9 +262,52 @@ export const generateDreamTitle = internalAction({
       throw new Error("Failed to generate title");
     }
 
+    // Create base slug
+    let baseSlug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim()
+      .replace(/\s+/g, "-");
+
+    // Check for existing dreams with same date and similar slug
+    const existingDreams = await ctx.runQuery(
+      internal.queries.dreams.getDreamsByDateAndSlugPattern,
+      {
+        date: args.dreamDate,
+        slugPattern: baseSlug,
+      }
+    );
+
+    // If we find dreams with similar slugs, append a number
+    let finalSlug = baseSlug;
+    if (existingDreams.length > 0) {
+      // Escape special characters in baseSlug for RegExp
+      const escapedBaseSlug = baseSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+      // Find the highest number suffix used
+      const suffixNumbers = existingDreams
+        .map((dream) => {
+          if (!dream.slug) return 0;
+          const match = dream.slug.match(
+            new RegExp(`^${escapedBaseSlug}(?:-([0-9]+))?$`)
+          );
+          return match ? parseInt(match[1] || "0") : 0;
+        })
+        .filter((num) => !isNaN(num));
+
+      // If we found any valid numbers, increment the highest one
+      // If no numbers found, start with 1
+      const highestNumber =
+        suffixNumbers.length > 0 ? Math.max(...suffixNumbers) : 0;
+
+      finalSlug = `${baseSlug}-${highestNumber + 1}`;
+    }
+
+    // Update the dream with both title and slug
     await ctx.runMutation(internal.mutations.dreams.updateDreamInternal, {
       id: args.dreamId,
       title: title,
+      slug: finalSlug,
     });
   },
 });
@@ -725,7 +769,7 @@ export const generateInsight = internalAction({
             people = [],
             places = [],
             things = [],
-            themes = [],  
+            themes = [],
             symbols = [],
             details,
           } = dream;

@@ -15,6 +15,8 @@ export type NotificationDataMap = {
   [NOTIFICATION_TYPES.ANALYSIS_COMPLETE]: {
     dreamId: string;
     dreamTitle: string;
+    date: string;
+    slug: string;
   };
   [NOTIFICATION_TYPES.MONTHLY_INSIGHTS]: {
     month: string;
