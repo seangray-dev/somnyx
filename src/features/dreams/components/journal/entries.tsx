@@ -151,7 +151,7 @@ export default function JournalEntries() {
       {/* Entries */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {dreams.map((dream) => (
-          <DreamCard key={dream._id} {...dream} />
+          <DreamCard key={dream._id} dream={dream} />
         ))}
       </div>
       <Button onClick={() => loadMore(6)} disabled={status !== "CanLoadMore"}>
