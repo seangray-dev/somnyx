@@ -31,7 +31,7 @@ export function DeleteDreamDialog({ dreamId }: DeleteDreamDialogProps) {
   const cancelScheduledDeletion = useMutation(
     api.mutations.dreams.cancelScheduledDeletion
   );
-  const isDreamPage = usePathname() === `/dreams/${dreamId}`;
+  const isDreamPage = usePathname() === `/dreams/`;
   const router = useRouter();
 
   const handleDelete = async () => {

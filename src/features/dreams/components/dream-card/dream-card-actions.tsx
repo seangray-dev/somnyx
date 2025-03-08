@@ -20,29 +20,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { baseUrl } from "@/config/app";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import copyToClipboard from "@/utils/copy-to-clipboard";
 
 import { useDreamAccess } from "../../api/use-dream-access";
 import { useUpdateDream } from "../../api/use-update-dream";
-import { DreamCardActionsProps } from "../../types";
 import AddDreamButton from "../dream-form/add-dream-button";
 import { DeleteDreamDialog } from "./delete-dream-dialog";
 
-export default function DreamCardActions({
-  _id,
-  isPublic,
-  dream,
-}: DreamCardActionsProps) {
+export default function DreamCardActions({ dream }: { dream: Doc<"dreams"> }) {
   const pathname = usePathname();
-  const isAnalysisPage = pathname === `/dreams/${_id}`;
+  const isAnalysisPage = pathname === `/dreams/${dream?.date}/${dream?.slug}`;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const { hasAccess, isSignedIn } = useDreamAccess(_id);
+  const { hasAccess, isSignedIn } = useDreamAccess(dream?._id as string);
   const updateDream = useUpdateDream();
+  const isPublic = dream?.isPublic;
 
   const handleTogglePublic = async () => {
-    await updateDream({ id: _id as Id<"dreams">, isPublic: !isPublic });
+    await updateDream({
+      id: dream?._id as Id<"dreams">,
+      isPublic: !isPublic,
+    });
   };
 
   if (!hasAccess || !isSignedIn) {
@@ -58,7 +57,7 @@ export default function DreamCardActions({
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {!isAnalysisPage && (
-          <Link href={{ pathname: `/dreams/${_id}` }}>
+          <Link href={{ pathname: `/dreams/${dream?.date}/${dream?.slug}` }}>
             <DropdownMenuItem className="flex items-center gap-2 hover:cursor-pointer hover:underline">
               <OrbitIcon size={16} />
               <span>Analysis</span>
@@ -77,7 +76,9 @@ export default function DreamCardActions({
         <DropdownMenuItem
           disabled={!isPublic}
           className="flex items-center gap-2"
-          onClick={() => copyToClipboard(`${baseUrl}/dreams/${_id}`)}
+          onClick={() =>
+            copyToClipboard(`${baseUrl}/dreams/${dream?.date}/${dream?.slug}`)
+          }
         >
           <Share2Icon size={16} />
           <span>Share</span>
@@ -99,7 +100,7 @@ export default function DreamCardActions({
         )}
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <DeleteDreamDialog dreamId={_id} />
+          <DeleteDreamDialog dreamId={dream?._id as string} />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

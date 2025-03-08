@@ -17,10 +17,15 @@ export const size = {
 };
 export const contentType = "image/png";
 
-export default async function Image({ params }: { params: { id: string } }) {
+export default async function Image({
+  params,
+}: {
+  params: { date: string; slug: string };
+}) {
   try {
-    const dream = await fetchQuery(api.queries.dreams.getDreamForMetadataById, {
-      id: params.id as Id<"dreams">,
+    const dream = await fetchQuery(api.queries.dreams.getDreamByDateAndSlug, {
+      date: params.date,
+      slug: params.slug,
     });
 
     if (!dream) {
@@ -30,7 +35,7 @@ export default async function Image({ params }: { params: { id: string } }) {
     const analysis = await fetchQuery(
       api.queries.analysis.getAnalysisByDreamId,
       {
-        dreamId: dream.id,
+        dreamId: dream._id,
       }
     );
 

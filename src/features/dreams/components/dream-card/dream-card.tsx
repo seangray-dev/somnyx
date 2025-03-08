@@ -10,35 +10,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Id } from "@/convex/_generated/dataModel";
-import { timeAgo } from "@/utils/date-time";
+import { Doc } from "@/convex/_generated/dataModel";
+import { formatDateForURL, timeAgo } from "@/utils/date-time";
 
 import DreamCardActions from "./dream-card-actions";
 
-export interface DreamCardProps {
-  _id: Id<"dreams">;
-  isPublic?: boolean;
-  title?: string;
-  details: string;
-  date: string;
-  emotions: Id<"emotions">[];
-}
+export function DreamCard({ dream }: { dream: Doc<"dreams"> }) {
+  const { title, details, date, slug, emotions } = dream;
 
-export function DreamCard({
-  _id,
-  isPublic,
-  title,
-  details,
-  date,
-  emotions,
-}: DreamCardProps) {
   return (
     <Card className="flex w-full flex-col">
       <CardHeader className="flex flex-row items-center justify-between gap-4">
         <div>
           <CardTitle className="w-fit">
             <Link
-              href={{ pathname: `/dreams/${_id}` }}
+              href={{
+                pathname: `/dreams/${formatDateForURL(date)}/${slug}`,
+              }}
               className="hover:underline"
             >
               {title ? (
@@ -56,7 +44,7 @@ export function DreamCard({
           </CardDescription>
         </div>
         <div>
-          <DreamCardActions _id={_id} isPublic={isPublic} />
+          <DreamCardActions dream={dream} />
         </div>
       </CardHeader>
       <CardContent className="flex flex-grow flex-col gap-4 text-muted-foreground">

@@ -79,9 +79,13 @@ export default defineSchema({
     themes: v.optional(v.array(v.string())),
     symbols: v.optional(v.array(v.string())),
     isPublic: v.optional(v.boolean()),
+    slug: v.optional(v.string()),
   })
     .index("by_userId", ["userId"])
-    .index("by_userId_and_date", ["userId", "date"]),
+    .index("by_userId_and_date", ["userId", "date"])
+    .index("by_date_slug", ["date", "slug"])
+    .index("by_isPublic_date_slug", ["isPublic", "date", "slug"])
+    .index("by_userId_date_slug", ["userId", "date", "slug"]),
 
   analysis: defineTable({
     dreamId: v.string(),

@@ -13,12 +13,13 @@ import AboutDream from "@/features/dreams/components/dream-card/about-dream";
 export default async function DreamPage({
   params,
 }: {
-  params: { id: string };
+  params: { date: string; slug: string };
 }) {
   const { userId }: { userId: string | null } = auth();
 
-  const dream = await preloadQuery(api.queries.dreams.getDreamById, {
-    id: params.id.toString() as Id<"dreams">,
+  const dream = await preloadQuery(api.queries.dreams.getDreamByDateAndSlug, {
+    date: params.date,
+    slug: params.slug,
     userId: (userId as Id<"users">) ?? undefined,
   });
 
@@ -34,7 +35,7 @@ export default async function DreamPage({
   const emotions = await preloadQuery(
     api.queries.emotions.getEmotionsByDreamId,
     {
-      id: params.id.toString() as Id<"dreams">,
+      id: dreamData._id,
     }
   );
 
@@ -46,7 +47,7 @@ export default async function DreamPage({
     <div>
       <div className="container flex flex-col gap-12">
         <AboutDream {...{ dream, emotions, role }} />
-        <AnalysisCard dreamId={params.id} ownerId={dreamData.userId} />
+        <AnalysisCard dreamId={dreamData._id} ownerId={dreamData.userId} />
       </div>
     </div>
   );
@@ -55,10 +56,14 @@ export default async function DreamPage({
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: { date: string; slug: string };
 }): Promise<Metadata> {
-  const dream = await fetchQuery(api.queries.dreams.getDreamForMetadataById, {
-    id: params.id.toString() as Id<"dreams">,
+  const { userId }: { userId: string | null } = auth();
+
+  const dream = await fetchQuery(api.queries.dreams.getDreamByDateAndSlug, {
+    date: params.date,
+    slug: params.slug,
+    userId: (userId as Id<"users">) ?? undefined,
   });
 
   const title = dream?.title ?? SEO.pages.dreams.title;

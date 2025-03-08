@@ -1,4 +1,3 @@
-// utils/notification-templates.ts
 import {
   NOTIFICATION_TYPES,
   NotificationDataMap,
@@ -11,21 +10,6 @@ export const getNotificationContent = <T extends NotificationType>(
   data?: NotificationDataMap[T]
 ): NotificationPayload => {
   switch (type) {
-    case NOTIFICATION_TYPES.ANALYSIS_COMPLETE: {
-      const typedData =
-        data as NotificationDataMap[typeof NOTIFICATION_TYPES.ANALYSIS_COMPLETE];
-      return {
-        title: "Dream Analysis Complete",
-        body: `Your dream "${typedData.dreamTitle}" has been analyzed`,
-        icon: "/icon-192x192.png",
-        url: `/dreams/${typedData.dreamId}`,
-        data: {
-          type,
-          dreamId: typedData.dreamId,
-        },
-      };
-    }
-
     case NOTIFICATION_TYPES.MONTHLY_INSIGHTS: {
       const typedData =
         data as NotificationDataMap[typeof NOTIFICATION_TYPES.MONTHLY_INSIGHTS];

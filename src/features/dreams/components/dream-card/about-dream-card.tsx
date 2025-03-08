@@ -21,14 +21,14 @@ import { api } from "@/convex/_generated/api";
 import DreamCardActions from "@/features/dreams/components/dream-card/dream-card-actions";
 import ShareButton from "@/features/share/components/share-button";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { timeAgo } from "@/utils/date-time";
+import { formatDateForURL, timeAgo } from "@/utils/date-time";
 
 import EmotionsBadge from "../../../../components/shared/emotions-badge";
 import Loader from "../../../../components/shared/loader";
 import ThemeSymbolTooltip from "./theme-symbol-tooltip";
 
 type AboutDreamCardProps = {
-  dream: Preloaded<typeof api.queries.dreams.getDreamById>;
+  dream: Preloaded<typeof api.queries.dreams.getDreamByDateAndSlug>;
   emotions: Preloaded<typeof api.queries.emotions.getEmotionsByDreamId>;
   role: Preloaded<typeof api.queries.roles.getRoleById>;
 };
@@ -70,11 +70,11 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
   }
 
   const {
-    _id,
-    isPublic,
     title,
     details,
     date,
+    slug,
+    isPublic,
     people,
     places,
     things,
@@ -83,7 +83,7 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
     isLucid,
   } = dream;
 
-  const shareUrl = `${baseUrl}/dreams/${_id}`;
+  const shareUrl = `${baseUrl}/dreams/${formatDateForURL(date)}/${slug}`;
 
   return (
     <Card>
@@ -113,7 +113,7 @@ export default function AboutDreamCard(props: AboutDreamCardProps) {
                 });
               }}
             />
-            <DreamCardActions _id={_id} isPublic={isPublic} dream={dream} />
+            <DreamCardActions dream={dream} />
           </div>
         </div>
         <div className="flex flex-col gap-2">

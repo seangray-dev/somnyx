@@ -7,7 +7,7 @@ import { api } from "@/convex/_generated/api";
 import AboutDreamCard from "./about-dream-card";
 
 type AboutDreamProps = {
-  dream: Preloaded<typeof api.queries.dreams.getDreamById>;
+  dream: Preloaded<typeof api.queries.dreams.getDreamByDateAndSlug>;
   emotions: Preloaded<typeof api.queries.emotions.getEmotionsByDreamId>;
   role: Preloaded<typeof api.queries.roles.getRoleById>;
 };

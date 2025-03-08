@@ -12,7 +12,7 @@ export function useAddDream() {
   const handleAddDream = async (data: DreamFormData) => {
     try {
       await addNewDream({
-        date: data.date.toISOString(),
+        date: data.date.toISOString().split("T")[0],
         isRecurring: data.isRecurring,
         isLucid: data.isLucid,
         emotions: data.emotions,
