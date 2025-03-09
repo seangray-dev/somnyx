@@ -19,22 +19,6 @@ export const getMostCommonElements = internalQuery({
   },
 });
 
-export const getElementsByCategory = query({
-  args: {
-    category: v.string(),
-    limit: v.optional(v.number()),
-  },
-  handler: async (ctx, args) => {
-    const { category, limit = 50 } = args;
-
-    return await ctx.db
-      .query("commonElements")
-      .withIndex("by_category", (q) => q.eq("category", category))
-      .order("desc")
-      .take(limit);
-  },
-});
-
 export const getAllCommonElements = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -89,28 +73,6 @@ export const getAllCommonElements = query({
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/^-+|-+$/g, ""),
     }));
-  },
-});
-
-export const getAnimalSymbols = internalQuery({
-  handler: async (ctx) => {
-    const elements = await ctx.db
-      .query("commonElements")
-      .withIndex("by_category", (q) => q.eq("category", "Animals"))
-      .collect();
-
-    return elements;
-  },
-});
-
-export const getElementSymbols = internalQuery({
-  handler: async (ctx) => {
-    const elements = await ctx.db
-      .query("commonElements")
-      .withIndex("by_category", (q) => q.eq("category", "Elements"))
-      .collect();
-
-    return elements;
   },
 });
 
