@@ -957,6 +957,8 @@ export const generateThemeOrSymbolPageWithElement = action({
           tips: page.tips || "",
           updatedAt: Date.now(),
           isPublished: false,
+          category: args.category,
+          type: args.type,
         }
       );
 
@@ -965,11 +967,19 @@ export const generateThemeOrSymbolPageWithElement = action({
       }
 
       // Generate and store image
-      const imagePrompt = `Create a dreamy, ethereal illustration for the theme of "${args.name}" in dreams. 
-      The image should be surreal and symbolic, incorporating elements from this description: ${page.summary}.
-      Style: Use soft, atmospheric colors with a mix of light and shadow. The composition should be artistic and metaphorical, 
-      suitable for a professional dream interpretation website. Make it mystical and thought-provoking, but not scary or disturbing.
-      Include some of these symbolic elements: ${page.commonSymbols.join(", ")}.`;
+      const imagePrompt = `Create a dreamlike artistic illustration without any text, words, letters, numbers, or writing of any kind. Theme: "${args.name}" in dreams.
+
+        Key requirements:
+        - NO TEXT OR WRITING OF ANY KIND in the image
+        - Surreal and symbolic imagery based on: ${page.summary}
+        - Soft, atmospheric colors with ethereal lighting
+        - Artistic and metaphorical composition
+        - Mystical and thought-provoking mood
+        - Professional and elegant style
+        - Avoid scary or disturbing elements
+        - Incorporate these symbols subtly: ${page.commonSymbols.join(", ")}
+
+        Style reference: Think of a blend between surrealist art and ethereal fantasy illustration, focusing purely on imagery without any textual elements.`;
 
       // Generate image using DALL-E 3
       try {
@@ -979,7 +989,7 @@ export const generateThemeOrSymbolPageWithElement = action({
           n: 1,
           size: "1024x1024",
           quality: "standard",
-          style: "natural",
+          style: "vivid",
         });
 
         const imageUrl = imageResponse.data[0]?.url;
@@ -1006,6 +1016,83 @@ export const generateThemeOrSymbolPageWithElement = action({
       return { success: true, pageId: result };
     } catch (error: any) {
       console.error("[GenerateThemeOrSymbolPageWithElement]: Error:", error);
+      throw error;
+    }
+  },
+});
+
+export const regenerateThemePageImageAction = action({
+  args: {
+    pageId: v.id("themePages"),
+  },
+  handler: async (ctx, args) => {
+    const page = await ctx.runQuery(
+      internal.queries.themePages.getThemePageById,
+      {
+        id: args.pageId,
+      }
+    );
+
+    if (!page) {
+      throw new Error("Theme page not found");
+    }
+
+    // Delete old image if it exists
+    if (page.storageId) {
+      try {
+        await ctx.storage.delete(page.storageId);
+      } catch (error) {
+        console.error(
+          "[RegenerateThemePageImage]: Failed to delete old image:",
+          error
+        );
+        // Continue with regeneration even if deletion fails
+      }
+    }
+
+    const imagePrompt = `Create a dreamlike artistic illustration without any text, words, letters, numbers, or writing of any kind. Theme: "${page.name}" in dreams.
+
+Key requirements:
+- NO TEXT OR WRITING OF ANY KIND in the image
+- Surreal and symbolic imagery based on: ${page.summary}
+- Soft, atmospheric colors with ethereal lighting
+- Artistic and metaphorical composition
+- Mystical and thought-provoking mood
+- Professional and elegant style
+- Avoid scary or disturbing elements
+- Incorporate these symbols subtly: ${page.commonSymbols.join(", ")}
+
+Style reference: Think of a blend between surrealist art and ethereal fantasy illustration, focusing purely on imagery without any textual elements.`;
+
+    try {
+      const imageResponse = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: imagePrompt,
+        n: 1,
+        size: "1024x1024",
+        quality: "standard",
+        style: "vivid",
+      });
+
+      const imageUrl = imageResponse.data[0]?.url;
+
+      if (imageUrl) {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const storageId = await ctx.storage.store(blob);
+
+        await ctx.runMutation(
+          internal.mutations.themePages.updateThemePageImage,
+          {
+            id: args.pageId,
+            storageId,
+          }
+        );
+
+        return { success: true };
+      }
+    } catch (error: any) {
+      console.error("[RegenerateThemePageImage]: Error:", error);
       throw error;
     }
   },
