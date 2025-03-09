@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CategoryCardSkeleton() {
@@ -14,10 +8,10 @@ export default function CategoryCardSkeleton() {
         <CardTitle>
           <Skeleton className="h-6 w-1/2" />
         </CardTitle>
-        <CardDescription className="space-y-1">
+        <div className="space-y-1">
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-full" />
-        </CardDescription>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
