@@ -25,7 +25,10 @@ export default function SearchResultCard({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="line-clamp-1">{title}</CardTitle>
-            <Badge variant={type === "symbol" ? "default" : "secondary"}>
+            <Badge
+              className="capitalize"
+              variant={type === "theme" ? "default" : "secondary"}
+            >
               {type}
             </Badge>
           </div>
