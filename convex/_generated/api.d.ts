@@ -40,6 +40,7 @@ import type * as mutations_notifications from "../mutations/notifications.js";
 import type * as mutations_openai from "../mutations/openai.js";
 import type * as mutations_rateLimit from "../mutations/rateLimit.js";
 import type * as mutations_reddit from "../mutations/reddit.js";
+import type * as mutations_themeCategories from "../mutations/themeCategories.js";
 import type * as mutations_themePages from "../mutations/themePages.js";
 import type * as mutations_users from "../mutations/users.js";
 import type * as mutations from "../mutations.js";
@@ -55,6 +56,7 @@ import type * as queries_notificationPreferences from "../queries/notificationPr
 import type * as queries_notifications from "../queries/notifications.js";
 import type * as queries_roles from "../queries/roles.js";
 import type * as queries_scheduler from "../queries/scheduler.js";
+import type * as queries_themeCategories from "../queries/themeCategories.js";
 import type * as queries_themePages from "../queries/themePages.js";
 import type * as queries from "../queries.js";
 import type * as stripe from "../stripe.js";
@@ -96,6 +98,7 @@ declare const fullApi: ApiFromModules<{
   "mutations/openai": typeof mutations_openai;
   "mutations/rateLimit": typeof mutations_rateLimit;
   "mutations/reddit": typeof mutations_reddit;
+  "mutations/themeCategories": typeof mutations_themeCategories;
   "mutations/themePages": typeof mutations_themePages;
   "mutations/users": typeof mutations_users;
   mutations: typeof mutations;
@@ -111,6 +114,7 @@ declare const fullApi: ApiFromModules<{
   "queries/notifications": typeof queries_notifications;
   "queries/roles": typeof queries_roles;
   "queries/scheduler": typeof queries_scheduler;
+  "queries/themeCategories": typeof queries_themeCategories;
   "queries/themePages": typeof queries_themePages;
   queries: typeof queries;
   stripe: typeof stripe;

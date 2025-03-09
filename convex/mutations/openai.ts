@@ -547,24 +547,24 @@ export const generateDreamThemesFree = internalAction({
   async handler(ctx, args) {
     const { source, details } = args;
 
+    const themeCategories = await ctx.runQuery(
+      internal.queries.themeCategories.getAllThemeCategories
+    );
+
+    const themeCategoriesString = themeCategories
+      .map(
+        (category) =>
+          `${category.name}: ${category.description} - Examples: ${category.examples.join(
+            ", "
+          )}`
+      )
+      .join("\n");
+
     const userPrompt = `Details: ${details}`;
     const systemPrompt = `You are a dream analysis expert. Given the following dream details, identify key themes and symbols, categorizing them into these specific predetermined categories:
 
     Categories:
-    - relationships_social: social connections, interactions, family, romance
-    - emotional_states: feelings, moods, psychological experiences
-    - physical_elements: basic elements, material objects
-    - animals_creatures: all living beings except humans
-    - objects_symbols: significant items and their symbolic meanings
-    - settings_places: locations and environments
-    - actions_events: activities, occurrences, patterns
-    - personal_growth: development, learning, transformation
-    - body_health: physical sensations, health themes
-    - nature_environment: natural world, weather, seasons
-    - travel_journey: movement, paths, destinations
-    - time_memory: past, future, memories, cycles
-    - power_control: authority, influence, freedom
-    - spiritual_mystical: transcendent experiences, beliefs
+    ${themeCategoriesString}
 
     For each theme or symbol identified:
     1. ALWAYS extract the universal archetype, not the specific instance
@@ -612,13 +612,22 @@ export const generateDreamThemesFree = internalAction({
       throw new Error("Failed to generate themes or symbols");
     }
 
+    // match the category to the theme and store the ID of the category
+
     for (const symbol of symbols) {
+      const categoryId = themeCategories.find(
+        (category) => category.name === symbol.category
+      )?._id;
+
+      if (!categoryId) {
+        throw new Error(`Category not found: ${symbol.category}`);
+      }
       await ctx.runMutation(
         internal.mutations.commonElements.upsertDreamElement,
         {
           name: symbol.name.toLowerCase(),
           type: "symbol",
-          category: symbol.category.toLowerCase(),
+          category: categoryId,
           confidence: symbol.confidence,
           ...(source.type === "interpretation"
             ? source.sourceType === "reddit"
@@ -630,12 +639,19 @@ export const generateDreamThemesFree = internalAction({
     }
 
     for (const theme of themes) {
+      const categoryId = themeCategories.find(
+        (category) => category.name === theme.category
+      )?._id;
+
+      if (!categoryId) {
+        throw new Error(`Category not found: ${theme.category}`);
+      }
       await ctx.runMutation(
         internal.mutations.commonElements.upsertDreamElement,
         {
           name: theme.name.toLowerCase(),
           type: "theme",
-          category: theme.category.toLowerCase(),
+          category: categoryId,
           confidence: theme.confidence,
           ...(source.type === "interpretation"
             ? source.sourceType === "reddit"
@@ -847,7 +863,7 @@ export const generateThemeOrSymbolPageWithElement = action({
   args: {
     name: v.string(),
     type: v.union(v.literal("theme"), v.literal("symbol")),
-    category: v.string(),
+    category: v.id("themeCategories"),
   },
   handler: async (
     ctx,

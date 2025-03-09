@@ -262,12 +262,37 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_conversation", ["conversationId"]),
 
+  themeCategories: defineTable({
+    name: v.union(
+      v.literal("relationships_social"),
+      v.literal("emotional_states"),
+      v.literal("physical_elements"),
+      v.literal("animals_creatures"),
+      v.literal("objects_symbols"),
+      v.literal("settings_places"),
+      v.literal("actions_events"),
+      v.literal("personal_growth"),
+      v.literal("body_health"),
+      v.literal("nature_environment"),
+      v.literal("travel_journey"),
+      v.literal("time_memory"),
+      v.literal("power_control"),
+      v.literal("spiritual_mystical"),
+      v.literal("common_themes"),
+      v.literal("elements")
+    ),
+    displayName: v.string(),
+    description: v.string(),
+    examples: v.array(v.string()),
+    updatedAt: v.number(),
+  }).index("by_name", ["name"]),
+
   commonElements: defineTable({
     name: v.string(),
     count: v.number(),
     updatedAt: v.number(),
     type: v.union(v.literal("symbol"), v.literal("theme")),
-    category: v.string(),
+    category: v.optional(v.id("themeCategories")),
     confidence: v.number(),
     freeInterpretationIds: v.optional(v.array(v.id("freeInterpretations"))),
     dreamIds: v.optional(v.array(v.id("dreams"))),
@@ -300,6 +325,7 @@ export default defineSchema({
     culturalContext: v.string(),
     commonScenarios: v.array(v.string()),
     tips: v.string(),
+    category: v.optional(v.id("themeCategories")),
     updatedAt: v.number(),
     storageId: v.optional(v.id("_storage")),
   })
