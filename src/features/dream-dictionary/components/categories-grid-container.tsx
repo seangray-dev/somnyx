@@ -32,6 +32,8 @@ const CategoriesGrid = memo(
   }
 );
 
+CategoriesGrid.displayName = "CategoriesGrid";
+
 export default function CategoriesContainer({
   data,
   loading,
