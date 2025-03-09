@@ -38,7 +38,7 @@ export default function CategoryCard({ category, pages }: CategoryCardProps) {
               {symbols.map((symbol) => (
                 <Link
                   key={symbol._id}
-                  href={`/dream-dictionary/${symbol.seo_slug}`}
+                  href={`/dream-dictionary/${symbol.seo_slug}-dream-meaning`}
                   className="transition-opacity hover:opacity-80"
                 >
                   <Badge
@@ -62,7 +62,7 @@ export default function CategoryCard({ category, pages }: CategoryCardProps) {
               {themes.map((theme) => (
                 <Link
                   key={theme._id}
-                  href={`/dream-dictionary/${theme.seo_slug}`}
+                  href={`/dream-dictionary/${theme.seo_slug}-dream-meaning`}
                   className="transition-opacity hover:opacity-80"
                 >
                   <Badge className="px-4 py-1.5 text-sm hover:underline">

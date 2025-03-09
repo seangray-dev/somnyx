@@ -70,7 +70,7 @@ export default function ThemePageContent({
   return (
     <>
       {isAdmin && (
-        <div className="bg-warning text-warning-foreground py-2 text-sm">
+        <div className="bg-warning py-2 text-sm text-warning-foreground">
           <div className="container flex items-center justify-between">
             <p>Only admins can see this</p>
             <Button

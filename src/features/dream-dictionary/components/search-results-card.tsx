@@ -20,7 +20,7 @@ export default function SearchResultCard({
   type = "symbol",
 }: SearchResultCardProps) {
   return (
-    <Link href={`/dream-dictionary/${title.toLowerCase()}`}>
+    <Link href={`/dream-dictionary/${title.toLowerCase()}-dream-meaning`}>
       <Card className="transition-all hover:bg-muted/50">
         <CardHeader>
           <div className="flex items-center justify-between">
