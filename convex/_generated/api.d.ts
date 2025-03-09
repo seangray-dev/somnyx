@@ -26,6 +26,7 @@ import type * as email_templates_welcome from "../email/templates/welcome.js";
 import type * as email_util from "../email/util.js";
 import type * as emails from "../emails.js";
 import type * as http from "../http.js";
+import type * as migrations_updateThemePageCategories from "../migrations/updateThemePageCategories.js";
 import type * as mutations_analysis from "../mutations/analysis.js";
 import type * as mutations_commonElements from "../mutations/commonElements.js";
 import type * as mutations_deleteAccountFeedback from "../mutations/deleteAccountFeedback.js";
@@ -84,6 +85,7 @@ declare const fullApi: ApiFromModules<{
   "email/util": typeof email_util;
   emails: typeof emails;
   http: typeof http;
+  "migrations/updateThemePageCategories": typeof migrations_updateThemePageCategories;
   "mutations/analysis": typeof mutations_analysis;
   "mutations/commonElements": typeof mutations_commonElements;
   "mutations/deleteAccountFeedback": typeof mutations_deleteAccountFeedback;

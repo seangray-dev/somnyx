@@ -548,7 +548,7 @@ export const generateDreamThemesFree = internalAction({
     const { source, details } = args;
 
     const themeCategories = await ctx.runQuery(
-      internal.queries.themeCategories.getAllThemeCategories
+      internal.queries.themeCategories.getAllThemeCategoriesInternal
     );
 
     const themeCategoriesString = themeCategories

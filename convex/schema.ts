@@ -326,6 +326,7 @@ export default defineSchema({
     commonScenarios: v.array(v.string()),
     tips: v.string(),
     category: v.optional(v.id("themeCategories")),
+    type: v.optional(v.union(v.literal("symbol"), v.literal("theme"))),
     updatedAt: v.number(),
     storageId: v.optional(v.id("_storage")),
   })
