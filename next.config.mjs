@@ -10,6 +10,11 @@ const withMDX = createNextDocsMDX();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  compiler: {
+    removeConsole: {
+      exclude: process.env.NODE_ENV === "production" ? ["error", "warn"] : [],
+    },
+  },
   async rewrites() {
     return [
       {
@@ -26,6 +31,7 @@ const nextConfig = {
       },
     ];
   },
+
   // This is required to support PostHog trailing slash API requests
   skipTrailingSlashRedirect: true,
   pageExtensions: ["ts", "tsx", "md", "mdx"],
