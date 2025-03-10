@@ -6,6 +6,7 @@ import { fetchQuery, preloadQuery } from "convex/nextjs";
 import ThemePageContent from "@/components/dream-dictionary/theme-page";
 import { SEO, applicationName } from "@/config/app";
 import { api } from "@/convex/_generated/api";
+import { generateJSONLD } from "@/features/dream-dictionary/utils/jsonLd";
 
 export default async function ThemePage({
   params,
@@ -28,7 +29,17 @@ export default async function ThemePage({
     }
   );
 
-  return <ThemePageContent preloadedThemePage={preloadedThemePage} />;
+  const jsonLd = generateJSONLD(preloadedThemePage);
+
+  return (
+    <>
+      <ThemePageContent preloadedThemePage={preloadedThemePage} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+    </>
+  );
 }
 
 export async function generateMetadata({
@@ -55,7 +66,7 @@ export async function generateMetadata({
   }
 
   const { name, seo_description } = theme;
-  const title = `${name} Dream Meaning | ${applicationName}`;
+  const title = `${name} Dream Meaning - Dream Dictionary | ${applicationName}`;
 
   return {
     title,
@@ -71,6 +82,9 @@ export async function generateMetadata({
     twitter: {
       title,
       description: seo_description,
+    },
+    alternates: {
+      canonical: `/dream-dictionary/${themeName}-dream-meaning`,
     },
   };
 }
