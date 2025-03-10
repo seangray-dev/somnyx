@@ -6,7 +6,7 @@ import { fetchQuery, preloadQuery } from "convex/nextjs";
 import ThemePageContent from "@/components/dream-dictionary/theme-page";
 import { SEO, applicationName } from "@/config/app";
 import { api } from "@/convex/_generated/api";
-import { generateJSONLD } from "@/features/dream-dictionary/utils/jsonLd";
+import { generateJSONLD } from "@/features/dream-dictionary/utils/json-ld";
 
 export default async function ThemePage({
   params,
