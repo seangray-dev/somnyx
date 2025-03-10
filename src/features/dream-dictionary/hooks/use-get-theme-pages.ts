@@ -36,9 +36,13 @@ export default function useGetThemePages() {
       }
     }
 
-    const sorted = Object.values(grouped).sort((a, b) =>
-      a.category.displayName.localeCompare(b.category.displayName)
-    );
+    const sorted = Object.values(grouped).sort((a, b) => {
+      // Always put common_themes first
+      if (a.category.name === "common_themes") return -1;
+      if (b.category.name === "common_themes") return 1;
+      // Sort rest alphabetically by displayName
+      return a.category.displayName.localeCompare(b.category.displayName);
+    });
 
     return sorted;
   }, [data]);
