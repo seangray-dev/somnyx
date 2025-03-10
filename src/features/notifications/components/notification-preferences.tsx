@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
+import { useAtom } from "jotai";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,6 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { dynamicTimezoneAtom } from "@/features/store/timezone";
 
 import useNotificationPreferences from "../hooks/use-notification-preferences";
 import { NOTIFICATION_TYPES, NotificationType } from "../types/notifications";
@@ -29,12 +31,28 @@ export default function NotificationPreferences() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [pendingChanges, setPendingChanges] = useState<PendingChanges>({});
+  const [timezone, updateTimezone] = useAtom(dynamicTimezoneAtom);
 
   const {
     data: userPreferences,
     isLoading,
     savePreferences,
   } = useNotificationPreferences();
+
+  // Update timezone offset when component mounts and when daylight savings changes
+  useEffect(() => {
+    updateTimezone();
+
+    // Check for timezone changes every hour
+    const interval = setInterval(
+      () => {
+        updateTimezone();
+      },
+      60 * 60 * 1000
+    );
+
+    return () => clearInterval(interval);
+  }, [updateTimezone]);
 
   const getReminderTimeAsDate = () => {
     // Use pending changes first, fall back to user preferences
@@ -138,6 +156,7 @@ export default function NotificationPreferences() {
           pendingChanges.dailyReminderTime ?? userPreferences.dailyReminderTime,
         enabledTypes:
           pendingChanges.enabledTypes ?? userPreferences.enabledTypes,
+        timezoneOffset: timezone.offset,
       });
 
       toast.success("Preferences updated successfully");

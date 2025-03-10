@@ -5,6 +5,7 @@ import { api } from "@/convex/_generated/api";
 type UpdatePreferencesArgs = {
   dailyReminderTime?: number;
   enabledTypes: string[];
+  timezoneOffset?: number;
 };
 
 export default function useNotificationPreferences() {

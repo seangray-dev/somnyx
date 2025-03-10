@@ -54,6 +54,7 @@ export const updateNotificationPreferences = mutation({
     userId: v.string(),
     dailyReminderTime: v.optional(v.number()),
     enabledTypes: v.array(v.string()),
+    timezoneOffset: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const { userId, ...preferences } = args;

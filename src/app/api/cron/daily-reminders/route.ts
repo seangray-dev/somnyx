@@ -65,7 +65,7 @@ export async function GET(request: Request) {
         return false;
       }
 
-      // Get user's local time
+      // Get user's local time using their stored timezone offset
       const userLocalTime = addMinutes(serverNow, timezoneOffset);
 
       // Convert reminder time (milliseconds since midnight) to today's date
@@ -74,7 +74,7 @@ export async function GET(request: Request) {
         (dailyReminderTime % (60 * 60 * 1000)) / (60 * 1000)
       );
       const userReminderTime = setMinutes(
-        setHours(userLocalTime, reminderHours),
+        setHours(startOfDay(userLocalTime), reminderHours),
         reminderMinutes
       );
 
@@ -84,24 +84,18 @@ export async function GET(request: Request) {
         userLocalTime
       );
 
-      // Allow notifications within 2 minutes before until 1 minute after
+      // Allow notifications within the notification window
       const shouldNotify =
-        minutesUntilReminder <= NOTIFICATION_WINDOW_MINUTES && // within 2 mins before
-        minutesUntilReminder >= -1; // or up to 1 min after
+        Math.abs(minutesUntilReminder) <= NOTIFICATION_WINDOW_MINUTES;
 
       console.log("Time check for user:", {
         userId,
         userLocalTime: userLocalTime.toLocaleTimeString(),
         reminderTime: userReminderTime.toLocaleTimeString(),
+        timezoneOffset,
         minutesUntilReminder,
         shouldNotify,
-        reason: !shouldNotify
-          ? minutesUntilReminder > NOTIFICATION_WINDOW_MINUTES
-            ? "too early"
-            : minutesUntilReminder < -1
-              ? "too late"
-              : "unknown"
-          : "within window",
+        reason: !shouldNotify ? "outside notification window" : "within window",
       });
 
       return shouldNotify;
