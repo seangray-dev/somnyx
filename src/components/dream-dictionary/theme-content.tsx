@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -82,20 +81,23 @@ export default function ThemeContent({ themePage }: ThemeContentProps) {
         <section className="mx-auto mt-16 grid gap-8 rounded-lg bg-muted p-8 md:grid-cols-2">
           <div className="space-y-3">
             <h2 className="text-xl font-semibold">Common Symbols</h2>
-            <ul className="flex flex-wrap gap-2">
+            <ul className="list-outside list-disc space-y-1 pl-5 text-sm">
               {commonSymbols.map((symbol: string) => (
-                <li key={symbol}>
-                  <Badge>{symbol}</Badge>
+                <li key={symbol} className="text-muted-foreground">
+                  {symbol}
                 </li>
               ))}
             </ul>
           </div>
           <div className="space-y-3">
             <h2 className="text-xl font-semibold">Common Scenarios</h2>
-            <ul className="flex flex-wrap gap-2">
+            <ul className="list-outside list-disc space-y-2 pl-5 text-sm">
               {commonScenarios.map((scenario: string) => (
-                <li key={scenario}>
-                  <Badge>{scenario}</Badge>
+                <li
+                  key={scenario}
+                  className="text-pretty text-muted-foreground"
+                >
+                  {scenario}
                 </li>
               ))}
             </ul>
