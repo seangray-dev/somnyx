@@ -42,7 +42,7 @@ export const sendDreamReminderEmail = async ({
   daysSinceLastDream: number;
 }) => {
   const { error } = await resend.emails.send({
-    from: "Somnyx <onboarding@somnyx.app>",
+    from: "Somnyx <notifications@somnyx.app>",
     to: email,
     subject: "Missing Your Dreams!",
     react: DreamReminderEmail({ name, daysSinceLastDream }),
@@ -74,7 +74,7 @@ export const sendMonthlyInsightsEmail = async ({
   };
 }) => {
   const { error } = await resend.emails.send({
-    from: "Somnyx <insights@somnyx.app>",
+    from: "Somnyx <notifications@somnyx.app>",
     to: email,
     subject: `Your ${month} ${year} Dream Insights Are Ready!`,
     react: MonthlyInsightsEmail({ name, month, monthNumber, year, stats }),

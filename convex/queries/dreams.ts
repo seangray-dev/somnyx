@@ -101,7 +101,7 @@ export const getDreamByIdInternal = internalQuery({
   },
 });
 
-export const getDreamsByMonth = internalQuery({
+export const getDreamsByMonth = query({
   args: { userId: v.string(), monthYear: v.string() },
   handler: async (ctx, { userId, monthYear }) => {
     const [monthNumber, year] = monthYear.split("-").map(Number);

@@ -1,8 +1,8 @@
 import { v } from "convex/values";
 
-import { internalQuery, query } from "../_generated/server";
+import { query } from "../_generated/server";
 
-export const getDreamReminderUsers = internalQuery({
+export const getDreamReminderUsers = query({
   args: {},
   handler: async (ctx) => {
     // Get all users with email preferences enabled for dream reminders
@@ -76,5 +76,35 @@ export const getUserEmailPreferences = query({
       .query("emailPreferences")
       .withIndex("by_userId", (q) => q.eq("userId", args.userId))
       .first();
+  },
+});
+
+export const getMonthlyInsightsEmailPreferences = query({
+  handler: async (ctx) => {
+    // Get all users with email preferences enabled for monthly insights
+    const emailPrefs = await ctx.db
+      .query("emailPreferences")
+      .filter((q) => q.eq(q.field("monthlyInsights"), true))
+      .collect();
+
+    const results = [];
+
+    for (const pref of emailPrefs) {
+      // Get user info
+      const user = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("userId"), pref.userId))
+        .first();
+
+      if (!user) continue;
+
+      results.push({
+        userId: pref.userId,
+        email: user.email,
+        first_name: user.first_name,
+      });
+    }
+
+    return results;
   },
 });

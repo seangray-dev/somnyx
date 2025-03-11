@@ -1,104 +1,90 @@
 import { NextResponse } from "next/server";
 
-import { createClerkClient } from "@clerk/backend";
 import { fetchQuery } from "convex/nextjs";
-import { addDays, isBefore } from "date-fns";
 
 import { env } from "@/config/env/server";
 import { api } from "@/convex/_generated/api";
+import { sendDreamReminderEmail } from "@/convex/emails";
 import { sendNotificationToUser } from "@/features/notifications/api/notification-service";
 import { NOTIFICATION_TYPES } from "@/features/notifications/types/notifications";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 300;
 
 export async function GET(request: Request) {
   try {
     const authHeader = request.headers.get("authorization");
     if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return new Response("Unauthorized", { status: 401 });
     }
 
-    console.log("Starting inactivity check...");
+    const today = new Date();
+    // Ensure we're using the current month by subtracting one day
+    const currentMonth = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 
-    const INACTIVITY_DAYS = 7;
-    const now = new Date();
-    const inactivityThreshold = addDays(now, -INACTIVITY_DAYS);
+    console.log("Current month:", currentMonth);
 
-    const client = createClerkClient({
-      secretKey: env.CLERK_SECRET_KEY,
-    });
-
-    const { data: users } = await client.users.getUserList({
-      limit: 100,
-    });
-
-    const preferences = await fetchQuery(
-      api.queries.notificationPreferences.getAllInactivityReminderPreferences
+    // Get users with notification preferences enabled
+    const usersWithNotifications = await fetchQuery(
+      api.queries.notificationPreferences.getAllMonthlyInsightsPreferences
     );
 
-    const inactiveUsers = users.filter((user: any) => {
-      // Check if user has enabled inactivity reminders
-      const userPrefs = preferences.find((pref) => pref.userId === user.id);
-      if (
-        !userPrefs?.enabledTypes.includes(
-          NOTIFICATION_TYPES.INACTIVITY_REMINDER
-        )
-      ) {
-        console.log("User has disabled inactivity reminders:", user.id);
-        return false;
-      }
+    // Get users with email preferences enabled
+    const emailPreferences = await fetchQuery(
+      // @ts-ignore
+      api.queries.emails.getDreamReminderUsers
+    );
 
-      const lastSignIn = user.lastSignInAt ? new Date(user.lastSignInAt) : null;
-      if (!lastSignIn) {
-        console.log("User has never signed in:", user.id);
-        return false;
-      }
-
-      const isInactive = isBefore(lastSignIn, inactivityThreshold);
-      if (isInactive) {
-        console.log("Found inactive user:", {
-          userId: user.id,
-          lastSignIn: lastSignIn.toISOString(),
-          daysInactive: Math.floor(
-            (now.getTime() - lastSignIn.getTime()) / (1000 * 60 * 60 * 24)
-          ),
-          notificationsEnabled: true,
+    // Send emails to users who have email preferences enabled
+    const emailResults = await Promise.allSettled(
+      emailPreferences.map(async (user) => {
+        return sendDreamReminderEmail({
+          email: user.email,
+          name: user.name,
+          daysSinceLastDream: user.daysSinceLastDream,
         });
-      }
+      })
+    );
 
-      return isInactive;
-    });
-
-    console.log(`Found ${inactiveUsers.length} inactive users`);
-
-    // Send notifications to inactive users
-    const results = await Promise.allSettled(
-      inactiveUsers.map(async (user) => {
+    // Send push notifications to users who have notifications enabled
+    const notificationResults = await Promise.allSettled(
+      usersWithNotifications.map(async (user) => {
         return sendNotificationToUser(
-          user.id,
+          user.userId,
           NOTIFICATION_TYPES.INACTIVITY_REMINDER
         );
       })
     );
 
-    const devicesFailed = results.filter((r) => r.status === "rejected").length;
-    const devicesNotified = results.filter(
+    const emailsFailed = emailResults.filter(
+      (r) => r.status === "rejected"
+    ).length;
+    const emailsSent = emailResults.filter(
+      (r) => r.status === "fulfilled"
+    ).length;
+
+    const notificationsFailed = notificationResults.filter(
+      (r) => r.status === "rejected"
+    ).length;
+    const notificationsDelivered = notificationResults.filter(
       (r) => r.status === "fulfilled" && r.value.success
     ).length;
 
     const summary = {
       success: true,
-      inactiveUsers: inactiveUsers.length,
-      devicesNotified,
-      devicesFailed,
+      emailUsers: emailPreferences.length,
+      notificationUsers: usersWithNotifications.length,
+      emailsSent: emailsSent,
+      emailsFailed: emailsFailed,
+      notificationsDelivered: notificationsDelivered,
+      notificationsFailed: notificationsFailed,
+      date: currentMonth.toISOString(),
     };
 
-    console.log("Inactivity check completed:", summary);
+    console.log("Monthly insights completed:", summary);
 
-    return new Response(JSON.stringify(summary));
+    return NextResponse.json(summary);
   } catch (error) {
-    console.error("Inactivity check error:", error);
+    console.error("Monthly insights cron error:", error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
