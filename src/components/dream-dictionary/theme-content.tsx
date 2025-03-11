@@ -91,7 +91,7 @@ export default function ThemeContent({ themePage }: ThemeContentProps) {
           </div>
           <div className="space-y-3">
             <h2 className="text-xl font-semibold">Common Scenarios</h2>
-            <ul className="list-outside list-disc space-y-2 pl-5 text-sm">
+            <ul className="list-outside list-disc space-y-1 pl-5 text-sm">
               {commonScenarios.map((scenario: string) => (
                 <li
                   key={scenario}
