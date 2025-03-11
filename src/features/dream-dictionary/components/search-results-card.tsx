@@ -10,17 +10,19 @@ import {
 
 type SearchResultCardProps = {
   title: string;
+  seoSlug: string;
   description?: string;
   type?: "symbol" | "theme";
 };
 
 export default function SearchResultCard({
   title,
+  seoSlug,
   description,
   type = "symbol",
 }: SearchResultCardProps) {
   return (
-    <Link href={`/dream-dictionary/${title.toLowerCase()}-dream-meaning`}>
+    <Link href={`/dream-dictionary/${seoSlug}-dream-meaning`}>
       <Card className="transition-all hover:bg-muted/50">
         <CardHeader>
           <div className="flex items-center justify-between">

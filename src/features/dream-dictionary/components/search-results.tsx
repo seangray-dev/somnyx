@@ -16,6 +16,7 @@ export default function SearchResults() {
         <SearchResultCard
           key={result._id}
           title={result.name}
+          seoSlug={result.seo_slug}
           description={result.summary}
           type={result.type}
         />
