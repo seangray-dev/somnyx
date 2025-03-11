@@ -1,3 +1,5 @@
+"use client";
+
 import { ChevronsDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -32,7 +34,7 @@ export default function HeroSection() {
         </div>
       </div>
       {/* Scroll Indicator */}
-      <div className="absolute top-[calc(100vh-120px)] animate-scroll-bounce">
+      <div className="absolute top-[calc(100vh-150px)] animate-scroll-bounce">
         <Button
           variant="ghost"
           size="icon"

@@ -1,3 +1,5 @@
+"use client";
+
 import { CheckIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
