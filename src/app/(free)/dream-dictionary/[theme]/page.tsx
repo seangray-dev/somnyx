@@ -66,7 +66,7 @@ export async function generateMetadata({
   }
 
   const { name, seo_description } = theme;
-  const title = `${name} Dream Meaning - Dream Dictionary | ${applicationName}`;
+  const title = `${name} Dream Meaning | ${applicationName}`;
 
   return {
     title,
