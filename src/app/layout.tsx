@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 
+import NextTopLoader from "nextjs-toploader";
+
 import SiteFooter from "@/components/layout/site-footer";
 import { Toaster } from "@/components/ui/sonner";
 import { SEO, applicationName, baseUrl } from "@/config/app";
@@ -254,6 +256,7 @@ export default function RootLayout({
       <html lang="en" className={`${Lora.variable} ${OpenSans.variable}`}>
         <body className="flex min-h-screen flex-col antialiased">
           <AppProviders>
+            <NextTopLoader color="#7c3aed" showSpinner={false} />
             <Header />
             <main className="relative flex flex-1 flex-col">{children}</main>
             <SiteFooter />

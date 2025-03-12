@@ -24,7 +24,7 @@ export default function MainHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-t-4 border-t-primary bg-background/90 py-3 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b  bg-background/90 py-3 backdrop-blur">
       <nav className="container flex items-center justify-between gap-2">
         <div className="flex h-full items-center">
           <div className="flex h-full items-center gap-2">
