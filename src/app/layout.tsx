@@ -6,6 +6,7 @@ import SiteFooter from "@/components/layout/site-footer";
 import { Toaster } from "@/components/ui/sonner";
 import { SEO, applicationName, baseUrl } from "@/config/app";
 import CookieManager from "@/features/cookie-consent/components/cookie-manager";
+import { generateOrganizationJSONLD } from "@/features/landing/utils/json-ld";
 import { Header } from "@/features/navigation";
 import { Lora, OpenSans } from "@/fonts";
 import AppProviders from "@/providers";
@@ -256,6 +257,12 @@ export default function RootLayout({
       <html lang="en" className={`${Lora.variable} ${OpenSans.variable}`}>
         <body className="flex min-h-screen flex-col antialiased">
           <AppProviders>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify(generateOrganizationJSONLD()),
+              }}
+            />
             <NextTopLoader color="#7c3aed" showSpinner={false} />
             <Header />
             <main className="relative flex flex-1 flex-col">{children}</main>
