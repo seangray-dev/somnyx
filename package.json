@@ -6,7 +6,7 @@
   "scripts": {
     "db:seed": "npx convex import --table emotions data/emotions.json && npx convex import --table roles data/roles.json && npx convex import --table themes data/themes.json",
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "dev:frontend": "next dev --experimental-https",
+    "dev:frontend": "next dev ",
     "dev:backend": "convex dev --typecheck=disable",
     "build": "next build",
     "start": "next start",
@@ -75,6 +75,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7.53.0",
     "react-intersection-observer": "^9.15.1",
+    "react-share": "^5.2.2",
     "recharts": "^2.13.3",
     "resend": "^3.5.0",
     "schema-dts": "^1.1.5",
