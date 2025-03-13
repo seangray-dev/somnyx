@@ -43,6 +43,11 @@ export const SEO = {
       description:
         "Explore common dream symbols and their meanings in our comprehensive dream dictionary.",
     },
+    dreamscape: {
+      title: "Dreamscape Explorer",
+      description:
+        "Discover and explore shared dreams from the Somnyx community. Each dream offers a unique window into the subconscious mind and the universal human experience of dreaming.",
+    },
 
     interpret: {
       title: "Free Dream Interpretation",
