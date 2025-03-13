@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import { SEO } from "@/config/app";
+import { SEO, baseUrl } from "@/config/app";
 import ContactPage from "@/features/contact/components";
 import { generateJSONLD } from "@/features/contact/util/json-ld";
 
@@ -23,8 +23,10 @@ export async function generateMetadata(): Promise<Metadata> {
     title: SEO.pages.contact.title,
     description: SEO.pages.contact.description,
     openGraph: {
+      // * Use root OG + Twitter Images
       title: SEO.pages.contact.title,
       description: SEO.pages.contact.description,
+      url: `${baseUrl}/contact`,
     },
     twitter: {
       title: SEO.pages.contact.title,

@@ -2,7 +2,7 @@ import { Metadata } from "next";
 
 import DreamMeaningFaqSection from "@/components/dream-dictionary/faq-section";
 import FooterCtaSection from "@/components/dream-dictionary/footer-cta-section";
-import { SEO } from "@/config/app";
+import { SEO, baseUrl } from "@/config/app";
 import DreamInterpreter from "@/features/free-analysis/components/dream-interpreter";
 import { generateJSONLD } from "@/features/free-analysis/util/json-ld";
 
@@ -50,12 +50,14 @@ export default function page() {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
+  // TODO: OG + Twitter Images
   return {
     title: SEO.pages.interpret.title,
     description: SEO.pages.interpret.description,
     openGraph: {
       title: SEO.pages.interpret.title,
       description: SEO.pages.interpret.description,
+      url: `${baseUrl}/free-dream-interpretation`,
     },
     twitter: {
       title: SEO.pages.interpret.title,
