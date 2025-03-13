@@ -11,6 +11,7 @@ export const navigation = {
     { name: "Blog", href: "/blog" },
   ],
   support: [
+    { name: "Contact", href: "/contact" },
     { name: "Support", href: "/support" },
     { name: "Report Issue", type: "issue" },
     { name: "Give Feedback", type: "feedback" },
