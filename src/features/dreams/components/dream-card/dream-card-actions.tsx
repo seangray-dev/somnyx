@@ -16,17 +16,22 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { baseUrl } from "@/config/app";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import copyToClipboard from "@/utils/copy-to-clipboard";
+import { cn } from "@/lib/utils";
 
 import { useDreamAccess } from "../../api/use-dream-access";
 import { useUpdateDream } from "../../api/use-update-dream";
 import AddDreamButton from "../dream-form/add-dream-button";
 import { DeleteDreamDialog } from "./delete-dream-dialog";
+import ShareLinks from "./share-links";
 
 export default function DreamCardActions({ dream }: { dream: Doc<"dreams"> }) {
   const pathname = usePathname();
@@ -73,16 +78,25 @@ export default function DreamCardActions({ dream }: { dream: Doc<"dreams"> }) {
           </div>
           <span>{isPublic ? "Make Private" : "Make Public"}</span>
         </DropdownMenuItem>
-        <DropdownMenuItem
-          disabled={!isPublic}
-          className="flex items-center gap-2"
-          onClick={() =>
-            copyToClipboard(`${baseUrl}/dreams/${dream?.date}/${dream?.slug}`)
-          }
-        >
-          <Share2Icon size={16} />
-          <span>Share</span>
-        </DropdownMenuItem>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger
+            disabled={!isPublic}
+            className={cn(
+              "flex items-center gap-2",
+              !isPublic && "cursor-not-allowed opacity-50"
+            )}
+          >
+            <Share2Icon size={16} />
+            <span>Share</span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuSubContent>
+              <ShareLinks
+                url={`${baseUrl}/dreams/${dream?.date}/${dream?.slug}`}
+              />
+            </DropdownMenuSubContent>
+          </DropdownMenuPortal>
+        </DropdownMenuSub>
         {isAnalysisPage && (
           <AddDreamButton
             editMode
