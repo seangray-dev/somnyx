@@ -20,13 +20,17 @@ export interface BaseEventProperties {
   path?: string;
 }
 
+export type ShareMethod = "copy" | "native" | "social";
+
+export type SharePlatform = "X" | "Reddit" | "Facebook" | "none";
+
 export interface DreamEventProperties extends BaseEventProperties {
   dreamLength?: number;
   isLucid?: boolean;
   isRecurring?: boolean;
   emotionCount?: number;
-  shareMethod?: "copy" | "native";
-  platform?: "X" | "Reddit" | "Facebook" | "none";
+  shareMethod?: ShareMethod;
+  platform?: SharePlatform;
 }
 
 export interface DreamInterpreterEventProperties extends BaseEventProperties {

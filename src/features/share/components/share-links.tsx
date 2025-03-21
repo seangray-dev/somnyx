@@ -86,22 +86,25 @@ export default function ShareLinks({
         return;
       }
 
-      const shareMethod = platform === "Copy Link" ? "copy" : "native";
-      const platformKey = platform === "Copy Link" ? "copy" : platform;
-
-      if (shareMethod === "copy") {
+      if (platform === "Copy Link") {
         await navigator.clipboard.writeText(url);
+        track(
+          createDreamEvent(isOwnDream ? "SHARED-OWN" : "SHARED-OTHER", {
+            shareMethod: "copy",
+            platform: "none",
+          })
+        );
         toast.success("Link copied to clipboard");
-      } else {
-        toast.success(`Sharing on ${platform}...`);
+        return;
       }
 
       track(
         createDreamEvent(isOwnDream ? "SHARED-OWN" : "SHARED-OTHER", {
-          shareMethod,
-          platform: platformKey as "X" | "Reddit" | "Facebook" | "none",
+          shareMethod: "social",
+          platform: platform as "X" | "Reddit" | "Facebook",
         })
       );
+      toast.success(`Sharing on ${platform}...`);
     } catch (error) {
       if (error instanceof Error && error.name !== "AbortError") {
         toast.error("Failed to share");
@@ -112,7 +115,10 @@ export default function ShareLinks({
   return (
     <>
       {SHARE_OPTIONS.map((option) => (
-        <DropdownMenuItem asChild={option.isCopyLink || option.isNativeShare} key={option.name}>
+        <DropdownMenuItem
+          asChild={option.isCopyLink || option.isNativeShare}
+          key={option.name}
+        >
           {option.isCopyLink || option.isNativeShare ? (
             <div
               className="flex w-full items-center gap-2 hover:cursor-pointer"
