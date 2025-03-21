@@ -3,21 +3,21 @@ import { v } from "convex/values";
 import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import { internalMutation, mutation } from "../_generated/server";
-import { getMyUser } from "../users";
+import { getUserId } from "../util";
 import { CREDIT_COSTS } from "../util";
 
 export const generateInsight = mutation({
   args: { monthYear: v.string() },
   handler: async (ctx, args): Promise<Id<"_scheduled_functions">> => {
-    const user = await getMyUser(ctx, {});
+    const userId = await getUserId(ctx);
 
-    if (!user) throw new Error("You must be logged in.");
+    if (!userId) throw new Error("You must be logged in.");
 
     const dreams = await ctx.runQuery(
       // @ts-ignore
       internal.queries.dreams.getDreamsByMonth,
       {
-        userId: user.userId,
+        userId,
         monthYear: args.monthYear,
       }
     );
@@ -30,7 +30,7 @@ export const generateInsight = mutation({
 
     // Consume credits first - this will validate and fail if insufficient
     await ctx.runMutation(internal.users.consumeCredits, {
-      userId: user.userId,
+      userId,
       cost: CREDIT_COSTS.INSIGHT,
     });
 
@@ -40,7 +40,7 @@ export const generateInsight = mutation({
         internal.mutations.openai.generateInsight,
         {
           dreams,
-          userId: user.userId,
+          userId,
           monthYear: args.monthYear,
         }
       );
@@ -53,7 +53,7 @@ export const generateInsight = mutation({
     } catch (error) {
       // @ts-ignore
       await ctx.runMutation(internal.users.updateUserCredits, {
-        userId: user.userId,
+        userId,
         amount: CREDIT_COSTS.INSIGHT,
       });
       console.error("Failed to generate insight:", error);
