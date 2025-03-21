@@ -1,14 +1,16 @@
 "use client";
 
-import { useCallback, useState } from "react";
-
-import { ShareIcon } from "lucide-react";
-import { toast } from "sonner";
+import { Share2Icon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { createDreamEvent } from "@/features/_analytics/events/dreams";
-import { useAnalytics } from "@/features/_analytics/hooks/use-analytics";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+
+import ShareLinks from "./share-links";
 
 interface ShareButtonProps {
   url: string;
@@ -31,71 +33,42 @@ export default function ShareButton({
   shrink,
   isOwnDream,
 }: ShareButtonProps) {
-  const { track } = useAnalytics();
-  const [isSharing, setIsSharing] = useState(false);
-
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
     if (disabled) {
+      e.preventDefault();
       onDisabledClick?.();
-      return;
     }
-    handleShare();
   };
 
-  const handleShare = useCallback(async () => {
-    if (disabled) {
-      onDisabledClick?.();
-      return;
-    }
-
-    setIsSharing(true);
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          url: url.trim(),
-          title: title?.trim(),
-          text: text?.trim(),
-        });
-        track(
-          createDreamEvent(isOwnDream ? "SHARED-OWN" : "SHARED-OTHER", {
-            shareMethod: "native",
-          })
-        );
-      } else {
-        await navigator.clipboard.writeText(url.trim());
-        track(
-          createDreamEvent(isOwnDream ? "SHARED-OWN" : "SHARED-OTHER", {
-            shareMethod: "copy",
-          })
-        );
-      }
-      toast.success("Thanks for sharing!");
-    } catch (error) {
-      if (error instanceof Error && error.name !== "AbortError") {
-        toast.error("Failed to share");
-      }
-    } finally {
-      setIsSharing(false);
-    }
-  }, [url, title, text, disabled, onDisabledClick, track, isOwnDream]);
-
   return (
-    <Button
-      variant="outline"
-      size={shrink ? "icon" : "default"}
-      className={cn(
-        shrink ? "h-9 w-9" : "flex items-center gap-2",
-        {
-          "opacity-50": disabled,
-        },
-        className
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild onClick={handleClick}>
+        <Button
+          variant="outline"
+          size={shrink ? "icon" : "default"}
+          className={cn(
+            shrink ? "h-9 w-9" : "flex items-center gap-2",
+            {
+              "opacity-50": disabled,
+            },
+            className
+          )}
+          title={disabled ? "Make this dream public to share" : "Share"}
+        >
+          <Share2Icon className="size-4" />
+          {!shrink && <span>Share</span>}
+        </Button>
+      </DropdownMenuTrigger>
+      {!disabled && (
+        <DropdownMenuContent align="end">
+          <ShareLinks
+            url={url}
+            title={title}
+            text={text}
+            isOwnDream={isOwnDream}
+          />
+        </DropdownMenuContent>
       )}
-      onClick={handleClick}
-      disabled={isSharing}
-      title={disabled ? "Make this dream public to share" : "Share"}
-    >
-      <ShareIcon className="size-4" />
-      {!shrink && <span>Share</span>}
-    </Button>
+    </DropdownMenu>
   );
 }

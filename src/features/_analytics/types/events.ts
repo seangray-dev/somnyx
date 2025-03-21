@@ -26,6 +26,7 @@ export interface DreamEventProperties extends BaseEventProperties {
   isRecurring?: boolean;
   emotionCount?: number;
   shareMethod?: "copy" | "native";
+  platform?: "X" | "Reddit" | "Facebook" | "none";
 }
 
 export interface DreamInterpreterEventProperties extends BaseEventProperties {

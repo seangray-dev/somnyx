@@ -27,11 +27,11 @@ import { baseUrl } from "@/config/app";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 
+import ShareLinks from "../../../share/components/share-links";
 import { useDreamAccess } from "../../api/use-dream-access";
 import { useUpdateDream } from "../../api/use-update-dream";
 import AddDreamButton from "../dream-form/add-dream-button";
 import { DeleteDreamDialog } from "./delete-dream-dialog";
-import ShareLinks from "./share-links";
 
 export default function DreamCardActions({ dream }: { dream: Doc<"dreams"> }) {
   const pathname = usePathname();
@@ -92,6 +92,7 @@ export default function DreamCardActions({ dream }: { dream: Doc<"dreams"> }) {
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
               <ShareLinks
+                isOwnDream
                 url={`${baseUrl}/dreams/${dream?.date}/${dream?.slug}`}
               />
             </DropdownMenuSubContent>
