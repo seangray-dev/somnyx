@@ -17,6 +17,7 @@ export default async function DreamPage({
 }) {
   const { userId }: { userId: string | null } = auth();
 
+  // @ts-ignore - Convex data typing issue with _valueJSON
   const dream = await preloadQuery(api.queries.dreams.getDreamByDateAndSlug, {
     date: params.date,
     slug: params.slug,
@@ -71,6 +72,10 @@ export async function generateMetadata({
     dream?.details.slice(0, 155) ?? SEO.pages.dreams.description;
 
   return {
+    robots: {
+      index: dream?.isPublic ?? false,
+      follow: true,
+    },
     title,
     description,
     openGraph: {

@@ -69,6 +69,10 @@ export async function generateMetadata({
   const title = `${name} Dream Meaning | ${applicationName}`;
 
   return {
+    robots: {
+      index: true,
+      follow: true,
+    },
     title,
     description: seo_description,
     keywords: `${name} dream meaning, ${name} in dreams, ${name} dream interpretation, what does ${name} mean in dreams`,

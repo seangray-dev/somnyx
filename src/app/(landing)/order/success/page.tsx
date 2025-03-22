@@ -42,6 +42,10 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
+    robots: {
+      index: false,
+      follow: true,
+    },
     title: SEO.pages.orderSuccess.title,
     description: SEO.pages.orderSuccess.description,
     openGraph: {
