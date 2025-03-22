@@ -1,9 +1,13 @@
+import { Metadata } from "next";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Video } from "@/components/ui/video";
+import { baseUrl } from "@/config/app";
 
 export default function InstallGuidePage() {
   return (
-    <div className="container mx-auto space-y-6 p-4">
+    <div className="container mx-auto space-y-10 py-20">
       <div className="space-y-2 text-center">
         <h1 className="text-3xl font-bold">Install Somnyx on Your Device</h1>
         <p className="text-muted-foreground">
@@ -24,45 +28,50 @@ export default function InstallGuidePage() {
               <CardTitle>Installing on iOS</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="font-semibold">
-                  Step 1: Using Safari or Chrome
-                </h3>
-                <p>
-                  You can install Somnyx using either Safari or Chrome on your
-                  iOS device.
-                </p>
-                {/* TODO: Add browser icons */}
-              </div>
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* Safari Installation */}
+                <div className="space-y-8">
+                  <div className="space-y-2">
+                    <h3 className="font-semibold">Using Safari</h3>
+                    <ol className="list-inside list-decimal space-y-2 text-sm text-muted-foreground">
+                      <li>Open Safari on your iOS device</li>
+                      <li>Visit somnyx.app</li>
+                      <li>Tap the share button (square with arrow)</li>
+                      <li>Select "Add to Home Screen"</li>
+                      <li>Tap "Add" to confirm</li>
+                    </ol>
+                  </div>
+                  <Video
+                    src="https://4uhzx602rx.ufs.sh/f/Hl8XV8t2FkeUnjOV26lTEXKg4nDHBz3jtAvxbJya7le9Gmc1"
+                    className="mx-auto aspect-[9/16] w-full max-w-[280px]"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  />
+                </div>
 
-              <div className="space-y-4">
-                <h3 className="font-semibold">Step 2: Open Share Menu</h3>
-                <p>
-                  In Safari: Tap the share button (square with arrow) at the
-                  bottom of the screen.
-                  <br />
-                  In Chrome: Tap the three dots menu at the bottom of the
-                  screen.
-                </p>
-                {/* TODO: Add share menu screenshots for both browsers */}
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="font-semibold">Step 3: Add to Home Screen</h3>
-                <p>
-                  In both browsers, look for and tap &quot;Add to Home Screen&quot;.
-                  You might need to scroll to find this option.
-                </p>
-                {/* TODO: Add add to home screen screenshot */}
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="font-semibold">Step 4: Confirm Installation</h3>
-                <p>
-                  Tap &quot;Add&quot; in the top right corner. Somnyx will now
-                  be installed on your home screen.
-                </p>
-                {/* TODO: Add confirmation screenshot */}
+                {/* Chrome Installation */}
+                <div className="space-y-8">
+                  <div className="space-y-2">
+                    <h3 className="font-semibold">Using Chrome</h3>
+                    <ol className="list-inside list-decimal space-y-2 text-sm text-muted-foreground">
+                      <li>Open Chrome on your iOS device</li>
+                      <li>Visit somnyx.app</li>
+                      <li>Tap the three dots menu</li>
+                      <li>Select "Add to Home Screen"</li>
+                      <li>Tap "Add" to confirm</li>
+                    </ol>
+                  </div>
+                  <Video
+                    src="https://4uhzx602rx.ufs.sh/f/Hl8XV8t2FkeU82DLWEWhvRmTug0AcFEH4ex73NhK12nJbzCk"
+                    className="mx-auto aspect-[9/16] w-full max-w-[280px]"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -74,33 +83,17 @@ export default function InstallGuidePage() {
               <CardTitle>Installing on Android</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="font-semibold">Step 1: Installation Prompt</h3>
-                <p>
-                  You should see an &quot;Add to Home Screen&quot; prompt
-                  automatically.
-                  If not, continue to step 2.
-                </p>
-                {/* TODO: Add prompt screenshot */}
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="font-semibold">Step 2: Menu Option</h3>
-                <p>
-                  Tap the three dots menu in Chrome and select &quot;Add to
-                  Home Screen&quot;.                  
-                </p>
-                {/* TODO: Add menu screenshot */}
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="font-semibold">Step 3: Confirm Installation</h3>
-                <p>
-                  Tap &quot;Add&quot; when prompted. Somnyx will now be installed
-                  on your home screen.
-                  home screen.
-                </p>
-                {/* TODO: Add confirmation screenshot */}
+              <div className="mx-auto max-w-md space-y-4">
+                <div className="space-y-2">
+                  <h3 className="font-semibold">Using Chrome</h3>
+                  <ol className="list-inside list-decimal space-y-2 text-sm text-muted-foreground">
+                    <li>Open Chrome on your Android device</li>
+                    <li>Visit somnyx.app</li>
+                    <li>Tap "Install" when prompted</li>
+                    <li>Or tap the three dots menu and select "Install app"</li>
+                    <li>Tap "Install" to confirm</li>
+                  </ol>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -114,7 +107,6 @@ export default function InstallGuidePage() {
         <CardContent>
           <ul className="list-inside list-disc space-y-2">
             <li>Faster access to your dreams and insights</li>
-            <li>Works offline - record dreams anytime</li>
             <li>Push notifications for dream reminders</li>
             <li>Feels like a native app</li>
             <li>No App Store required</li>
@@ -126,11 +118,37 @@ export default function InstallGuidePage() {
       <div className="text-center text-sm text-muted-foreground">
         <p>
           Need help? Contact us at{" "}
-          <a href="mailto:support@somnyx.com" className="underline">
-            support@somnyx.com
+          <a href="mailto:somnyxapp@gmail.com" className="underline">
+            somnyxapp@gmail.com
           </a>
         </p>
       </div>
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Install Somnyx App - Installation Guide",
+  description:
+    "Learn how to install Somnyx on your iOS or Android device. Get faster access to your dreams, push notifications, and a native app experience without the App Store.",
+  alternates: {
+    canonical: `${baseUrl}/install-guide`,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: "Install Somnyx App - Installation Guide",
+    description:
+      "Learn how to install Somnyx on your iOS or Android device. Get faster access to your dreams, push notifications, and a native app experience without the App Store.",
+    url: `${baseUrl}/install-guide`,
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Install Somnyx App - Installation Guide",
+    description:
+      "Learn how to install Somnyx on your iOS or Android device. Get faster access to your dreams, push notifications, and a native app experience without the App Store.",
+  },
+};

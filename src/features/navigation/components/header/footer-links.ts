@@ -15,6 +15,7 @@ export const navigation = {
     { name: "Support", href: "/support" },
     { name: "Report Issue", type: "issue" },
     { name: "Give Feedback", type: "feedback" },
+    { name: "Install Guide", href: "/install-guide" },
   ],
   legal: [
     { name: "Privacy Policy", href: "/privacy-policy" },

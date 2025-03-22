@@ -44,6 +44,19 @@ const nextConfig = {
         protocol: "https",
         hostname: "vivid-hornet-727.convex.cloud",
       },
+      {
+        protocol: "https",
+        hostname: "ufs.sh",
+      },
+    ],
+  },
+  video: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "ufs.sh",
+        pathname: "/**",
+      },
     ],
   },
 };
