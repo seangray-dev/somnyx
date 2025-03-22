@@ -6,7 +6,7 @@ import matter from "gray-matter";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import path from "path";
 
-import { SEO } from "@/config/app";
+import { SEO, baseUrl } from "@/config/app";
 
 type BlogPageProps = {
   params: {
