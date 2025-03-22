@@ -11,8 +11,8 @@ const withMDX = createNextDocsMDX();
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   compiler: {
-    removeConsole: {
-      exclude: process.env.NODE_ENV === "production" ? ["error", "warn"] : [],
+    removeConsole: process.env.NODE_ENV === "production" && {
+      exclude: ["error", "warn"],
     },
   },
   async rewrites() {
