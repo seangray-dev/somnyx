@@ -22,12 +22,16 @@ export const metadata: Metadata = {
   description: SEO.default.description,
   keywords: SEO.default.keywords,
   metadataBase: new URL(baseUrl),
-  // authors: [{ name: "Somnyx" }],
-  // creator: "Somnyx",
-  // publisher: "Somnyx",
+  creator: applicationName,
+  publisher: applicationName,
   robots: {
     index: true,
     follow: true,
+  },
+  alternates: {
+    canonical: {
+      url: baseUrl,
+    },
   },
   openGraph: {
     type: "website",
@@ -45,7 +49,6 @@ export const metadata: Metadata = {
       template: "%s | Somnyx",
     },
     description: SEO.default.description,
-    // creator: "@somnyx",
   },
   manifest: "/manifest.webmanifest",
   icons: {

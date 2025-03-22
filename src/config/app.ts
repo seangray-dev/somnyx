@@ -52,7 +52,7 @@ export const SEO = {
     interpret: {
       title: "Free Dream Interpretation",
       description:
-        "Share your dream with our AI-powered tool and receive an insightful interpretation that reveals the hidden meanings, symbols, and psychological patterns in your dream experience.",
+        "Get instant AI-powered dream analysis revealing hidden meanings and symbols in your dreams. Understand your subconscious mind with personalized insights.",
     },
     support: {
       title: "Support",

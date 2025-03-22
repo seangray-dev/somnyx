@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { fetchQuery, preloadQuery } from "convex/nextjs";
 
-import { SEO } from "@/config/app";
+import { SEO, baseUrl } from "@/config/app";
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import AnalysisCard from "@/features/analysis/components/analysis-card";
@@ -78,6 +78,11 @@ export async function generateMetadata({
     },
     title,
     description,
+    alternates: {
+      canonical: dream?.isPublic
+        ? `${baseUrl}/dreams/${params.date}/${params.slug}`
+        : undefined,
+    },
     openGraph: {
       title,
       description,

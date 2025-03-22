@@ -22,6 +22,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: SEO.pages.contact.title,
     description: SEO.pages.contact.description,
+    alternates: {
+      canonical: `${baseUrl}/contact`,
+    },
     openGraph: {
       // * Use root OG + Twitter Images
       title: SEO.pages.contact.title,

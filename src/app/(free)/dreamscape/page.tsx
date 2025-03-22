@@ -30,17 +30,29 @@ export default async function DreamscapePage() {
   );
 }
 
-export const metadata: Metadata = {
-  // TODO: OG + Twitter Images
-  title: SEO.pages.dreamscape.title,
-  description: SEO.pages.dreamscape.description,
-  openGraph: {
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: { page?: string; sortBy?: string };
+}): Promise<Metadata> {
+  return {
     title: SEO.pages.dreamscape.title,
     description: SEO.pages.dreamscape.description,
-    url: `${baseUrl}/dreamscape`,
-  },
-  twitter: {
-    title: SEO.pages.dreamscape.title,
-    description: SEO.pages.dreamscape.description,
-  },
-};
+    alternates: {
+      canonical: `${baseUrl}/dreamscape`, // Always point to first page
+    },
+    robots: {
+      index: !searchParams.page && !searchParams.sortBy, // only index first page with default sort
+      follow: true,
+    },
+    openGraph: {
+      title: SEO.pages.dreamscape.title,
+      description: SEO.pages.dreamscape.description,
+      url: `${baseUrl}/dreamscape`,
+    },
+    twitter: {
+      title: SEO.pages.dreamscape.title,
+      description: SEO.pages.dreamscape.description,
+    },
+  };
+}

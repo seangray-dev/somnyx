@@ -1,7 +1,10 @@
+import { Metadata } from "next";
+
 import fs from "fs";
 import matter from "gray-matter";
 import path from "path";
 
+import { baseUrl } from "@/config/app";
 import { BlogPostCard } from "@/features/blog/components/blog-post-card";
 import { BlogPost } from "@/features/blog/types";
 
@@ -48,4 +51,20 @@ export default function BlogPage() {
       </ul>
     </section>
   );
+}
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: { page?: string; category?: string };
+}): Promise<Metadata> {
+  return {
+    alternates: {
+      canonical: `${baseUrl}/blog`, // Point filtered/paginated views to main blog page
+    },
+    robots: {
+      index: !searchParams.page && !searchParams.category, // only index main blog page
+      follow: true,
+    },
+  };
 }

@@ -54,6 +54,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: SEO.pages.interpret.title,
     description: SEO.pages.interpret.description,
+    alternates: {
+      canonical: `${baseUrl}/free-dream-interpretation`,
+    },
     openGraph: {
       title: SEO.pages.interpret.title,
       description: SEO.pages.interpret.description,
