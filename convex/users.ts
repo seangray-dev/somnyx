@@ -271,7 +271,7 @@ export const updateUserCredits = internalMutation({
     console.log(`updating user ${user.userId} credits:`, {
       amount: args.amount,
       oldCredits: user.credits,
-      newCredits:newCredits,
+      newCredits: newCredits,
     });
 
     await ctx.db.patch(user._id, { credits: newCredits });

@@ -232,8 +232,25 @@ export const deleteAllUserDreams = mutation({
       .withIndex("by_userId", (q) => q.eq("userId", userId!))
       .collect();
 
-    await Promise.all(dreams.map((d) => ctx.db.delete(d._id)));
+    // Delete storage items first
+    await Promise.all(
+      analysis
+        .filter((a) => a.imageStorageId)
+        .map((a) => ctx.storage.delete(a.imageStorageId!))
+    );
+
+    // Delete insights related to these dreams
+    const insights = await ctx.db
+      .query("insights")
+      .withIndex("by_userId", (q) => q.eq("userId", userId!))
+      .collect();
+    await Promise.all(insights.map((i) => ctx.db.delete(i._id)));
+
+    // Delete analysis records
     await Promise.all(analysis.map((a) => ctx.db.delete(a._id)));
+
+    // Finally delete dreams
+    await Promise.all(dreams.map((d) => ctx.db.delete(d._id)));
   },
 });
 
