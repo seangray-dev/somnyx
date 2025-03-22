@@ -47,6 +47,23 @@ const formSchema = z.object({
   monthYear: z.string().min(1, "Please select a month"),
 });
 
+const formatMonthYear = (monthYear: string) => {
+  const [month, year] = monthYear.split("-");
+  const date = parse(`${year}-${month}-01`, "yyyy-MM-dd", new Date());
+  return format(date, "MMMM yyyy");
+};
+
+const canGenerateCurrentMonthInsights = () => {
+  const today = new Date();
+  return isLastDayOfMonth(today);
+};
+
+const isCurrentMonth = (monthYear: string) => {
+  const [month, year] = monthYear.split("-");
+  const comparisonDate = new Date(Number(year), Number(month) - 1, 1);
+  return isSameMonth(new Date(), comparisonDate);
+};
+
 export default function InsightsForm() {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -55,17 +72,19 @@ export default function InsightsForm() {
   const { data: months } = useAvailableMonths();
   const { data: userCredits } = useUserCredits();
   const hasSufficientCredits = (userCredits ?? 0) >= CREDIT_COSTS.INSIGHT;
+
+  const isDisabled =
+    months?.length === 0 ||
+    months?.every(
+      (month) => isCurrentMonth(month) && !canGenerateCurrentMonthInsights()
+    );
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       monthYear: "",
     },
   });
-
-  const generatedStatusMap = Object.fromEntries(
-    months?.map((monthYear) => [monthYear, useInsightGenerated(monthYear)]) ??
-      []
-  );
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const currentCredits = userCredits ?? 0;
@@ -99,23 +118,6 @@ export default function InsightsForm() {
     }
   }
 
-  const formatMonthYear = (monthYear: string) => {
-    const [month, year] = monthYear.split("-");
-    const date = parse(`${year}-${month}-01`, "yyyy-MM-dd", new Date());
-    return format(date, "MMMM yyyy");
-  };
-
-  const canGenerateCurrentMonthInsights = () => {
-    const today = new Date();
-    return isLastDayOfMonth(today);
-  };
-
-  const isCurrentMonth = (monthYear: string) => {
-    const [month, year] = monthYear.split("-");
-    const comparisonDate = new Date(Number(year), Number(month) - 1, 1);
-    return isSameMonth(new Date(), comparisonDate);
-  };
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -144,36 +146,23 @@ export default function InsightsForm() {
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger disabled={isDisabled}>
                         <SelectValue placeholder="Select a month" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {months?.map((monthYear) => {
                         const isCurrent = isCurrentMonth(monthYear);
-                        const { data: isGenerated } =
-                          generatedStatusMap[monthYear];
                         const disabled =
                           isCurrent && !canGenerateCurrentMonthInsights();
 
-                        if (isGenerated) return null;
-
                         return (
-                          <SelectItem
+                          <MonthItem
                             key={monthYear}
-                            value={monthYear}
+                            monthYear={monthYear}
                             disabled={disabled}
-                          >
-                            <div className="flex items-center gap-4">
-                              <span>{formatMonthYear(monthYear)}</span>
-                              {disabled && (
-                                <div className="inline-flex items-center gap-1 text-xs">
-                                  <LockIcon size={12} />
-                                  <span>Unlocks at the end of the month</span>
-                                </div>
-                              )}
-                            </div>
-                          </SelectItem>
+                            formatMonthYear={formatMonthYear}
+                          />
                         );
                       })}
                     </SelectContent>
@@ -183,15 +172,50 @@ export default function InsightsForm() {
               )}
             />
             <LoadingButton
+              disabled={isDisabled}
               isLoading={isLoading}
               className="w-full"
               type="submit"
             >
-              Generate Insight ({CREDIT_COSTS.INSIGHT} Credits)
+              {isDisabled ? (
+                <span>
+                  You have no available months to generate an insight for
+                </span>
+              ) : (
+                <span>Generate Insight ({CREDIT_COSTS.INSIGHT} Credits)</span>
+              )}
             </LoadingButton>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function MonthItem({
+  monthYear,
+  disabled,
+  formatMonthYear,
+}: {
+  monthYear: string;
+  disabled: boolean;
+  formatMonthYear: (monthYear: string) => string;
+}) {
+  const { data: isGenerated } = useInsightGenerated(monthYear);
+
+  if (isGenerated) return null;
+
+  return (
+    <SelectItem key={monthYear} value={monthYear} disabled={disabled}>
+      <div className="flex items-center gap-4">
+        <span>{formatMonthYear(monthYear)}</span>
+        {disabled && (
+          <div className="inline-flex items-center gap-1 text-xs">
+            <LockIcon size={12} />
+            <span>Unlocks at the end of the month</span>
+          </div>
+        )}
+      </div>
+    </SelectItem>
   );
 }
