@@ -37,8 +37,8 @@ export default function InstallGuidePage() {
                       <li>Open Safari on your iOS device</li>
                       <li>Visit somnyx.app</li>
                       <li>Tap the share button (square with arrow)</li>
-                      <li>Select "Add to Home Screen"</li>
-                      <li>Tap "Add" to confirm</li>
+                      <li>Select &quot;Add to Home Screen&quot;</li>
+                      <li>Tap &quot;Add&quot; to confirm</li>
                     </ol>
                   </div>
                   <Video
@@ -59,8 +59,8 @@ export default function InstallGuidePage() {
                       <li>Open Chrome on your iOS device</li>
                       <li>Visit somnyx.app</li>
                       <li>Tap the three dots menu</li>
-                      <li>Select "Add to Home Screen"</li>
-                      <li>Tap "Add" to confirm</li>
+                      <li>Select &quot;Add to Home Screen&quot;</li>
+                      <li>Tap &quot;Add&quot; to confirm</li>
                     </ol>
                   </div>
                   <Video
@@ -89,9 +89,12 @@ export default function InstallGuidePage() {
                   <ol className="list-inside list-decimal space-y-2 text-sm text-muted-foreground">
                     <li>Open Chrome on your Android device</li>
                     <li>Visit somnyx.app</li>
-                    <li>Tap "Install" when prompted</li>
-                    <li>Or tap the three dots menu and select "Install app"</li>
-                    <li>Tap "Install" to confirm</li>
+                    <li>Tap &quot;Install&quot; when prompted</li>
+                    <li>
+                      Or tap the three dots menu and select &quot;Install
+                      app&quot;
+                    </li>
+                    <li>Tap &quot;Install&quot; to confirm</li>
                   </ol>
                 </div>
               </div>
@@ -118,7 +121,10 @@ export default function InstallGuidePage() {
       <div className="text-center text-sm text-muted-foreground">
         <p>
           Need help? Contact us at{" "}
-          <a href="mailto:somnyxapp@gmail.com" className="underline">
+          <a
+            href="mailto:somnyxapp@gmail.com"
+            className="underline transition-colors duration-150 hover:text-primary"
+          >
             somnyxapp@gmail.com
           </a>
         </p>
