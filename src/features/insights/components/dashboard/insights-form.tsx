@@ -62,6 +62,11 @@ export default function InsightsForm() {
     },
   });
 
+  const generatedStatusMap = Object.fromEntries(
+    months?.map((monthYear) => [monthYear, useInsightGenerated(monthYear)]) ??
+      []
+  );
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const currentCredits = userCredits ?? 0;
     if (!hasSufficientCredits) {
@@ -147,7 +152,7 @@ export default function InsightsForm() {
                       {months?.map((monthYear) => {
                         const isCurrent = isCurrentMonth(monthYear);
                         const { data: isGenerated } =
-                          useInsightGenerated(monthYear);
+                          generatedStatusMap[monthYear];
                         const disabled =
                           isCurrent && !canGenerateCurrentMonthInsights();
 
