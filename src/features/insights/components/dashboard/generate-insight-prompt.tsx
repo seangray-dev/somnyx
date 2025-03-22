@@ -1,8 +1,13 @@
+import Link from "next/link";
+import { useState } from "react";
+
+import { useMutation } from "convex/react";
 import { differenceInDays, endOfMonth, format } from "date-fns";
 import { ClockIcon, SparklesIcon } from "lucide-react";
+import { toast } from "sonner";
 
+import LoadingButton from "@/components/shared/loading-button";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,15 +16,54 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { api } from "@/convex/_generated/api";
 import { CREDIT_COSTS } from "@/convex/util";
+import useUserCredits from "@/features/credits/api/use-user-credits";
 
 import InsightsForm from "./insights-form";
 
-export default function CurrentMonthInsightsPrompt() {
+export default function GenerateInsightPrompt() {
+  const [isLoading, setIsLoading] = useState(false);
+  // @ts-ignore
+  const generateInsight = useMutation(api.mutations.generateInsight);
+  const { data: userCredits } = useUserCredits();
   const today = new Date();
   const currentMonth = format(today, "MMMM yyyy");
+  const monthYear = format(today, "MM-yyyy");
   const endOfCurrentMonth = endOfMonth(today);
   const daysRemaining = differenceInDays(endOfCurrentMonth, today);
+  const hasSufficientCredits = (userCredits ?? 0) >= CREDIT_COSTS.INSIGHT;
+
+  const handleGenerateInsight = async () => {
+    const currentCredits = userCredits ?? 0;
+    if (!hasSufficientCredits) {
+      const neededCredits = CREDIT_COSTS.INSIGHT - currentCredits;
+      toast.error(
+        <div>
+          Insufficient credits. You need {neededCredits} more credits.
+          <br />
+          <Link
+            href="/#pricing"
+            className="text-destructive-foreground underline"
+          >
+            Get more credits
+          </Link>
+        </div>
+      );
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await generateInsight({ monthYear });
+      toast.success("Insight generated successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to generate insight");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Card className="flex flex-col">
@@ -48,10 +92,12 @@ export default function CurrentMonthInsightsPrompt() {
         </CardContent>
       )}
       <CardFooter className="flex flex-col gap-2 capitalize">
-        <Button
+        <LoadingButton
           size={"lg"}
           className="w-full capitalize"
           disabled={daysRemaining !== 0}
+          isLoading={isLoading}
+          onClick={handleGenerateInsight}
         >
           <div>
             <span>
@@ -59,7 +105,7 @@ export default function CurrentMonthInsightsPrompt() {
             </span>
             <span>({CREDIT_COSTS.INSIGHT} credits)</span>
           </div>
-        </Button>
+        </LoadingButton>
         <InsightsForm />
       </CardFooter>
     </Card>

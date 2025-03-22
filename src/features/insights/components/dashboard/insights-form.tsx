@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,8 +38,10 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/convex/_generated/api";
 import { CREDIT_COSTS } from "@/convex/util";
+import useUserCredits from "@/features/credits/api/use-user-credits";
 
 import useAvailableMonths from "../../api/use-available-months";
+import useInsightGenerated from "../../api/use-insight-generated";
 
 const formSchema = z.object({
   monthYear: z.string().min(1, "Please select a month"),
@@ -47,8 +50,11 @@ const formSchema = z.object({
 export default function InsightsForm() {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  // @ts-ignore
   const generateInsight = useMutation(api.mutations.generateInsight);
   const { data: months } = useAvailableMonths();
+  const { data: userCredits } = useUserCredits();
+  const hasSufficientCredits = (userCredits ?? 0) >= CREDIT_COSTS.INSIGHT;
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -57,6 +63,24 @@ export default function InsightsForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const currentCredits = userCredits ?? 0;
+    if (!hasSufficientCredits) {
+      const neededCredits = CREDIT_COSTS.INSIGHT - currentCredits;
+      toast.error(
+        <div>
+          Insufficient credits. You need {neededCredits} more credits.
+          <br />
+          <Link
+            href="/#pricing"
+            className="text-destructive-foreground underline"
+          >
+            Get more credits
+          </Link>
+        </div>
+      );
+      return;
+    }
+
     try {
       setIsLoading(true);
       await generateInsight({ monthYear: values.monthYear });
@@ -64,6 +88,7 @@ export default function InsightsForm() {
       setOpen(false);
     } catch (error) {
       console.error(error);
+      toast.error("Failed to generate insight");
     } finally {
       setIsLoading(false);
     }
@@ -119,11 +144,14 @@ export default function InsightsForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {/* TODO: Disable month if already generated  */}
                       {months?.map((monthYear) => {
                         const isCurrent = isCurrentMonth(monthYear);
+                        const { data: isGenerated } =
+                          useInsightGenerated(monthYear);
                         const disabled =
                           isCurrent && !canGenerateCurrentMonthInsights();
+
+                        if (isGenerated) return null;
 
                         return (
                           <SelectItem

@@ -193,6 +193,19 @@ export const getDreamsInCurrentMonthCount = query({
   },
 });
 
+export const getAllInsights = query({
+  handler: async (ctx) => {
+    const userId = await getUserId(ctx);
+
+    const insights = await ctx.db
+      .query("insights")
+      .withIndex("by_userId", (q) => q.eq("userId", userId!))
+      .collect();
+
+    return insights;
+  },
+});
+
 export const getAvailbleMonthsForInsights = query({
   handler: async (ctx) => {
     const userId = await getUserId(ctx);

@@ -681,6 +681,7 @@ export const regenerateAnalysisImage = action({
     const userId = await getUserId(ctx);
 
     const dream = await ctx.runQuery(
+      // @ts-ignore
       internal.queries.dreams.getDreamByIdInternal,
       {
         id: args.dreamId,
@@ -760,7 +761,10 @@ export const generateInsight = internalAction({
         _id: v.id("dreams"),
         _creationTime: v.optional(v.number()),
         isPublic: v.optional(v.boolean()),
+        isLucid: v.optional(v.boolean()),
+        isRecurring: v.optional(v.boolean()),
         title: v.optional(v.string()),
+        slug: v.optional(v.string()),
         userId: v.string(),
         date: v.string(),
         emotions: v.array(v.id("emotions")),
@@ -813,6 +817,8 @@ export const generateInsight = internalAction({
           Things: ${things.length ? things.join(", ") : "None"}
           Themes: ${themes.length ? themes.join(", ") : "None"}
           Symbols: ${symbols.length ? symbols.join(", ") : "None"}
+          Recurring: ${dream.isRecurring ? "Yes" : "No"}
+          Lucid: ${dream.isLucid ? "Yes" : "No"}
           Details: ${details}
           `;
         })
