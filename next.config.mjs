@@ -48,6 +48,7 @@ const nextConfig = {
   },
 };
 
+// @ts-ignore - Sentry config is not typed
 export default withSentryConfig(withMDX(nextConfig), {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
