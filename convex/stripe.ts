@@ -84,7 +84,6 @@ export const fulfill = internalAction({
         const userId = completedEvent.metadata.userId;
         const credits = parseInt(completedEvent.metadata.credits);
 
-        // @ts-expect-error - Type instantiation is excessively deep and possibly infinite.
         await ctx.runMutation(internal.users.updateUserCredits, {
           userId,
           amount: credits,
