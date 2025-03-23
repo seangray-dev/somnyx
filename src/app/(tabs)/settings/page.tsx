@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 
 import Account from "@/components/settings/account";
+import BillingHistory from "@/components/settings/billing-history";
 import DeleteActions from "@/components/settings/delete-actions";
 import NotificationsSection from "@/components/settings/notifications-section";
 import ThemeSection from "@/components/settings/theme-section";
@@ -19,6 +20,7 @@ export default function SettingsPage() {
         <NotificationsSection />
         <EmailSection />
         <CookieSettingsSection />
+        <BillingHistory />
         <DeleteActions />
         <NotificationTester />
       </div>

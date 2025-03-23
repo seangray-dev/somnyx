@@ -55,6 +55,7 @@ import type * as queries_notificationPreferences from "../queries/notificationPr
 import type * as queries_notifications from "../queries/notifications.js";
 import type * as queries_roles from "../queries/roles.js";
 import type * as queries_scheduler from "../queries/scheduler.js";
+import type * as queries_stripe from "../queries/stripe.js";
 import type * as queries_themeCategories from "../queries/themeCategories.js";
 import type * as queries_themePages from "../queries/themePages.js";
 import type * as queries from "../queries.js";
@@ -114,6 +115,7 @@ declare const fullApi: ApiFromModules<{
   "queries/notifications": typeof queries_notifications;
   "queries/roles": typeof queries_roles;
   "queries/scheduler": typeof queries_scheduler;
+  "queries/stripe": typeof queries_stripe;
   "queries/themeCategories": typeof queries_themeCategories;
   "queries/themePages": typeof queries_themePages;
   queries: typeof queries;
