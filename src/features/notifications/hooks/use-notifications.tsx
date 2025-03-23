@@ -9,6 +9,7 @@ import {
   notificationSubscriptionAtom,
   useGetSubscription,
 } from "@/features/store/notifications";
+import { generateDeviceId, getDeviceInfo } from "@/utils/device-info";
 import { urlBase64ToUint8Array } from "@/utils/notifications";
 
 import {
@@ -32,50 +33,78 @@ type PushSubscriptionJSON = {
 };
 
 export default function useNotifications() {
+  const [deviceId] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("deviceId") || generateDeviceId();
+    }
+    return "";
+  });
+
+  const { subscription, isLoading } = useGetSubscription(deviceId);
+  const setSubscription = useSetAtom(notificationSubscriptionAtom);
   const [isSupported, setIsSupported] = useState(false);
   const [browserSubscription, setBrowserSubscription] =
     useState<PushSubscription | null>(null);
-  const { subscription, isLoading } = useGetSubscription();
-  const setSubscription = useSetAtom(notificationSubscriptionAtom);
 
   useEffect(() => {
+    if (deviceId) {
+      localStorage.setItem("deviceId", deviceId);
+    }
+
+    console.log("Device ID:", deviceId);
+  }, [deviceId]);
+
+  // Check if notifications are supported
+  useEffect(() => {
     if (typeof window !== "undefined") {
-      setIsSupported("Notification" in window && "serviceWorker" in navigator);
+      setIsSupported("serviceWorker" in navigator && "PushManager" in window);
     }
   }, []);
 
+  // Register service worker and get existing subscription
   useEffect(() => {
-    async function getSubscription() {
+    async function registerAndGetSubscription() {
       try {
-        const sw = await navigator.serviceWorker.ready;
-        const existingSubscription = await sw.pushManager.getSubscription();
+        // Register service worker first
+        const registration = await navigator.serviceWorker.register("/sw.js", {
+          scope: "/",
+          updateViaCache: "none",
+        });
+
+        // Get existing subscription
+        const existingSubscription =
+          await registration.pushManager.getSubscription();
         setBrowserSubscription(existingSubscription);
       } catch (error) {
-        console.error("Error getting subscription:", error);
+        console.error("Error registering service worker:", error);
       }
     }
 
     if (isSupported) {
-      getSubscription();
+      registerAndGetSubscription();
     }
   }, [isSupported]);
 
   const subscribeToPush = useCallback(async () => {
     try {
-      const sw = await navigator.serviceWorker.ready;
+      const registration = await navigator.serviceWorker.ready;
+
       const vapidKey = env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       const applicationServerKey = urlBase64ToUint8Array(vapidKey);
 
-      const newSubscription = await sw.pushManager.subscribe({
+      const newSubscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey,
       });
 
       setBrowserSubscription(newSubscription);
 
-      // Convert PushSubscription to our schema format
       const subscriptionJSON = newSubscription.toJSON() as PushSubscriptionJSON;
+      const { browser, os } = getDeviceInfo();
+
       const result = await subscribeUser({
+        deviceId: deviceId,
+        deviceName: `${browser} on ${os}`,
         endpoint: subscriptionJSON.endpoint,
         expirationTime: subscriptionJSON.expirationTime,
         keys: {
@@ -88,16 +117,12 @@ export default function useNotifications() {
         },
       });
 
-      if (result.success) {
-        // The subscription will be updated via Convex's real-time updates
-        return true;
-      }
-      return false;
+      return result.success;
     } catch (error) {
       console.error("Error subscribing to push:", error);
       return false;
     }
-  }, []);
+  }, [deviceId]);
 
   const unsubscribeFromPush = useCallback(async () => {
     if (!browserSubscription || !subscription) return false;
@@ -107,7 +132,7 @@ export default function useNotifications() {
       await browserSubscription.unsubscribe();
 
       // Then remove from Convex
-      const result = await unsubscribeUser(subscription.subscription.endpoint);
+      const result = await unsubscribeUser(deviceId);
 
       if (result.success) {
         setBrowserSubscription(null);
@@ -119,19 +144,19 @@ export default function useNotifications() {
       console.error("Error unsubscribing from push:", error);
       return false;
     }
-  }, [browserSubscription, subscription, setSubscription]);
+  }, [browserSubscription, subscription, setSubscription, deviceId]);
 
   const sendTestNotification = useCallback(async () => {
     if (!subscription) return false;
 
     try {
-      await sendNotification("This is a test notification!");
+      await sendNotification(deviceId, "This is a test notification!");
       return true;
     } catch (error) {
       console.error("Error sending test notification:", error);
       return false;
     }
-  }, [subscription]);
+  }, [subscription, deviceId]);
 
   return {
     isSupported,

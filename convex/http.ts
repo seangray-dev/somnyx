@@ -1,10 +1,10 @@
 import { httpRouter } from "convex/server";
 import OpenAI from "openai";
 
-import { createRateLimit } from "../src/lib/rate-limit";
 import { internal } from "./_generated/api";
-import { Doc, Id } from "./_generated/dataModel";
+import { Id } from "./_generated/dataModel";
 import { httpAction } from "./_generated/server";
+import { sendWelcomeEmail } from "./emails";
 import { SYSTEM_PROMPT } from "./util";
 
 const http = httpRouter();
@@ -92,16 +92,28 @@ http.route({
             last_name: result.data.last_name || "",
             profileImage: result.data.image_url,
           });
+          await sendWelcomeEmail({
+            name: result.data.first_name || undefined,
+            email: result.data.email_addresses[0].email_address,
+          });
           break;
         case "user.updated":
           await ctx.runMutation(internal.users.updateUser, {
             userId: result.data.id,
+            email: result.data.email_addresses[0]?.email_address,
+            first_name: result.data.first_name || "",
+            last_name: result.data.last_name || "",
             profileImage: result.data.image_url,
           });
           break;
         case "user.deleted":
           await ctx.runMutation(internal.users.deleteUser, {
             userId: result.data.id!,
+          });
+          break;
+        case "session.created":
+          await ctx.runMutation(internal.users.updateLastLogin, {
+            userId: result.data.user_id,
           });
           break;
       }
@@ -123,19 +135,50 @@ http.route({
   method: "POST",
   handler: httpAction(async (ctx, request) => {
     try {
-      const body = await request.json();
-      const { conversationId } = body;
-      const messageId: Id<"messages"> = body.messageId;
-      const messages: Doc<"messages">[] = body.messages;
+      const body = (await request.json()) as {
+        conversationId: string;
+        messageId: Id<"messages">;
+        messages: Array<{
+          body: string;
+          author: "user" | "AI";
+        }>;
+      };
 
-      const rateLimit = createRateLimit(1, 24 * 60 * 60);
-      const { success } = await rateLimit.limit(conversationId);
+      const { conversationId, messageId, messages } = body;
 
-      if (!success) {
-        return new Response("Please wait 24 hours between dream analyses", {
-          status: 429,
-        });
-      }
+      // TODO: Implement rate limiting
+      // const rateLimit = createRateLimit(2, 24 * 60 * 60, "dream-analysis");
+      // const clientIp = getClientIp(request);
+      // console.log("[Rate Limit] Checking for IP:", clientIp);
+
+      // const rateLimitResult = await rateLimit.limit(clientIp);
+      // console.log("[Rate Limit] Result:", {
+      //   success: rateLimitResult.success,
+      //   remaining: rateLimitResult.remaining,
+      //   reset: new Date(rateLimitResult.reset * 1000).toISOString(),
+      //   limit: rateLimitResult.limit
+      // });
+
+      // if (!rateLimitResult.success) {
+      //   const resetDate = new Date(rateLimitResult.reset * 1000).toISOString();
+      //   console.log("[Rate Limit] Request blocked - limit exceeded");
+      //   return new Response(
+      //     JSON.stringify({
+      //       error: "Rate limit exceeded",
+      //       message: `Please wait until ${new Date(resetDate).toLocaleString()} before requesting another dream analysis`,
+      //       reset: resetDate,
+      //     }),
+      //     {
+      //       status: 429,
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //         "X-RateLimit-Limit": rateLimitResult.limit.toString(),
+      //         "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+      //         "X-RateLimit-Reset": resetDate,
+      //       },
+      //     }
+      //   );
+      // }
 
       // Create streaming response
       const { readable, writable } = new TransformStream();

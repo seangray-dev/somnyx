@@ -11,16 +11,26 @@ export default defineSchema({
     isAdmin: v.optional(v.boolean()),
     adminSince: v.optional(v.number()),
     lastLoginAt: v.optional(v.number()),
-    subscriptionId: v.optional(v.string()),
     profileImage: v.optional(v.string()),
-    endsOn: v.optional(v.number()),
+    onboardingCompletedAt: v.optional(v.number()),
   })
     .index("by_userId", ["userId"])
-    .index("by_email", ["email"])
-    .index("by_subscriptionId", ["subscriptionId"]),
+    .index("by_email", ["email"]),
+
+  onboarding: defineTable({
+    userId: v.string(),
+    onboardingStep: v.number(),
+    lastEmailSent: v.optional(v.string()), // Track last email type
+    lastEmailDate: v.optional(v.number()),
+    completed: v.optional(v.boolean()),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_completed", ["completed"]),
 
   notifications: defineTable({
     userId: v.string(),
+    deviceId: v.string(),
+    deviceName: v.string(),
     subscription: v.object({
       endpoint: v.string(),
       expirationTime: v.optional(v.number()),
@@ -35,11 +45,14 @@ export default defineSchema({
         })
       ),
     }),
+    lastActiveAt: v.number(),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_userId", ["userId"])
-    .index("by_userId_and_endpoint", ["userId", "subscription.endpoint"]),
+    .index("by_userId_and_deviceId", ["userId", "deviceId"])
+    .index("by_userId_and_endpoint", ["userId", "subscription.endpoint"])
+    .index("by_deviceId", ["deviceId"]),
 
   emotions: defineTable({
     name: v.string(),
@@ -53,19 +66,26 @@ export default defineSchema({
 
   dreams: defineTable({
     userId: v.string(),
-    isPublic: v.optional(v.boolean()),
+    details: v.string(),
     date: v.string(),
+    isRecurring: v.optional(v.boolean()),
+    isLucid: v.optional(v.boolean()),
     emotions: v.array(v.id("emotions")),
     role: v.optional(v.id("roles")),
     people: v.optional(v.array(v.string())),
     places: v.optional(v.array(v.string())),
     things: v.optional(v.array(v.string())),
-    themes: v.optional(v.array(v.string())),
     title: v.optional(v.string()),
-    details: v.string(),
+    themes: v.optional(v.array(v.string())),
+    symbols: v.optional(v.array(v.string())),
+    isPublic: v.optional(v.boolean()),
+    slug: v.optional(v.string()),
   })
     .index("by_userId", ["userId"])
-    .index("by_userId_and_date", ["userId", "date"]),
+    .index("by_userId_and_date", ["userId", "date"])
+    .index("by_date_slug", ["date", "slug"])
+    .index("by_isPublic_date_slug", ["isPublic", "date", "slug"])
+    .index("by_userId_date_slug", ["userId", "date", "slug"]),
 
   analysis: defineTable({
     dreamId: v.string(),
@@ -242,13 +262,41 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_conversation", ["conversationId"]),
 
+  themeCategories: defineTable({
+    name: v.union(
+      v.literal("relationships_social"),
+      v.literal("emotional_states"),
+      v.literal("physical_elements"),
+      v.literal("animals_creatures"),
+      v.literal("objects_symbols"),
+      v.literal("settings_places"),
+      v.literal("actions_events"),
+      v.literal("personal_growth"),
+      v.literal("body_health"),
+      v.literal("nature_environment"),
+      v.literal("travel_journey"),
+      v.literal("time_memory"),
+      v.literal("power_control"),
+      v.literal("spiritual_mystical"),
+      v.literal("common_themes"),
+      v.literal("elements")
+    ),
+    displayName: v.string(),
+    description: v.string(),
+    examples: v.array(v.string()),
+    updatedAt: v.number(),
+  }).index("by_name", ["name"]),
+
   commonElements: defineTable({
     name: v.string(),
     count: v.number(),
     updatedAt: v.number(),
     type: v.union(v.literal("symbol"), v.literal("theme")),
-    category: v.string(),
+    category: v.optional(v.id("themeCategories")),
     confidence: v.number(),
+    freeInterpretationIds: v.optional(v.array(v.id("freeInterpretations"))),
+    dreamIds: v.optional(v.array(v.id("dreams"))),
+    redditPostIds: v.optional(v.array(v.id("redditPosts"))),
   })
     .index("by_count", ["count"])
     .index("by_name", ["name"])
@@ -277,6 +325,8 @@ export default defineSchema({
     culturalContext: v.string(),
     commonScenarios: v.array(v.string()),
     tips: v.string(),
+    category: v.optional(v.id("themeCategories")),
+    type: v.optional(v.union(v.literal("symbol"), v.literal("theme"))),
     updatedAt: v.number(),
     storageId: v.optional(v.id("_storage")),
   })
@@ -319,4 +369,64 @@ export default defineSchema({
     .index("by_type", ["type"])
     .index("by_userId", ["userId"])
     .index("by_status", ["status"]),
+
+  notificationPreferences: defineTable({
+    userId: v.string(),
+    dailyReminderTime: v.optional(v.number()),
+    timezoneOffset: v.optional(v.number()),
+    enabledTypes: v.array(v.string()),
+    lastDailyReminderSent: v.optional(v.number()),
+    updatedAt: v.number(),
+  }).index("by_userId", ["userId"]),
+
+  emailPreferences: defineTable({
+    userId: v.string(),
+    dreamReminders: v.boolean(),
+    lastDreamReminderSent: v.optional(v.number()),
+    monthlyInsights: v.boolean(),
+    newFeatures: v.boolean(),
+    updatedAt: v.number(),
+  }).index("by_userId", ["userId"]),
+
+  freeInterpretations: defineTable({
+    dreamText: v.string(),
+    analysis: v.optional(
+      v.object({
+        summary: v.string(),
+        emotionalBreakdown: v.string(),
+        symbolicInterpretation: v.string(),
+        underlyingMessage: v.string(),
+        actionableTakeaway: v.string(),
+      })
+    ),
+    isExpired: v.boolean(),
+    expiresAt: v.number(),
+    createdAt: v.number(),
+    ipAddress: v.optional(v.string()),
+    sessionId: v.optional(v.string()),
+  })
+    .index("by_createdAt", ["createdAt"])
+    .index("by_expiresAt", ["expiresAt"])
+    .index("by_ipAddress_createdAt", ["ipAddress", "createdAt"]),
+
+  rateLimits: defineTable({
+    ipAddress: v.string(),
+    sessionId: v.optional(v.string()),
+    feature: v.string(),
+    requestCount: v.number(),
+    lastRequestTimestamp: v.number(),
+    expiresAt: v.number(),
+  })
+    .index("by_ip", ["ipAddress"])
+    .index("by_ip_and_feature", ["ipAddress", "feature"]),
+
+  redditPosts: defineTable({
+    title: v.string(),
+    content: v.string(),
+    url: v.string(),
+    subreddit: v.string(),
+    scrapedAt: v.string(),
+    processed: v.optional(v.boolean()),
+    processedAt: v.optional(v.string()),
+  }).index("by_url", ["url"]),
 });

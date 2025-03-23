@@ -1,38 +1,5 @@
 # SOMNYX
 
-## TODO
-
-- [ ] Issue with signing up not redirecting... stuck on clerk page
-- [ ] change relatvie date to actual date (in dream card)
-- [ ] Sorting dreams by date the dream happened - Recent Dreams + Journal
-- [ ] Journal Page
-  - [x] pagination
-  - [ ] search
-  - [ ] filters
-- [ ] (Paid) - Edit Dream + New Analysis
-- [x] Delete Account and related data (settings page)
-  - [ ] Feedback for reason on deleting account
-- [ ] Update the share link to use the new domain - look into using a service
-- [ ] Has sufficient credits hook / query
-- [x] Deep Analysis Feature
-  - [ ] add loading states and placeholder for when insight hasn't been generated yet
-  - [ ] how to handle if a user adds a dream to the month after the insight has been generated?
-- [ ] Error + 404 pages
-- [ ] PWA setup and notifications
-- [ ] Favicon, logo
-- [ ] Metadata + SEO
-- [ ] Landing Page
-- [ ] Legal Pages
-- [ ] Contact + Support Page
-- [x] Domain Purchase
-- [ ] Analytics (posthog, plausible)
-- [ ] Error Management? (Sentry)
-- [ ] Deploy to production (convex, clerk)
-- [ ] Create blog posts
-- [x] Make it deploy
-- [ ] ? Allow users to log that they did not dream - don't execute analysis
-- [ ] (backlog) Consider adding a themes table, store id of theme on dream table. Do lookup on themes table before inserting new themes in db. Add it if it doesn't exist yet.
-
 ## Getting Started
 
 Copy the `.env.example` file to `.env` and obtain the values.

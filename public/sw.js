@@ -1,32 +1,51 @@
 self.addEventListener("push", function (event) {
   if (event.data) {
-    let data;
+    let payload;
     try {
-      data = event.data.json();
+      payload = event.data.json();
     } catch (e) {
-      // If JSON parsing fails, use text as the message body
-      data = {
+      payload = {
         title: "Somnyx",
         body: event.data.text(),
-        icon: "/images/icon-192x192.png",
+        icon: "/icon-192x192.png",
       };
     }
 
     const options = {
-      body: data.body,
-      icon: data.icon || "/images/icon-192x192.png",
+      body: payload.body,
+      icon: payload.icon || "/icon-192x192.png",
+      badge: "/icon-192x192.png", // Optional: adds a small icon for Android
       vibrate: [100, 50, 100],
+      tag: payload.data?.type || "default", // Groups similar notifications
       data: {
+        url: payload.url,
+        ...payload.data,
         dateOfArrival: Date.now(),
-        primaryKey: "2",
       },
+      actions: payload.actions || [], // Optional: add action buttons
     };
-    event.waitUntil(self.registration.showNotification(data.title, options));
+
+    event.waitUntil(self.registration.showNotification(payload.title, options));
   }
 });
 
 self.addEventListener("notificationclick", function (event) {
-  console.log("Notification click received.");
   event.notification.close();
-  event.waitUntil(clients.openWindow(self.registration.scope));
+
+  // Get the URL from the notification data or fallback to scope
+  const url = event.notification.data?.url || self.registration.scope;
+
+  event.waitUntil(
+    clients.matchAll({ type: "window" }).then((windowClients) => {
+      // Check if there is already a window/tab open with the target URL
+      for (let i = 0; i < windowClients.length; i++) {
+        const client = windowClients[i];
+        if (client.url === url && "focus" in client) {
+          return client.focus();
+        }
+      }
+      // If no window/tab is already open, open a new one
+      return clients.openWindow(url);
+    })
+  );
 });

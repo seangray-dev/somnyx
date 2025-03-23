@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { EyeIcon, EyeOffIcon, Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -22,6 +22,12 @@ import { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 
 export default function AdminDreamDictionaryPagesList() {
+  const [regeneratingId, setRegeneratingId] = useState<Id<"themePages"> | null>(
+    null
+  );
+  const regenerateImage = useAction(
+    api.mutations.openai.regenerateThemePageImageAction
+  );
   const themePages = useQuery(api.queries.themePages.getAllThemePagesAdmin);
   const togglePublish = useMutation(
     api.mutations.themePages.togglePublishState
@@ -56,6 +62,24 @@ export default function AdminDreamDictionaryPagesList() {
       });
     } finally {
       setPublishingId(null);
+    }
+  };
+
+  const handleRegenerateImage = async (id: Id<"themePages">) => {
+    try {
+      setRegeneratingId(id);
+      const result = await regenerateImage({ pageId: id });
+
+      if (result?.success) {
+        toast.success("Image regenerated successfully");
+      } else {
+        toast.error("Failed to regenerate image");
+      }
+    } catch (error) {
+      console.error("Regenerate image error:", error);
+      toast.error("Failed to regenerate image");
+    } finally {
+      setRegeneratingId(null);
     }
   };
 
@@ -151,6 +175,23 @@ export default function AdminDreamDictionaryPagesList() {
                       "Unpublish"
                     ) : (
                       "Publish"
+                    )}
+                  </Button>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleRegenerateImage(page._id)}
+                    disabled={regeneratingId === page._id}
+                  >
+                    {regeneratingId === page._id ? (
+                      <>
+                        Regenerating...
+                        <Loader2Icon className="ml-2 h-4 w-4 animate-spin" />
+                      </>
+                    ) : (
+                      "Regenerate Image"
                     )}
                   </Button>
                 </div>

@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -10,7 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { baseUrl } from "@/config/app";
 import { Doc } from "@/convex/_generated/dataModel";
+import ShareButton from "@/features/share/components/share-button";
 import { useGetThemePageImageUrl } from "@/hooks/use-convex-image";
 
 interface ThemeContentProps {
@@ -46,12 +47,19 @@ export default function ThemeContent({ themePage }: ThemeContentProps) {
         {/* Hero Section */}
         <header className="grid items-center gap-8 md:grid-cols-2">
           <div className="space-y-6 text-center md:text-left">
-            <h1 className="text-4xl font-bold capitalize tracking-tight">
-              {name} Dreams
-            </h1>
+            <div className="flex items-center justify-center gap-4 md:justify-start">
+              <h1 className="text-center text-4xl font-bold capitalize tracking-tight md:text-left">
+                {name} Dreams
+              </h1>
+            </div>
             <p className="text-balance text-lg text-muted-foreground">
               {summary}
             </p>
+            <div className="flex justify-center md:justify-start">
+              <ShareButton
+                url={`${baseUrl}/dream-dictionary/${themePage.seo_slug}`}
+              />
+            </div>
           </div>
           {imageUrl ? (
             <div>
@@ -73,20 +81,23 @@ export default function ThemeContent({ themePage }: ThemeContentProps) {
         <section className="mx-auto mt-16 grid gap-8 rounded-lg bg-muted p-8 md:grid-cols-2">
           <div className="space-y-3">
             <h2 className="text-xl font-semibold">Common Symbols</h2>
-            <ul className="flex flex-wrap gap-2">
+            <ul className="list-outside list-disc space-y-1 pl-5 text-sm">
               {commonSymbols.map((symbol: string) => (
-                <li key={symbol}>
-                  <Badge>{symbol}</Badge>
+                <li key={symbol} className="text-muted-foreground">
+                  {symbol}
                 </li>
               ))}
             </ul>
           </div>
           <div className="space-y-3">
             <h2 className="text-xl font-semibold">Common Scenarios</h2>
-            <ul className="flex flex-wrap gap-2">
+            <ul className="list-outside list-disc space-y-1 pl-5 text-sm">
               {commonScenarios.map((scenario: string) => (
-                <li key={scenario}>
-                  <Badge>{scenario}</Badge>
+                <li
+                  key={scenario}
+                  className="text-pretty text-muted-foreground"
+                >
+                  {scenario}
                 </li>
               ))}
             </ul>

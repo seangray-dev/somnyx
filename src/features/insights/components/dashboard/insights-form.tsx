@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,18 +38,47 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/convex/_generated/api";
 import { CREDIT_COSTS } from "@/convex/util";
+import useUserCredits from "@/features/credits/api/use-user-credits";
 
 import useAvailableMonths from "../../api/use-available-months";
+import useInsightGenerated from "../../api/use-insight-generated";
 
 const formSchema = z.object({
   monthYear: z.string().min(1, "Please select a month"),
 });
 
+const formatMonthYear = (monthYear: string) => {
+  const [month, year] = monthYear.split("-");
+  const date = parse(`${year}-${month}-01`, "yyyy-MM-dd", new Date());
+  return format(date, "MMMM yyyy");
+};
+
+const canGenerateCurrentMonthInsights = () => {
+  const today = new Date();
+  return isLastDayOfMonth(today);
+};
+
+const isCurrentMonth = (monthYear: string) => {
+  const [month, year] = monthYear.split("-");
+  const comparisonDate = new Date(Number(year), Number(month) - 1, 1);
+  return isSameMonth(new Date(), comparisonDate);
+};
+
 export default function InsightsForm() {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  // @ts-ignore
   const generateInsight = useMutation(api.mutations.generateInsight);
   const { data: months } = useAvailableMonths();
+  const { data: userCredits } = useUserCredits();
+  const hasSufficientCredits = (userCredits ?? 0) >= CREDIT_COSTS.INSIGHT;
+
+  const isDisabled =
+    months?.length === 0 ||
+    months?.every(
+      (month) => isCurrentMonth(month) && !canGenerateCurrentMonthInsights()
+    );
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -57,6 +87,24 @@ export default function InsightsForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const currentCredits = userCredits ?? 0;
+    if (!hasSufficientCredits) {
+      const neededCredits = CREDIT_COSTS.INSIGHT - currentCredits;
+      toast.error(
+        <div>
+          Insufficient credits. You need {neededCredits} more credits.
+          <br />
+          <Link
+            href="/#pricing"
+            className="text-destructive-foreground underline"
+          >
+            Get more credits
+          </Link>
+        </div>
+      );
+      return;
+    }
+
     try {
       setIsLoading(true);
       await generateInsight({ monthYear: values.monthYear });
@@ -64,27 +112,11 @@ export default function InsightsForm() {
       setOpen(false);
     } catch (error) {
       console.error(error);
+      toast.error("Failed to generate insight");
     } finally {
       setIsLoading(false);
     }
   }
-
-  const formatMonthYear = (monthYear: string) => {
-    const [month, year] = monthYear.split("-");
-    const date = parse(`${year}-${month}-01`, "yyyy-MM-dd", new Date());
-    return format(date, "MMMM yyyy");
-  };
-
-  const canGenerateCurrentMonthInsights = () => {
-    const today = new Date();
-    return isLastDayOfMonth(today);
-  };
-
-  const isCurrentMonth = (monthYear: string) => {
-    const [month, year] = monthYear.split("-");
-    const comparisonDate = new Date(Number(year), Number(month) - 1, 1);
-    return isSameMonth(new Date(), comparisonDate);
-  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -114,33 +146,23 @@ export default function InsightsForm() {
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger disabled={isDisabled}>
                         <SelectValue placeholder="Select a month" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {/* TODO: Disable month if already generated  */}
                       {months?.map((monthYear) => {
                         const isCurrent = isCurrentMonth(monthYear);
                         const disabled =
                           isCurrent && !canGenerateCurrentMonthInsights();
 
                         return (
-                          <SelectItem
+                          <MonthItem
                             key={monthYear}
-                            value={monthYear}
+                            monthYear={monthYear}
                             disabled={disabled}
-                          >
-                            <div className="flex items-center gap-4">
-                              <span>{formatMonthYear(monthYear)}</span>
-                              {disabled && (
-                                <div className="inline-flex items-center gap-1 text-xs">
-                                  <LockIcon size={12} />
-                                  <span>Unlocks at the end of the month</span>
-                                </div>
-                              )}
-                            </div>
-                          </SelectItem>
+                            formatMonthYear={formatMonthYear}
+                          />
                         );
                       })}
                     </SelectContent>
@@ -150,15 +172,50 @@ export default function InsightsForm() {
               )}
             />
             <LoadingButton
+              disabled={isDisabled}
               isLoading={isLoading}
               className="w-full"
               type="submit"
             >
-              Generate Insight ({CREDIT_COSTS.INSIGHT} Credits)
+              {isDisabled ? (
+                <span>
+                  You have no available months to generate an insight for
+                </span>
+              ) : (
+                <span>Generate Insight ({CREDIT_COSTS.INSIGHT} Credits)</span>
+              )}
             </LoadingButton>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function MonthItem({
+  monthYear,
+  disabled,
+  formatMonthYear,
+}: {
+  monthYear: string;
+  disabled: boolean;
+  formatMonthYear: (monthYear: string) => string;
+}) {
+  const { data: isGenerated } = useInsightGenerated(monthYear);
+
+  if (isGenerated) return null;
+
+  return (
+    <SelectItem key={monthYear} value={monthYear} disabled={disabled}>
+      <div className="flex items-center gap-4">
+        <span>{formatMonthYear(monthYear)}</span>
+        {disabled && (
+          <div className="inline-flex items-center gap-1 text-xs">
+            <LockIcon size={12} />
+            <span>Unlocks at the end of the month</span>
+          </div>
+        )}
+      </div>
+    </SelectItem>
   );
 }

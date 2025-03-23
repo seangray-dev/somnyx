@@ -1,5 +1,6 @@
+import DeleteDreamsDialog from "@/features/dreams/components/delete-dreams-dialog";
+
 import DeleteAccountDialog from "./delete-account-dialog";
-import DeleteDreamsDialog from "./delete-dreams-dialog";
 
 export default function DeleteActions() {
   return (

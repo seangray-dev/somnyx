@@ -8,9 +8,9 @@ export default function LegalLayout({
   children: React.ReactNode;
 }) {
   return (
-    <article className="prose mx-auto py-12 dark:prose-invert">
-      {children}
-    </article>
+    <div className="container py-20">
+      <article className="prose mx-auto dark:prose-invert">{children}</article>
+    </div>
   );
 }
 

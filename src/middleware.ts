@@ -6,7 +6,8 @@ const isPublicRoute = createRouteMatcher([
   "/",
   "/interpret(.*)",
   "/dream-meaning(.*)",
-  "/dream-dictionary(.*)",
+  "/dream-dictionary",
+  "/dream-dictionary/(.*)",
   "/contact",
   "/sign-in(.*)",
   "/sign-up(.*)",
@@ -18,6 +19,12 @@ const isPublicRoute = createRouteMatcher([
   "/support",
   "/privacy-policy",
   "/terms-of-service",
+  "/api/cron/(.*)",
+  "/dreamscape",
+  "/install-guide",
+  "/api/get-ip",
+  "/free-dream-interpretation(.*)",
+  "/ingest(.*)",
 ]);
 
 export default clerkMiddleware((auth, req) => {

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import {
   Accordion,
   AccordionContent,
@@ -24,8 +26,17 @@ export default function FAQSection() {
     },
     {
       question: "Will my dreams be private?",
-      answer:
-        "Absolutely. Your dreams are personal, and we keep them that way. Your journal is private and secure, visible only to you.",
+      answer: (
+        <>
+          Your dreams are always private by default. Dreams marked as public may
+          be shown in the{" "}
+          <Link href="/dreamscape" className="text-foreground hover:underline">
+            Dreamscape
+          </Link>{" "}
+          community feed. You have full control over which dreams you share -
+          only those you specifically mark as public will be visible to others.
+        </>
+      ),
     },
     {
       question: "What if I forget to record my dream right away?",

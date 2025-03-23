@@ -60,3 +60,17 @@ export function getDeviceType() {
   }
   return "Desktop";
 }
+
+export function generateDeviceId(): string {
+  return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+}
+
+export function getDeviceInfo() {
+  const browser = getBrowserInfo();
+  const os = getOSInfo();
+
+  return {
+    browser,
+    os,
+  };
+}

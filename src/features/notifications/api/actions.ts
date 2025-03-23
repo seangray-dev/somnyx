@@ -28,6 +28,8 @@ webpush.setVapidDetails(
 );
 
 export async function subscribeUser(sub: {
+  deviceId: string;
+  deviceName: string;
   endpoint: string;
   expirationTime?: number | null;
   keys: { p256dh: string; auth: string };
@@ -60,6 +62,8 @@ export async function subscribeUser(sub: {
       // @ts-ignore
       api.mutations.notifications.subscribe,
       {
+        deviceId: sub.deviceId,
+        deviceName: sub.deviceName,
         subscription,
       },
       { token }
@@ -72,7 +76,7 @@ export async function subscribeUser(sub: {
   }
 }
 
-export async function unsubscribeUser(endpoint: string) {
+export async function unsubscribeUser(deviceId: string) {
   try {
     // Get the auth token
     const { getToken } = auth();
@@ -87,7 +91,7 @@ export async function unsubscribeUser(endpoint: string) {
     // Remove subscription from Convex
     await fetchMutation(
       api.mutations.notifications.unsubscribe,
-      { endpoint },
+      { deviceId },
       { token }
     );
     return { success: true };
@@ -100,44 +104,86 @@ export async function unsubscribeUser(endpoint: string) {
   }
 }
 
-export async function sendNotification(message: string) {
+export async function sendNotification(
+  userId: string,
+  message: string | object
+) {
   try {
-    // Get the auth token
-    const { getToken } = auth();
-    const token = await getToken({ template: "convex" });
+    console.log("Fetching devices for user:", userId);
+    const devices = await fetchQuery(api.queries.notifications.getUserDevices, {
+      userId,
+    });
 
-    if (!token) {
-      throw new Error("User must be logged in to send notifications");
+    console.log("Found devices:", devices);
+    if (!devices || devices.length === 0) {
+      console.warn("No devices found for user", userId);
+      return { success: false, error: "No devices found" };
     }
 
-    // Get subscription from Convex
-    const subscription = await fetchQuery(
-      api.queries.notifications.getSubscription,
-      {},
-      { token }
+    const results = await Promise.allSettled(
+      devices.map(async (device) => {
+        try {
+          // Use the subscription directly from the device object
+          if (!device.subscription) {
+            console.warn(
+              "No valid subscription found for device:",
+              device.deviceId
+            );
+            return {
+              success: false,
+              deviceId: device.deviceId,
+              error: "No valid subscription",
+            };
+          }
+
+          // Format notification payload
+          const payload =
+            typeof message === "string"
+              ? { title: "Somnyx", body: message }
+              : message;
+
+          console.log(
+            "Sending notification to device:",
+            device.deviceId,
+            payload
+          );
+
+          // Send the notification
+          await webpush.sendNotification(
+            device.subscription as unknown as WebPushSubscription,
+            JSON.stringify(payload)
+          );
+
+          console.log(
+            "Successfully sent notification to device:",
+            device.deviceId
+          );
+          return { success: true, deviceId: device.deviceId };
+        } catch (error) {
+          console.error("Failed to send to device:", device.deviceId, error);
+          return {
+            success: false,
+            deviceId: device.deviceId,
+            error: String(error),
+          };
+        }
+      })
     );
 
-    if (!subscription) {
-      throw new Error("No subscription available");
-    }
+    const successfulDevices = results.filter(
+      (r) => r.status === "fulfilled" && r.value.success
+    ).length;
 
-    // Format notification payload
-    const payload = {
-      title: "Somnyx",
-      body: message,
-      icon: "/favicon.ico",
-      timestamp: Date.now(),
+    console.log("Notification results:", results);
+
+    return {
+      success: successfulDevices > 0,
+      error:
+        successfulDevices === 0 ? "Failed to send to any devices" : undefined,
+      results,
     };
-
-    // Send the notification
-    await webpush.sendNotification(
-      subscription.subscription as unknown as WebPushSubscription,
-      JSON.stringify(payload)
-    );
-
-    return { success: true };
   } catch (error) {
-    console.error("Error sending push notification:", error);
-    return { success: false, error: "Failed to send notification" };
+    console.error("Error in sendNotification:", error);
+    return { success: false, error: String(error) };
   }
 }

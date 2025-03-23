@@ -2,8 +2,8 @@ import { Metadata } from "next";
 
 import Tabs from "@/components/layout/tabs";
 import DashboardHeader from "@/components/layout/tabs/dashboard-header";
-import Stats from "@/features/stats/components";
 import InstallPrompt from "@/features/notifications/components/install-prompt";
+import Stats from "@/features/stats/components";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {

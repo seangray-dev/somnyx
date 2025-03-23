@@ -31,6 +31,8 @@ export const createThemePage = internalMutation({
     tips: v.string(),
     updatedAt: v.number(),
     isPublished: v.optional(v.boolean()),
+    category: v.id("themeCategories"),
+    type: v.union(v.literal("theme"), v.literal("symbol")),
   },
   async handler(ctx, args) {
     const {
@@ -46,6 +48,8 @@ export const createThemePage = internalMutation({
       tips,
       updatedAt,
       isPublished = false,
+      category,
+      type,
     } = args;
 
     // Format the seo_slug before saving
@@ -64,6 +68,8 @@ export const createThemePage = internalMutation({
       commonScenarios,
       tips,
       updatedAt,
+      category,
+      type,
     });
 
     return id;
@@ -150,3 +156,4 @@ export const fixExistingSeoSlugs = internalMutation({
     return `Successfully updated ${count} theme page slugs`;
   },
 });
+

@@ -1,6 +1,5 @@
 import { ConvexError, v } from "convex/values";
 
-import { Doc } from "./_generated/dataModel";
 import {
   MutationCtx,
   QueryCtx,
@@ -9,12 +8,16 @@ import {
   mutation,
   query,
 } from "./_generated/server";
+import { DEFAULT_NOTIFICATION_PREFERENCES } from "./mutations/notificationPreferences";
 import { getUserId } from "./util";
 
 export const updateUser = internalMutation({
   args: {
     userId: v.string(),
+    email: v.string(),
     profileImage: v.string(),
+    first_name: v.string(),
+    last_name: v.string(),
   },
   handler: async (ctx, args) => {
     let user = await getUserByUserId(ctx, args.userId);
@@ -24,6 +27,9 @@ export const updateUser = internalMutation({
     }
 
     await ctx.db.patch(user._id, {
+      email: args.email,
+      first_name: args.first_name,
+      last_name: args.last_name,
       profileImage: args.profileImage,
     });
   },
@@ -51,6 +57,22 @@ export const createUser = internalMutation({
         email: args.email,
         profileImage: args.profileImage,
         credits: 300,
+        lastLoginAt: Date.now(),
+      });
+
+      await ctx.db.insert("notificationPreferences", {
+        userId: args.userId,
+        enabledTypes: DEFAULT_NOTIFICATION_PREFERENCES.enabledTypes,
+        dailyReminderTime: DEFAULT_NOTIFICATION_PREFERENCES.dailyReminderTime,
+        updatedAt: Date.now(),
+      });
+
+      await ctx.db.insert("emailPreferences", {
+        userId: args.userId,
+        dreamReminders: true,
+        monthlyInsights: true,
+        newFeatures: true,
+        updatedAt: Date.now(),
       });
     }
   },
@@ -152,6 +174,7 @@ export const getUserByIdInternal = internalQuery({
   },
 });
 
+// Delete all related data tied to this user
 export const deleteUser = internalMutation({
   args: { userId: v.string() },
   async handler(ctx, args) {
@@ -159,6 +182,52 @@ export const deleteUser = internalMutation({
     if (!user) {
       throw new ConvexError("could not find user");
     }
+
+    // Delete all notifications and preferences
+    const notifications = await ctx.db
+      .query("notifications")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect();
+    await Promise.all(notifications.map((n) => ctx.db.delete(n._id)));
+
+    const notificationPreferences = await ctx.db
+      .query("notificationPreferences")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .first();
+    if (notificationPreferences) {
+      await ctx.db.delete(notificationPreferences._id);
+    }
+
+    // Delete all dreams and their analysis
+    const dreams = await ctx.db
+      .query("dreams")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect();
+    await Promise.all(dreams.map((d) => ctx.db.delete(d._id)));
+
+    // Get and delete all analysis entries and their associated storage items
+    const analysis = await ctx.db
+      .query("analysis")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect();
+
+    // Delete storage items first
+    await Promise.all(
+      analysis
+        .filter((a) => a.imageStorageId)
+        .map((a) => ctx.storage.delete(a.imageStorageId!))
+    );
+    // Then delete analysis records
+    await Promise.all(analysis.map((a) => ctx.db.delete(a._id)));
+
+    // Delete all insights
+    const insights = await ctx.db
+      .query("insights")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect();
+    await Promise.all(insights.map((i) => ctx.db.delete(i._id)));
+
+    // Finally delete the user
     await ctx.db.delete(user._id);
   },
 });
@@ -186,64 +255,6 @@ export const getUserByUserId = (
     .first();
 };
 
-export const updateSubscription = internalMutation({
-  args: { subscriptionId: v.string(), userId: v.string(), endsOn: v.number() },
-  handler: async (ctx, args) => {
-    const user = await getUserByUserId(ctx, args.userId);
-
-    if (!user) {
-      throw new Error("no user found with that user id");
-    }
-
-    await ctx.db.patch(user._id, {
-      subscriptionId: args.subscriptionId,
-      endsOn: args.endsOn,
-    });
-  },
-});
-
-export const updateSubscriptionBySubId = internalMutation({
-  args: { subscriptionId: v.string(), endsOn: v.number() },
-  handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_subscriptionId", (q) =>
-        q.eq("subscriptionId", args.subscriptionId)
-      )
-      .first();
-
-    if (!user) {
-      throw new Error("no user found with that user id");
-    }
-
-    await ctx.db.patch(user._id, {
-      endsOn: args.endsOn,
-    });
-  },
-});
-
-export const isUserPremium = async (user: Doc<"users">) => {
-  return (user?.endsOn ?? 0) > Date.now();
-};
-
-export const isPremium = query({
-  handler: async (ctx) => {
-    const userId = await getUserId(ctx);
-
-    if (!userId) {
-      return false;
-    }
-
-    const user = await getUserByUserId(ctx, userId);
-
-    if (!user) {
-      return false;
-    }
-
-    return isUserPremium(user);
-  },
-});
-
 export const updateUserCredits = internalMutation({
   args: {
     userId: v.string(),
@@ -256,6 +267,12 @@ export const updateUserCredits = internalMutation({
 
     const newCredits = (user.credits || 0) + args.amount;
     if (newCredits < 0) throw new Error("Insufficient credits.");
+
+    console.log(`updating user ${user.userId} credits:`, {
+      amount: args.amount,
+      oldCredits: user.credits,
+      newCredits: newCredits,
+    });
 
     await ctx.db.patch(user._id, { credits: newCredits });
   },
@@ -303,7 +320,7 @@ export const getTotalUsers = query({
 export const isUserAdmin = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
-    
+
     if (!identity) return false;
 
     const user = await ctx.db
@@ -343,5 +360,26 @@ export const toggleAdminStatus = mutation({
     });
 
     return { success: true };
+  },
+});
+
+export const updateLastLogin = internalMutation({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    try {
+      const user = await getUserByUserId(ctx, args.userId);
+
+      if (!user) {
+        throw new ConvexError(`User not found with ID: ${args.userId}`);
+      }
+
+      await ctx.db.patch(user._id, {
+        lastLoginAt: Date.now(),
+      });
+    } catch (error) {
+      // Log the error for monitoring but still throw it
+      console.error("Failed to update last login:", error);
+      throw error;
+    }
   },
 });

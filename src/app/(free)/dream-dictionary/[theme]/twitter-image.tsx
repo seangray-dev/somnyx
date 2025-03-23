@@ -18,11 +18,12 @@ export const size = {
 export const contentType = "image/png";
 
 export default async function Image({ params }: { params: { theme: string } }) {
+  const themeName = params.theme.replace("-dream-meaning", "");
   const theme = await fetchQuery(
     // @ts-ignore
     api.queries.themePages.getThemePageByNamePublic,
     {
-      name: params.theme.toLowerCase(),
+      name: themeName.toLowerCase(),
     }
   );
   const imageUrl = await fetchQuery(
@@ -49,7 +50,7 @@ export default async function Image({ params }: { params: { theme: string } }) {
       >
         <img
           src={theme.imageUrl}
-          alt={`Dream symbol: ${theme.name}`}
+          alt={`Dream symbol: ${themeName}`}
           style={{
             width: "100%",
             height: "100%",

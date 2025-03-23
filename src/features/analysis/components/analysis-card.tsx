@@ -25,10 +25,12 @@ import { CREDIT_COSTS } from "@/convex/util";
 import useDreamAnalysis from "@/features/analysis/api/use-dream-analysis";
 import useUserCredits from "@/features/credits/api/use-user-credits";
 import { useGetAnalysisImageUrl } from "@/hooks/use-convex-image";
+import { useSession } from "@/lib/client-auth";
 import { cn } from "@/lib/utils";
 
 type AnalysisProps = {
   dreamId: string;
+  ownerId: string;
 };
 
 const renderSection = (
@@ -113,7 +115,7 @@ const RegenerateImageSection = ({
   </div>
 );
 
-export default function AnalysisCard({ dreamId }: AnalysisProps) {
+export default function AnalysisCard({ dreamId, ownerId }: AnalysisProps) {
   const {
     data: analysis,
     isLoading,
@@ -121,6 +123,7 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
   } = useDreamAnalysis({
     dreamId,
   });
+  const { isLoggedIn, session } = useSession();
   const [generateAnalyisLoading, setGenerateAnalyisLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
   const { data: userCredits } = useUserCredits();
@@ -133,6 +136,7 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
   const regenerateImage = useAction(
     api.mutations.openai.regenerateAnalysisImage
   );
+  const isOwner = session?.user.id === ownerId;
 
   const handleGenerateAnalysis = async () => {
     setGenerateAnalyisLoading(true);
@@ -171,6 +175,16 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
     }
 
     if (noAnalysis) {
+      if (!isLoggedIn || !isOwner) {
+        return (
+          <div className="flex flex-col gap-8">
+            <p className="text-muted-foreground">
+              No analysis has been generated for this dream yet.
+            </p>
+          </div>
+        );
+      }
+
       return (
         <div className="flex flex-col gap-8">
           <p className="text-muted-foreground">
@@ -218,7 +232,7 @@ export default function AnalysisCard({ dreamId }: AnalysisProps) {
       return <AnalysisImage url={imageUrl} />;
     }
 
-    if (!imageUrl && !noAnalysis) {
+    if (!imageUrl && !noAnalysis && isLoggedIn && isOwner) {
       return (
         <RegenerateImageSection
           onRegenerate={handleRegenerateImage}

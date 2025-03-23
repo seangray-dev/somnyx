@@ -56,29 +56,20 @@ export const searchThemePages = query({
     query: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    const user = identity
-      ? await ctx.db
-          .query("users")
-          .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
-          .first()
-      : null;
-
     const query = args.query?.toLowerCase().trim();
-    let dbQuery = ctx.db.query("themePages");
-
-    // Filter out unpublished pages for non-admin users
-    if (!user?.isAdmin) {
-      dbQuery = dbQuery.filter((q) => q.eq(q.field("isPublished"), true));
-    }
 
     if (!query) {
-      return await dbQuery.order("desc").take(20);
+      return await ctx.db
+        .query("themePages")
+        .filter((q) => q.eq(q.field("isPublished"), true))
+        .collect();
     }
 
-    return await dbQuery
+    return await ctx.db
+      .query("themePages")
       .withSearchIndex("search", (q) => q.search("name", query))
-      .take(20);
+      .filter((q) => q.eq(q.field("isPublished"), true))
+      .collect();
   },
 });
 
@@ -118,6 +109,39 @@ export const getPublishedThemePageNames = query({
   },
 });
 
+export const getPublishedThemePages = query({
+  handler: async (ctx) => {
+    // Get all published pages that have a category
+    const pages = await ctx.db
+      .query("themePages")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("isPublished"), true),
+          q.neq(q.field("category"), undefined)
+        )
+      )
+      .collect();
+
+    // Get all categories in one go
+    const categories = await ctx.db.query("themeCategories").collect();
+    const categoryMap = new Map(categories.map((cat) => [cat._id, cat]));
+
+    // Map pages to include their category
+    return pages
+      .map((page) => ({
+        ...page,
+        category: page.category ? categoryMap.get(page.category) : undefined,
+      }))
+      .filter(
+        (
+          page
+        ): page is typeof page & {
+          category: NonNullable<typeof page.category>;
+        } => page.category !== undefined
+      );
+  },
+});
+
 export const getThemePageWithImageByNamePublic = query({
   args: { name: v.string() },
   handler: async (ctx, args) => {
@@ -135,5 +159,23 @@ export const getThemePageWithImageByNamePublic = query({
       ...theme,
       imageUrl,
     };
+  },
+});
+
+export const getThemePageMapping = query({
+  handler: async (ctx) => {
+    const pages = await ctx.db
+      .query("themePages")
+      .filter((q) => q.eq(q.field("isPublished"), true))
+      .collect();
+
+    // Return minimal data structure
+    return pages.reduce(
+      (acc, page) => ({
+        ...acc,
+        [page.name.toLowerCase()]: page.seo_slug,
+      }),
+      {} as { [key: string]: string }
+    );
   },
 });

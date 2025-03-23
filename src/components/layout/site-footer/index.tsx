@@ -6,13 +6,13 @@ import { usePathname } from "next/navigation";
 import Logo from "@/components/shared/logo";
 import { FeedbackDialog } from "@/features/feedback";
 
-import { shouldShowLayout } from "../hidden-paths";
-import { navigation } from "./footer-links";
+import { navigation } from "../../../features/navigation/components/header/footer-links";
+import { shouldShowFooter } from "./hidden-paths";
 
 export default function SiteFooter() {
   const pathname = usePathname();
 
-  if (!shouldShowLayout(pathname)) {
+  if (!shouldShowFooter(pathname)) {
     return null;
   }
 

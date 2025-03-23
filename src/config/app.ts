@@ -1,7 +1,7 @@
 import { env } from "process";
 
 export const applicationName = "Somnyx";
-export const baseUrl = "https://somnyx.app";
+export const baseUrl = "https://www.somnyx.app";
 
 export const DOMAIN =
   env.NODE_ENV === "production" ? baseUrl : "https://localhost:3000";
@@ -43,11 +43,16 @@ export const SEO = {
       description:
         "Explore common dream symbols and their meanings in our comprehensive dream dictionary.",
     },
+    dreamscape: {
+      title: "Dreamscape Explorer",
+      description:
+        "Discover and explore shared dreams from the Somnyx community. Each dream offers a unique window into the subconscious mind and the universal human experience of dreaming.",
+    },
 
     interpret: {
       title: "Free Dream Interpretation",
       description:
-        "Share your dream with our AI-powered tool and receive an insightful interpretation that reveals the hidden meanings, symbols, and psychological patterns in your dream experience.",
+        "Get instant AI-powered dream analysis revealing hidden meanings and symbols in your dreams. Understand your subconscious mind with personalized insights.",
     },
     support: {
       title: "Support",

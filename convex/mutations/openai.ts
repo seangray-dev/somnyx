@@ -7,6 +7,7 @@ import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import { action, internalAction } from "../_generated/server";
 import {
+  CREDIT_COSTS,
   SYSTEM_PROMPT,
   analysisImagePrompt,
   getSystemPromptForThemePage,
@@ -22,6 +23,40 @@ const Analysis = z.object({
   symbolicInterpretation: z.string(),
   underlyingMessage: z.string(),
   actionableTakeaway: z.string(),
+});
+
+const DreamCategory = z.enum([
+  "relationships_social",
+  "emotional_states",
+  "physical_elements",
+  "animals_creatures",
+  "objects_symbols",
+  "settings_places",
+  "actions_events",
+  "personal_growth",
+  "body_health",
+  "nature_environment",
+  "travel_journey",
+  "time_memory",
+  "power_control",
+  "spiritual_mystical",
+]);
+
+const ThemesAndSymbols = z.object({
+  themes: z.array(
+    z.object({
+      name: z.string(),
+      confidence: z.number(),
+      category: DreamCategory,
+    })
+  ),
+  symbols: z.array(
+    z.object({
+      name: z.string(),
+      confidence: z.number(),
+      category: DreamCategory,
+    })
+  ),
 });
 
 const Themes = z.object({
@@ -186,6 +221,7 @@ const Insight = z.object({
 export const generateDreamTitle = internalAction({
   args: {
     dreamId: v.id("dreams"),
+    dreamDate: v.string(),
     details: v.string(),
     emotions: v.array(v.id("emotions")),
   },
@@ -226,9 +262,52 @@ export const generateDreamTitle = internalAction({
       throw new Error("Failed to generate title");
     }
 
+    // Create base slug
+    let baseSlug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim()
+      .replace(/\s+/g, "-");
+
+    // Check for existing dreams with same date and similar slug
+    const existingDreams = await ctx.runQuery(
+      internal.queries.dreams.getDreamsByDateAndSlugPattern,
+      {
+        date: args.dreamDate,
+        slugPattern: baseSlug,
+      }
+    );
+
+    // If we find dreams with similar slugs, append a number
+    let finalSlug = baseSlug;
+    if (existingDreams.length > 0) {
+      // Escape special characters in baseSlug for RegExp
+      const escapedBaseSlug = baseSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+      // Find the highest number suffix used
+      const suffixNumbers = existingDreams
+        .map((dream) => {
+          if (!dream.slug) return 0;
+          const match = dream.slug.match(
+            new RegExp(`^${escapedBaseSlug}(?:-([0-9]+))?$`)
+          );
+          return match ? parseInt(match[1] || "0") : 0;
+        })
+        .filter((num) => !isNaN(num));
+
+      // If we found any valid numbers, increment the highest one
+      // If no numbers found, start with 1
+      const highestNumber =
+        suffixNumbers.length > 0 ? Math.max(...suffixNumbers) : 0;
+
+      finalSlug = `${baseSlug}-${highestNumber + 1}`;
+    }
+
+    // Update the dream with both title and slug
     await ctx.runMutation(internal.mutations.dreams.updateDreamInternal, {
       id: args.dreamId,
       title: title,
+      slug: finalSlug,
     });
   },
 });
@@ -279,11 +358,6 @@ export const generateDreamThemes = internalAction({
     if (themes.length > 3) {
       themes = themes.slice(0, 3);
     }
-
-    await ctx.runMutation(internal.mutations.dreams.updateDreamInternal, {
-      id: args.dreamId,
-      themes,
-    });
   },
 });
 
@@ -323,6 +397,8 @@ export const generateAnalysis = internalAction({
     const things = dream.things?.join(", ") || "N/A";
     const roleDescription = role?.name || "Unknown Role";
     const details = dream.details;
+    const isRecurring = dream.isRecurring;
+    const isLucid = dream.isLucid;
 
     const userPrompt = `
       Dream Details:
@@ -334,6 +410,8 @@ export const generateAnalysis = internalAction({
       People Involved: ${people},
       Places Involved: ${places},
       Important Symbols or Things: ${things}
+      ${isRecurring ? "This is a recurring dream" : ""}
+      ${isLucid ? "This is a lucid dream" : ""}
     `;
 
     const response = await openai.beta.chat.completions.parse({
@@ -396,6 +474,204 @@ export const generateAnalysis = internalAction({
   },
 });
 
+export const generateAnalysisFree = internalAction({
+  args: {
+    interpretationId: v.id("freeInterpretations"),
+  },
+  async handler(ctx, args) {
+    const { interpretationId } = args;
+
+    const interpretation = await ctx.runQuery(
+      internal.queries.interpretations.getInterpretationByIdInternal,
+      {
+        interpretationId,
+      }
+    );
+
+    if (!interpretation) {
+      throw new Error("Interpretation not found");
+    }
+
+    const userPrompt = `
+      Dream Details:
+      --------------
+      "${interpretation.dreamText}"
+    `;
+
+    const response = await openai.beta.chat.completions.parse({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: SYSTEM_PROMPT,
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+      response_format: zodResponseFormat(Analysis, "analysis"),
+    });
+
+    const analysis = response.choices[0].message.parsed;
+
+    if (!analysis) {
+      throw new Error("Failed to generate analysis");
+    }
+
+    await ctx.runMutation(
+      internal.mutations.interpretations.patchInterpretation,
+      {
+        interpretationId,
+        analysis,
+      }
+    );
+  },
+});
+
+export const generateDreamThemesFree = internalAction({
+  args: {
+    source: v.union(
+      v.object({
+        type: v.literal("interpretation"),
+        sourceType: v.union(v.literal("reddit"), v.literal("free")),
+        id: v.union(v.id("redditPosts"), v.id("freeInterpretations")),
+      }),
+      v.object({
+        type: v.literal("dream"),
+        id: v.id("dreams"),
+      })
+    ),
+    details: v.string(),
+  },
+  async handler(ctx, args) {
+    const { source, details } = args;
+
+    const themeCategories = await ctx.runQuery(
+      internal.queries.themeCategories.getAllThemeCategoriesInternal
+    );
+
+    const themeCategoriesString = themeCategories
+      .map(
+        (category) =>
+          `${category.name}: ${category.description} - Examples: ${category.examples.join(
+            ", "
+          )}`
+      )
+      .join("\n");
+
+    const userPrompt = `Details: ${details}`;
+    const systemPrompt = `You are a dream analysis expert. Given the following dream details, identify key themes and symbols, categorizing them into these specific predetermined categories:
+
+    Categories:
+    ${themeCategoriesString}
+
+    For each theme or symbol identified:
+    1. ALWAYS extract the universal archetype, not the specific instance
+    2. Keep names VERY concise (maximum 30 characters)
+    3. Use simple, clear terms that capture the core meaning
+    4. Assign to the most appropriate predetermined category
+    5. Provide a confidence score (0.0-1.0)
+    6. Limit to 2-3 most prominent themes and 2-3 most significant symbols
+
+    Examples of concise naming:
+    TOO LONG -> CONCISE
+    - "struggles with mental health" -> "mental health"
+    - "feelings of isolation and sadness" -> "isolation"
+    - "school dynamics and peer interactions" -> "peer dynamics"
+    - "difficulty with authority figures" -> "authority conflict"
+
+    Key Rules:
+    - Analyze each dream independently
+    - Use universal/archetypal interpretations
+    - Keep names brief but meaningful
+    - Emotional themes ONLY go under "emotional_states"
+    - Relationship dynamics ONLY go under "relationships_social"
+    - Never mix categories (e.g., emotions should not be under "physical_elements")`;
+
+    const response = await openai.beta.chat.completions.parse({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt,
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+      response_format: zodResponseFormat(ThemesAndSymbols, "themesAndSymbols"),
+      temperature: 0.8,
+    });
+
+    let themes = response.choices[0].message.parsed?.themes;
+    let symbols = response.choices[0].message.parsed?.symbols;
+
+    if (!themes || themes.length === 0 || !symbols || symbols.length === 0) {
+      throw new Error("Failed to generate themes or symbols");
+    }
+
+    // match the category to the theme and store the ID of the category
+
+    for (const symbol of symbols) {
+      const categoryId = themeCategories.find(
+        (category) => category.name === symbol.category
+      )?._id;
+
+      if (!categoryId) {
+        throw new Error(`Category not found: ${symbol.category}`);
+      }
+      await ctx.runMutation(
+        internal.mutations.commonElements.upsertDreamElement,
+        {
+          name: symbol.name.toLowerCase(),
+          type: "symbol",
+          category: categoryId,
+          confidence: symbol.confidence,
+          ...(source.type === "interpretation"
+            ? source.sourceType === "reddit"
+              ? { redditPostId: source.id as Id<"redditPosts"> }
+              : { freeInterpretationId: source.id as Id<"freeInterpretations"> }
+            : { dreamId: source.id }),
+        }
+      );
+    }
+
+    for (const theme of themes) {
+      const categoryId = themeCategories.find(
+        (category) => category.name === theme.category
+      )?._id;
+
+      if (!categoryId) {
+        throw new Error(`Category not found: ${theme.category}`);
+      }
+      await ctx.runMutation(
+        internal.mutations.commonElements.upsertDreamElement,
+        {
+          name: theme.name.toLowerCase(),
+          type: "theme",
+          category: categoryId,
+          confidence: theme.confidence,
+          ...(source.type === "interpretation"
+            ? source.sourceType === "reddit"
+              ? { redditPostId: source.id as Id<"redditPosts"> }
+              : { freeInterpretationId: source.id as Id<"freeInterpretations"> }
+            : { dreamId: source.id }),
+        }
+      );
+    }
+
+    if (source.type === "dream") {
+      await ctx.runMutation(internal.mutations.dreams.updateDreamInternal, {
+        id: source.id,
+        themes: themes.map((theme) => theme.name),
+        symbols: symbols.map((symbol) => symbol.name),
+      });
+    }
+  },
+});
+
 export const regenerateAnalysisImage = action({
   args: {
     analysisId: v.id("analysis"),
@@ -405,6 +681,7 @@ export const regenerateAnalysisImage = action({
     const userId = await getUserId(ctx);
 
     const dream = await ctx.runQuery(
+      // @ts-ignore
       internal.queries.dreams.getDreamByIdInternal,
       {
         id: args.dreamId,
@@ -478,14 +755,16 @@ export const regenerateAnalysisImage = action({
 });
 
 export const generateInsight = internalAction({
-  // TODO: Refactor the arguments to reduce payload (_id, _creationTime, title, isPublic, userId)
   args: {
     dreams: v.array(
       v.object({
         _id: v.id("dreams"),
         _creationTime: v.optional(v.number()),
         isPublic: v.optional(v.boolean()),
+        isLucid: v.optional(v.boolean()),
+        isRecurring: v.optional(v.boolean()),
         title: v.optional(v.string()),
+        slug: v.optional(v.string()),
         userId: v.string(),
         date: v.string(),
         emotions: v.array(v.id("emotions")),
@@ -494,6 +773,7 @@ export const generateInsight = internalAction({
         places: v.optional(v.array(v.string())),
         things: v.optional(v.array(v.string())),
         themes: v.optional(v.array(v.string())),
+        symbols: v.optional(v.array(v.string())),
         details: v.string(),
       })
     ),
@@ -501,277 +781,95 @@ export const generateInsight = internalAction({
     monthYear: v.string(),
   },
   async handler(ctx, args) {
-    const formattedDreams = await Promise.all(
-      args.dreams.map(async (dream) => {
-        const {
-          date,
-          emotions: emotionIds,
-          role: roleId,
-          people = [],
-          places = [],
-          things = [],
-          themes = [],
-          details,
-        } = dream;
+    try {
+      const formattedDreams = await Promise.all(
+        args.dreams.map(async (dream) => {
+          const {
+            date,
+            people = [],
+            places = [],
+            things = [],
+            themes = [],
+            symbols = [],
+            details,
+          } = dream;
 
-        // Fetch emotions and role details for the dream
-        const emotions = await ctx.runQuery(
-          internal.queries.emotions.getEmotionsByDreamIdInternal,
-          { id: dream._id }
-        );
+          // Fetch emotions and role details for the dream
+          const emotions = await ctx.runQuery(
+            internal.queries.emotions.getEmotionsByDreamIdInternal,
+            { id: dream._id }
+          );
 
-        const role = await ctx.runQuery(
-          internal.queries.roles.getRoleByIdInternal,
+          const role = await ctx.runQuery(
+            // @ts-ignore
+            internal.queries.roles.getRoleByIdInternal,
+            {
+              id: dream.role as Id<"roles">,
+            }
+          );
+
+          return `
+          Dream Date: ${date}
+          Role: ${role?.name || "N/A"}
+          Emotions: ${emotions.length ? emotions.map((e) => e?.name).join(", ") : "None"}
+          People: ${people.length ? people.join(", ") : "None"}
+          Places: ${places.length ? places.join(", ") : "None"}
+          Things: ${things.length ? things.join(", ") : "None"}
+          Themes: ${themes.length ? themes.join(", ") : "None"}
+          Symbols: ${symbols.length ? symbols.join(", ") : "None"}
+          Recurring: ${dream.isRecurring ? "Yes" : "No"}
+          Lucid: ${dream.isLucid ? "Yes" : "No"}
+          Details: ${details}
+          `;
+        })
+      );
+
+      const userPrompt = `Dreams: ${formattedDreams.join("\n\n")}`;
+
+      const response = await openai.beta.chat.completions.parse({
+        model: "gpt-4o-mini",
+        messages: [
           {
-            id: dream.role as Id<"roles">,
-          }
-        );
+            role: "system",
+            content: SYSTEM_PROMPT,
+          },
+          {
+            role: "user",
+            content: userPrompt,
+          },
+        ],
+        response_format: zodResponseFormat(Insight, "insight"),
+      });
 
-        // Format dream into a string for the prompt
-        return `
-        Dream Date: ${date}
-        Role: ${role?.name || "N/A"}
-        Emotions: ${
-          emotions.length ? emotions.map((e) => e?.name).join(", ") : "None"
-        }
-        People: ${people.length ? people.join(", ") : "None"}
-        Places: ${places.length ? places.join(", ") : "None"}
-        Things: ${things.length ? things.join(", ") : "None"}
-        Themes: ${themes.length ? themes.join(", ") : "None"}
-        Details: ${details}
-        `;
-      })
-    );
+      const insight = response.choices[0].message.parsed;
 
-    const userPrompt = `
-      Dreams: ${formattedDreams.join("\n\n")}
-    `;
+      if (!insight) {
+        throw new Error("Failed to generate insight");
+      }
 
-    const response = await openai.beta.chat.completions.parse({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: SYSTEM_PROMPT,
-        },
-        {
-          role: "user",
-          content: userPrompt,
-        },
-      ],
-      response_format: zodResponseFormat(Insight, "insight"),
-    });
-
-    const insight = response.choices[0].message.parsed;
-
-    if (!insight) {
-      throw new Error("Failed to generate insight");
+      // Save the generated insight
+      await ctx.runMutation(internal.mutations.insights.addNewInsight, {
+        userId: args.userId,
+        monthYear: args.monthYear,
+        insight,
+      });
+    } catch (error) {
+      // Refund credits if anything fails
+      await ctx.runMutation(internal.users.updateUserCredits, {
+        userId: args.userId,
+        amount: CREDIT_COSTS.INSIGHT,
+      });
+      console.error("Failed to generate insight:", error);
+      throw error;
     }
-
-    // Save the generated insight
-    await ctx.runMutation(internal.mutations.insights.addNewInsight, {
-      userId: args.userId,
-      monthYear: args.monthYear,
-      insight,
-    });
   },
 });
-
-// export const determineDreamThemesFree = internalAction({
-//   args: {
-//     details: v.string(),
-//   },
-//   async handler(ctx, args) {
-//     const userPrompt = `Details: ${args.details}`;
-
-//     const response = await openai.beta.chat.completions.parse({
-//       model: "gpt-4o-mini",
-//       messages: [
-//         {
-//           role: "system",
-//           content: SYSTEM_PROMPT_THEMES,
-//         },
-//         {
-//           role: "user",
-//           content: userPrompt,
-//         },
-//       ],
-//       response_format: zodResponseFormat(CommonElements, "commonElements"),
-//       temperature: 0.1,
-//     });
-
-//     console.info(response);
-
-//     try {
-//       const commonElements = response.choices[0].message.parsed;
-
-//       if (!commonElements) {
-//         console.warn("No common elements found in response");
-//         return;
-//       }
-
-//       const { themes, symbols } = commonElements;
-
-//       if (!themes || !symbols) {
-//         console.warn("No themes or symbols found in response");
-//         return;
-//       }
-
-//       for (const symbol of symbols) {
-//         if (symbol.confidence >= 0.7) {
-//           await ctx.runMutation(internal.mutations.commonElements.upsertDreamElement, {
-//             name: symbol.name.toLowerCase(),
-//             type: "symbol",
-//             category: symbol.category.toLowerCase(),
-//             confidence: symbol.confidence,
-//           });
-//         }
-//       }
-//       for (const theme of themes) {
-//         if (theme.confidence >= 0.7) {
-//           await ctx.runMutation(internal.mutations.commonElements.upsertDreamElement, {
-//               name: theme.name.toLowerCase(),
-//               type: "theme",
-//               category: theme.category.toLowerCase(),
-//               confidence: theme.confidence,
-//             });
-//           }
-//         }
-
-//       return;
-//     } catch (error) {
-//       console.error(error);
-//       throw new Error("Failed to generate common elements");
-//     }
-//   },
-// });
-
-// export const generateThemeOrSymbolPage = action({
-//   args: {
-//     name: v.string(),
-//     type: v.union(v.literal("theme"), v.literal("symbol")),
-//   },
-//   handler: async (
-//     ctx,
-//     args
-//   ): Promise<{
-//     success: boolean;
-//     pageId?: Id<"themePages">;
-//     reason?: string;
-//   }> => {
-//     try {
-//       // Check if page already exists
-//       const existingPage = await ctx.runQuery(
-//         internal.queries.themePages.getThemePageByName,
-//         { name: args.name }
-//       );
-
-//       if (existingPage) {
-//         console.warn(
-//           `[GenerateThemeOrSymbolPage]: Page for "${args.name}" already exists, skipping`
-//         );
-//         return { success: false, reason: "Page already exists" };
-//       }
-
-//       const systemPrompt = getSystemPromptForThemePage(args.name, args.type);
-
-//       // Generate page content
-//       const response = await openai.beta.chat.completions.parse({
-//         model: "gpt-4o",
-//         messages: [
-//           {
-//             role: "system",
-//             content: systemPrompt,
-//           },
-//           {
-//             role: "user",
-//             content: `Generate detailed content for ${args.name} ${args.type === "symbol" ? "as a dream symbol" : "dreams"}.`,
-//           },
-//         ],
-//         response_format: zodResponseFormat(ThemePage, "themePage"),
-//         temperature: 0.7,
-//       });
-
-//       const page = response.choices[0].message.parsed;
-
-//       if (!page) {
-//         throw new Error(`No page content generated for ${args.name}`);
-//       }
-
-//       // Create the page first
-//       const result = await ctx.runMutation(
-//         internal.mutations.themePages.createThemePage,
-//         {
-//           name: args.name,
-//           seo_title: page.seo_title,
-//           seo_slug: args.name.toLowerCase(),
-//           seo_description:
-//             page.seo_description ||
-//             `Learn about ${args.name} ${args.type === "symbol" ? "as a dream symbol" : "dreams"} and their meaning`,
-//           content: page.content,
-//           summary: page.summary,
-//           commonSymbols: page.commonSymbols || [],
-//           psychologicalMeaning: page.psychologicalMeaning || "",
-//           culturalContext: page.culturalContext || "",
-//           commonScenarios: page.commonScenarios || [],
-//           tips: page.tips || "",
-//           updatedAt: Date.now(),
-//           isPublished: false,
-//         }
-//       );
-
-//       if (!result) {
-//         throw new Error("Failed to create theme page");
-//       }
-
-//       // Generate and store image
-//       const imagePrompt = `Create a dreamy, ethereal illustration for the theme of "${args.name}" in dreams.
-//       The image should be surreal and symbolic, incorporating elements from this description: ${page.summary}.
-//       Style: Use soft, atmospheric colors with a mix of light and shadow. The composition should be artistic and metaphorical,
-//       suitable for a professional dream interpretation website. Make it mystical and thought-provoking, but not scary or disturbing.
-//       Include some of these symbolic elements: ${page.commonSymbols.join(", ")}.`;
-
-//       // Generate image using DALL-E 3
-//       const imageResponse = await openai.images.generate({
-//         model: "dall-e-3",
-//         prompt: imagePrompt,
-//         n: 1,
-//         size: "512x512",
-//         quality: "standard",
-//         style: "natural",
-//       });
-
-//       const imageUrl = imageResponse.data[0]?.url;
-
-//       if (imageUrl) {
-//         // Fetch and store the image
-//         const response = await fetch(imageUrl);
-//         const blob = await response.blob();
-//         const storageId = await ctx.storage.store(blob);
-
-//         // Update the theme page with the image
-//         await ctx.runMutation(
-//           internal.mutations.themePages.updateThemePageImage,
-//           {
-//             id: result,
-//             storageId,
-//           }
-//         );
-//       }
-
-//       return { success: true, pageId: result };
-//     } catch (error: any) {
-//       console.error("[GenerateThemeOrSymbolPage]: Error:", error);
-//       throw error;
-//     }
-//   },
-// });
 
 export const generateThemeOrSymbolPageWithElement = action({
   args: {
     name: v.string(),
     type: v.union(v.literal("theme"), v.literal("symbol")),
-    category: v.string(),
+    category: v.id("themeCategories"),
   },
   handler: async (
     ctx,
@@ -865,6 +963,8 @@ export const generateThemeOrSymbolPageWithElement = action({
           tips: page.tips || "",
           updatedAt: Date.now(),
           isPublished: false,
+          category: args.category,
+          type: args.type,
         }
       );
 
@@ -873,11 +973,19 @@ export const generateThemeOrSymbolPageWithElement = action({
       }
 
       // Generate and store image
-      const imagePrompt = `Create a dreamy, ethereal illustration for the theme of "${args.name}" in dreams. 
-      The image should be surreal and symbolic, incorporating elements from this description: ${page.summary}.
-      Style: Use soft, atmospheric colors with a mix of light and shadow. The composition should be artistic and metaphorical, 
-      suitable for a professional dream interpretation website. Make it mystical and thought-provoking, but not scary or disturbing.
-      Include some of these symbolic elements: ${page.commonSymbols.join(", ")}.`;
+      const imagePrompt = `Create a dreamlike artistic illustration without any text, words, letters, numbers, or writing of any kind. Theme: "${args.name}" in dreams.
+
+        Key requirements:
+        - NO TEXT OR WRITING OF ANY KIND in the image
+        - Surreal and symbolic imagery based on: ${page.summary}
+        - Soft, atmospheric colors with ethereal lighting
+        - Artistic and metaphorical composition
+        - Mystical and thought-provoking mood
+        - Professional and elegant style
+        - Avoid scary or disturbing elements
+        - Incorporate these symbols subtly: ${page.commonSymbols.join(", ")}
+
+        Style reference: Think of a blend between surrealist art and ethereal fantasy illustration, focusing purely on imagery without any textual elements.`;
 
       // Generate image using DALL-E 3
       try {
@@ -887,7 +995,7 @@ export const generateThemeOrSymbolPageWithElement = action({
           n: 1,
           size: "1024x1024",
           quality: "standard",
-          style: "natural",
+          style: "vivid",
         });
 
         const imageUrl = imageResponse.data[0]?.url;
@@ -914,6 +1022,83 @@ export const generateThemeOrSymbolPageWithElement = action({
       return { success: true, pageId: result };
     } catch (error: any) {
       console.error("[GenerateThemeOrSymbolPageWithElement]: Error:", error);
+      throw error;
+    }
+  },
+});
+
+export const regenerateThemePageImageAction = action({
+  args: {
+    pageId: v.id("themePages"),
+  },
+  handler: async (ctx, args) => {
+    const page = await ctx.runQuery(
+      internal.queries.themePages.getThemePageById,
+      {
+        id: args.pageId,
+      }
+    );
+
+    if (!page) {
+      throw new Error("Theme page not found");
+    }
+
+    // Delete old image if it exists
+    if (page.storageId) {
+      try {
+        await ctx.storage.delete(page.storageId);
+      } catch (error) {
+        console.error(
+          "[RegenerateThemePageImage]: Failed to delete old image:",
+          error
+        );
+        // Continue with regeneration even if deletion fails
+      }
+    }
+
+    const imagePrompt = `Create a dreamlike artistic illustration without any text, words, letters, numbers, or writing of any kind. Theme: "${page.name}" in dreams.
+
+Key requirements:
+- NO TEXT OR WRITING OF ANY KIND in the image
+- Surreal and symbolic imagery based on: ${page.summary}
+- Soft, atmospheric colors with ethereal lighting
+- Artistic and metaphorical composition
+- Mystical and thought-provoking mood
+- Professional and elegant style
+- Avoid scary or disturbing elements
+- Incorporate these symbols subtly: ${page.commonSymbols.join(", ")}
+
+Style reference: Think of a blend between surrealist art and ethereal fantasy illustration, focusing purely on imagery without any textual elements.`;
+
+    try {
+      const imageResponse = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: imagePrompt,
+        n: 1,
+        size: "1024x1024",
+        quality: "standard",
+        style: "vivid",
+      });
+
+      const imageUrl = imageResponse.data[0]?.url;
+
+      if (imageUrl) {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const storageId = await ctx.storage.store(blob);
+
+        await ctx.runMutation(
+          internal.mutations.themePages.updateThemePageImage,
+          {
+            id: args.pageId,
+            storageId,
+          }
+        );
+
+        return { success: true };
+      }
+    } catch (error: any) {
+      console.error("[RegenerateThemePageImage]: Error:", error);
       throw error;
     }
   },
