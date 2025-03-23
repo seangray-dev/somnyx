@@ -39,8 +39,8 @@ export async function getUserId(ctx: QueryCtx | ActionCtx | MutationCtx) {
     fullIdentity: identity,
   });
 
-  // Keep existing behavior while we validate
-  return identity?.subject;
+  // Return externalId if it exists, otherwise fall back to subject, ensuring both are strings
+  return identity?.externalId?.toString() || identity?.subject;
 }
 
 export function formatName(
