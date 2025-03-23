@@ -16,8 +16,6 @@ export const env = createEnv({
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
     STRIPE_CONNECT_WEBHOOK_SECRET: z.string().min(1),
     OPENAI_API_KEY: z.string().min(1),
-    UPSTASH_REDIS_REST_URL: z.string().min(1),
-    UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
     VAPID_PRIVATE_KEY: z.string().min(1),
     CRON_SECRET: z.string().min(1),
   },

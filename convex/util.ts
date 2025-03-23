@@ -30,17 +30,12 @@ export function filterNullishValues<T>(
 export async function getUserId(ctx: QueryCtx | ActionCtx | MutationCtx) {
   const identity = await ctx.auth.getUserIdentity();
 
-  // Debug logging
-  console.log("Auth Identity:", {
-    subject: identity?.subject,
-    externalId: identity?.externalId,
-    tokenIdentifier: identity?.tokenIdentifier,
-    // Log the full identity object to see all available fields
-    fullIdentity: identity,
-  });
+  if (!identity) {
+    console.error("No user identity found");
+    return null;
+  }
 
-  // Return externalId if it exists, otherwise fall back to subject, ensuring both are strings
-  return identity?.externalId?.toString() || identity?.subject;
+  return identity?.subject;
 }
 
 export function formatName(
