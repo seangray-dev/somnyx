@@ -25,6 +25,7 @@ http.route({
   method: "POST",
   handler: httpAction(async (ctx, request) => {
     const signature = request.headers.get("stripe-signature") as string;
+    // @ts-ignore
     const result = await ctx.runAction(internal.stripe.fulfill, {
       signature,
       payload: await request.text(),
