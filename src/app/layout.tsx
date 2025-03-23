@@ -260,11 +260,6 @@ export default function RootLayout({
       <html lang="en" className={`${Lora.variable} ${OpenSans.variable}`}>
         <body className="flex min-h-screen flex-col antialiased">
           <AppProviders>
-            {process.env.NODE_ENV !== "production" && (
-              <div className="fixed bottom-4 left-4 z-50 rounded bg-yellow-500 px-2 py-1 text-xs font-bold text-black">
-                ENV: {process.env.NODE_ENV}
-              </div>
-            )}
             <script
               type="application/ld+json"
               dangerouslySetInnerHTML={{

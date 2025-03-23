@@ -46,6 +46,10 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "loyal-bear-727.convex.cloud",
+      },
+      {
+        protocol: "https",
         hostname: "ufs.sh",
       },
     ],
