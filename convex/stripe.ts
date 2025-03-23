@@ -57,36 +57,48 @@ export const fulfill = internalAction({
   handler: async (ctx, args) => {
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
     try {
+      // Convert payload to raw buffer as Stripe expects
+      const payloadBuffer = Buffer.from(args.payload);
+
       const event = stripe.webhooks.constructEvent(
-        args.payload,
+        payloadBuffer,
         args.signature,
         webhookSecret
       );
+
+      console.log("Webhook event received:", {
+        type: event.type,
+        id: event.id,
+      });
 
       const completedEvent = event.data.object as Stripe.Checkout.Session & {
         metadata: Metadata;
       };
 
       if (event.type === "checkout.session.completed") {
-        console.log("fulfill: metadata:", completedEvent.metadata);
+        console.log("Processing completed checkout:", {
+          sessionId: completedEvent.id,
+          metadata: completedEvent.metadata,
+        });
+
         const userId = completedEvent.metadata.userId;
         const credits = parseInt(completedEvent.metadata.credits);
 
-        console.log({
-          type: event.type,
-          userId,
-          credits,
-        });
-
+        // @ts-expect-error - Type instantiation is excessively deep and possibly infinite.
         await ctx.runMutation(internal.users.updateUserCredits, {
           userId,
           amount: credits,
+        });
+
+        console.log("Credits updated successfully:", {
+          userId,
+          credits,
         });
       }
 
       return { success: true };
     } catch (err) {
-      console.error(err);
+      console.error("Webhook error:", err);
       return { success: false, error: (err as { message: string }).message };
     }
   },

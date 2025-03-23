@@ -146,40 +146,6 @@ http.route({
 
       const { conversationId, messageId, messages } = body;
 
-      // TODO: Implement rate limiting
-      // const rateLimit = createRateLimit(2, 24 * 60 * 60, "dream-analysis");
-      // const clientIp = getClientIp(request);
-      // console.log("[Rate Limit] Checking for IP:", clientIp);
-
-      // const rateLimitResult = await rateLimit.limit(clientIp);
-      // console.log("[Rate Limit] Result:", {
-      //   success: rateLimitResult.success,
-      //   remaining: rateLimitResult.remaining,
-      //   reset: new Date(rateLimitResult.reset * 1000).toISOString(),
-      //   limit: rateLimitResult.limit
-      // });
-
-      // if (!rateLimitResult.success) {
-      //   const resetDate = new Date(rateLimitResult.reset * 1000).toISOString();
-      //   console.log("[Rate Limit] Request blocked - limit exceeded");
-      //   return new Response(
-      //     JSON.stringify({
-      //       error: "Rate limit exceeded",
-      //       message: `Please wait until ${new Date(resetDate).toLocaleString()} before requesting another dream analysis`,
-      //       reset: resetDate,
-      //     }),
-      //     {
-      //       status: 429,
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //         "X-RateLimit-Limit": rateLimitResult.limit.toString(),
-      //         "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
-      //         "X-RateLimit-Reset": resetDate,
-      //       },
-      //     }
-      //   );
-      // }
-
       // Create streaming response
       const { readable, writable } = new TransformStream();
       const writer = writable.getWriter();
