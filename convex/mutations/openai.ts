@@ -373,7 +373,7 @@ export const generateAnalysis = internalAction({
       internal.queries.dreams.getDreamByIdInternal,
       {
         id: dreamId,
-        userId: args.userId,
+        userId: userId ?? undefined,
       }
     );
 
@@ -685,7 +685,7 @@ export const regenerateAnalysisImage = action({
       internal.queries.dreams.getDreamByIdInternal,
       {
         id: args.dreamId,
-        userId: userId,
+        userId: userId ?? undefined,
       }
     );
 
