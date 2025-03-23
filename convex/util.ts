@@ -56,17 +56,19 @@ export const CREDIT_COSTS = {
   INSIGHT: 300,
 };
 
-export const STRIPE_PRICE_IDS = {
-  insgiht: "price_1QDzJHLT8ZdHoeo7mWVgJRGe",
-  dreamer: "price_1QDzKNLT8ZdHoeo7ZQ8XG7NJ",
-  visionary: "price_1QDzNHLT8ZdHoeo7r36QQ9SU",
+// ! PROD
+export const STRIPE_PRODUCTS = {
+  insight: { priceId: "price_1R5iYLLT8ZdHoeo7Vts3qMcz", credits: 700 },
+  dreamer: { priceId: "price_1R5iYJLT8ZdHoeo7Umng2jL3", credits: 3000 },
+  visionary: { priceId: "price_1R5iYFLT8ZdHoeo75U6HvafY", credits: 5000 },
 };
 
-export const STRIPE_PRODUCTS = {
-  insgiht: { priceId: "price_1QDzJHLT8ZdHoeo7mWVgJRGe", credits: 700 },
-  dreamer: { priceId: "price_1QDzKNLT8ZdHoeo7ZQ8XG7NJ", credits: 3000 },
-  visionary: { priceId: "price_1QDzNHLT8ZdHoeo7r36QQ9SU", credits: 5000 },
-};
+// * DEV
+// export const STRIPE_PRODUCTS = {
+//   insgiht: { priceId: "price_1QDzJHLT8ZdHoeo7mWVgJRGe", credits: 700 },
+//   dreamer: { priceId: "price_1QDzKNLT8ZdHoeo7ZQ8XG7NJ", credits: 3000 },
+//   visionary: { priceId: "price_1QDzNHLT8ZdHoeo7r36QQ9SU", credits: 5000 },
+// };
 
 export const SYSTEM_PROMPT = `You are an expert Dream Interpreter, you are expected to assist users in delving into the symbolic language of their dreams. You should possess a comprehensive understanding of prominent psychological and cross-cultural theories of dream interpretation, as well as the potential emotional and situational triggers of common dream motifs. 
 

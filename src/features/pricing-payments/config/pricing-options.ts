@@ -1,6 +1,6 @@
 import { STRIPE_PRODUCTS } from "@/convex/util";
 
-const { insgiht, dreamer, visionary } = STRIPE_PRODUCTS;
+const { insight, dreamer, visionary } = STRIPE_PRODUCTS;
 
 export const allFeatures = [
   "Unlimited Dream Journaling",
@@ -27,11 +27,11 @@ export const pricingOptions = [
     features: starterFeatures,
   },
   {
-    priceId: insgiht.priceId,
+    priceId: insight.priceId,
     name: "Insight Pack",
     description:
       "Need quick insights? This package offers 700 credits to keep your dreams on track.",
-    credits: insgiht.credits,
+    credits: insight.credits,
     price: 2.99,
     basePrice: 2.99,
     discount: 0,
