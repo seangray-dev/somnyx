@@ -10,11 +10,11 @@ const withMDX = createNextDocsMDX();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  compiler: {
-    removeConsole: process.env.NODE_ENV === "production" && {
-      exclude: ["error", "warn"],
-    },
-  },
+  // compiler: {
+  //   removeConsole: process.env.NODE_ENV === "production" && {
+  //     exclude: ["error", "warn"],
+  //   },
+  // },
   async rewrites() {
     return [
       {
@@ -47,15 +47,6 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "ufs.sh",
-      },
-    ],
-  },
-  video: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "ufs.sh",
-        pathname: "/**",
       },
     ],
   },
