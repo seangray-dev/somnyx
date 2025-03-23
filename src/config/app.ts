@@ -1,10 +1,5 @@
-import { env } from "process";
-
 export const applicationName = "Somnyx";
 export const baseUrl = "https://www.somnyx.app";
-
-export const DOMAIN =
-  env.NODE_ENV === "production" ? baseUrl : "https://localhost:3000";
 
 export const SEO = {
   default: {
