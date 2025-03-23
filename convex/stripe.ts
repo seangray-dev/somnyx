@@ -12,8 +12,10 @@ type Metadata = {
 };
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-04-10",
+  apiVersion: "2022-11-15",
 });
+
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export const checkout = action({
   args: {
@@ -53,52 +55,50 @@ export const checkout = action({
 });
 
 export const fulfill = internalAction({
-  args: { signature: v.string(), payload: v.string() },
+  args: {
+    payload: v.string(),
+    signature: v.string(),
+  },
   handler: async (ctx, args) => {
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+    let event;
+
     try {
-      // Convert payload to raw buffer as Stripe expects
-      const payloadBuffer = Buffer.from(args.payload);
-
-      const event = stripe.webhooks.constructEvent(
-        payloadBuffer,
+      event = stripe.webhooks.constructEvent(
+        args.payload,
         args.signature,
-        webhookSecret
+        endpointSecret
       );
+    } catch (err) {
+      console.error("Webhook signature verification failed.", err);
+      return { success: false };
+    }
 
-      console.log("Webhook event received:", {
-        type: event.type,
-        id: event.id,
-      });
+    try {
+      switch (event.type) {
+        case "checkout.session.completed": {
+          const session = event.data.object as Stripe.Checkout.Session & {
+            metadata: Metadata & { credits: string };
+          };
 
-      const completedEvent = event.data.object as Stripe.Checkout.Session & {
-        metadata: Metadata;
-      };
+          const userId = session.metadata.userId;
+          if (!userId) {
+            throw new Error("No userId found in session metadata");
+          }
 
-      if (event.type === "checkout.session.completed") {
-        console.log("Processing completed checkout:", {
-          sessionId: completedEvent.id,
-          metadata: completedEvent.metadata,
-        });
-
-        const userId = completedEvent.metadata.userId;
-        const credits = parseInt(completedEvent.metadata.credits);
-
-        await ctx.runMutation(internal.users.updateUserCredits, {
-          userId,
-          amount: credits,
-        });
-
-        console.log("Credits updated successfully:", {
-          userId,
-          credits,
-        });
+          const credits = parseInt(session.metadata.credits);
+          await ctx.runMutation(internal.users.updateUserCredits, {
+            userId,
+            amount: credits,
+          });
+          break;
+        }
+        default:
+          console.log(`Unhandled event type ${event.type}`);
       }
-
       return { success: true };
     } catch (err) {
-      console.error("Webhook error:", err);
-      return { success: false, error: (err as { message: string }).message };
+      console.error("Error processing webhook:", err);
+      return { success: false };
     }
   },
 });
