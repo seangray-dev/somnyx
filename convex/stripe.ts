@@ -86,6 +86,7 @@ export const fulfill = internalAction({
           }
 
           const credits = parseInt(session.metadata.credits);
+          // @ts-ignore
           await ctx.runMutation(internal.users.updateUserCredits, {
             userId,
             amount: credits,
