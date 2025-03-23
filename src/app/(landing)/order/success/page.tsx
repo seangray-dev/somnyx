@@ -17,7 +17,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   const sessionId = searchParams.session_id;
 
   const stripe = new Stripe(env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2024-04-10",
+    apiVersion: "2022-11-15",
   });
 
   if (!sessionId) {
