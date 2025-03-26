@@ -9,6 +9,8 @@ export const getNotificationContent = <T extends NotificationType>(
   type: T,
   data?: NotificationDataMap[T]
 ): NotificationPayload => {
+  const icon = "/icon-192x192.png";
+
   switch (type) {
     case NOTIFICATION_TYPES.MONTHLY_INSIGHTS: {
       const typedData =
@@ -17,7 +19,7 @@ export const getNotificationContent = <T extends NotificationType>(
       return {
         title: "Monthly Dream Insights Ready",
         body: `Your insights for ${month} are ready to explore`,
-        icon: "/icon-192x192.png",
+        icon,
         url: `/insights/${monthYear}`,
         data: {
           type,
@@ -30,7 +32,7 @@ export const getNotificationContent = <T extends NotificationType>(
       return {
         title: "Record Your Dreams",
         body: "Don't forget to journal your dreams while they're fresh in your mind",
-        icon: "/icon-192x192.png",
+        icon,
         url: "/dashboard",
         data: {
           type,
@@ -43,7 +45,7 @@ export const getNotificationContent = <T extends NotificationType>(
       return {
         title: "Low Credits Alert",
         body: `You have ${typedData.credits} credits remaining`,
-        icon: "/icon-192x192.png",
+        icon,
         url: "/credits",
         data: {
           type,
@@ -54,9 +56,9 @@ export const getNotificationContent = <T extends NotificationType>(
 
     case NOTIFICATION_TYPES.INACTIVITY_REMINDER:
       return {
-        title: "Your Dream Journey Awaits",
-        body: "Unlock insights from your dreams - each unrecorded dream is a story untold. Return to capture your next adventure.",
-        icon: "/icon-192x192.png",
+        title: "Psst... Are you still dreaming?",
+        body: "Your dream journal could use some new stories.",
+        icon,
         url: "/dashboard",
         data: {
           type,
