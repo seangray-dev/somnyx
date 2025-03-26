@@ -47,7 +47,7 @@ export default function FeaturesSection() {
         <>
           Dive into our{" "}
           <Link
-            href={"/dictionary" as Route}
+            href={"/dream-dictionary" as Route}
             className="underline underline-offset-4 transition-colors duration-150 hover:text-primary"
           >
             Dream Dictionary
