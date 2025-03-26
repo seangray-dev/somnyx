@@ -7,7 +7,13 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/dashboard/", "/settings/", "/journal/", "/admin/"],
+      disallow: [
+        "/dashboard/",
+        "/settings/",
+        "/journal/",
+        "/admin/",
+        "https://accounts.somnyx.app/",
+      ],
     },
     sitemap: `${baseUrl}/sitemap.xml`,
   };
