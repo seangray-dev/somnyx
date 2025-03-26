@@ -17,26 +17,20 @@ export async function GET(request: Request) {
       return new Response("Unauthorized", { status: 401 });
     }
 
-    const today = new Date();
-    // Ensure we're using the current month by subtracting one day
-    const currentMonth = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-
-    console.log("Current month:", currentMonth);
-
-    // Get users with notification preferences enabled
-    const usersWithNotifications = await fetchQuery(
-      api.queries.notificationPreferences.getAllMonthlyInsightsPreferences
-    );
-
-    // Get users with email preferences enabled
-    const emailPreferences = await fetchQuery(
+    // Get users who haven't logged dreams in 7 days and have email preferences enabled
+    const usersNeedingDreamReminders = await fetchQuery(
       // @ts-ignore
       api.queries.emails.getDreamReminderUsers
     );
 
-    // Send emails to users who have email preferences enabled
+    // Get users who have inactivity notifications enabled
+    const usersWithInactivityNotifications = await fetchQuery(
+      api.queries.notificationPreferences.getAllInactivityReminderPreferences
+    );
+
+    // Send emails to users who haven't logged dreams
     const emailResults = await Promise.allSettled(
-      emailPreferences.map(async (user) => {
+      usersNeedingDreamReminders.map(async (user) => {
         return sendDreamReminderEmail({
           email: user.email,
           name: user.name,
@@ -45,9 +39,9 @@ export async function GET(request: Request) {
       })
     );
 
-    // Send push notifications to users who have notifications enabled
+    // Send notifications to inactive users
     const notificationResults = await Promise.allSettled(
-      usersWithNotifications.map(async (user) => {
+      usersWithInactivityNotifications.map(async (user) => {
         return sendNotificationToUser(
           user.userId,
           NOTIFICATION_TYPES.INACTIVITY_REMINDER
@@ -58,7 +52,7 @@ export async function GET(request: Request) {
     const emailsFailed = emailResults.filter(
       (r) => r.status === "rejected"
     ).length;
-    const emailsSent = emailResults.filter(
+    const emailsDelivered = emailResults.filter(
       (r) => r.status === "fulfilled"
     ).length;
 
@@ -71,20 +65,24 @@ export async function GET(request: Request) {
 
     const summary = {
       success: true,
-      emailUsers: emailPreferences.length,
-      notificationUsers: usersWithNotifications.length,
-      emailsSent: emailsSent,
-      emailsFailed: emailsFailed,
-      notificationsDelivered: notificationsDelivered,
-      notificationsFailed: notificationsFailed,
-      date: currentMonth.toISOString(),
+      dreamReminders: {
+        total: usersNeedingDreamReminders.length,
+        emailsDelivered,
+        emailsFailed,
+      },
+      inactivityReminders: {
+        total: usersWithInactivityNotifications.length,
+        notificationsDelivered,
+        notificationsFailed,
+      },
+      date: new Date().toISOString(),
     };
 
-    console.log("Monthly insights completed:", summary);
+    console.log("Dream and inactivity reminders completed:", summary);
 
     return NextResponse.json(summary);
   } catch (error) {
-    console.error("Monthly insights cron error:", error);
+    console.error("Dream and inactivity reminders cron error:", error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
