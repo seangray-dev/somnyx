@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 
+import { auth } from "@clerk/nextjs/server";
+
 import Tabs from "@/components/layout/tabs";
 import DashboardHeader from "@/components/layout/tabs/dashboard-header";
 import InstallPrompt from "@/features/notifications/components/install-prompt";
@@ -26,6 +28,12 @@ export default function TabsLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { userId, sessionId, redirectToSignIn } = auth();
+
+  if (!userId || !sessionId) {
+    redirectToSignIn();
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <InstallPrompt />
