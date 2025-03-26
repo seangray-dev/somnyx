@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import { subDays } from "date-fns";
 
 import { query } from "../_generated/server";
 import { NOTIFICATION_TYPES } from "../util";
@@ -37,11 +38,26 @@ export const getAllDailyReminderPreferences = query({
 
 export const getAllInactivityReminderPreferences = query({
   handler: async (ctx) => {
-    const all = await ctx.db.query("notificationPreferences").collect();
+    const sevenDaysAgo = subDays(new Date(), 7).getTime();
 
-    return all.filter((pref) =>
-      pref.enabledTypes.includes(NOTIFICATION_TYPES.INACTIVITY_REMINDER)
+    // First get all users who haven't signed in for 7 days
+    const inactiveUsers = await ctx.db
+      .query("users")
+      .filter((q) => q.lt(q.field("lastLoginAt"), sevenDaysAgo))
+      .collect();
+
+    // Get notification preferences for users who have inactivity reminders enabled
+    const notificationPrefs = await ctx.db
+      .query("notificationPreferences")
+      .collect();
+
+    const inactiveUsersWithNotificationPrefs = notificationPrefs.filter(
+      (pref) =>
+        inactiveUsers.some((user) => user.userId === pref.userId) &&
+        pref.enabledTypes.includes(NOTIFICATION_TYPES.INACTIVITY_REMINDER)
     );
+
+    return inactiveUsersWithNotificationPrefs;
   },
 });
 
