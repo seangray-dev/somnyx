@@ -85,17 +85,28 @@ http.route({
 
       switch (result.type) {
         case "user.created":
-          await ctx.runMutation(internal.users.createUser, {
-            userId: result.data.id,
-            email: result.data.email_addresses[0]?.email_address,
-            first_name: result.data.first_name || "",
-            last_name: result.data.last_name || "",
-            profileImage: result.data.image_url,
-          });
-          await sendWelcomeEmail({
-            name: result.data.first_name || undefined,
-            email: result.data.email_addresses[0].email_address,
-          });
+          const existingUser = await ctx.runQuery(
+            internal.users.getUserByEmail,
+            {
+              email: result.data.email_addresses[0]?.email_address,
+            }
+          );
+
+          if (!existingUser) {
+            // @ts-ignore
+            await ctx.runMutation(internal.users.createUser, {
+              userId: result.data.id,
+              email: result.data.email_addresses[0]?.email_address,
+              first_name: result.data.first_name || "",
+              last_name: result.data.last_name || "",
+              profileImage: result.data.image_url,
+            });
+
+            await sendWelcomeEmail({
+              name: result.data.first_name || undefined,
+              email: result.data.email_addresses[0].email_address,
+            });
+          }
           break;
         case "user.updated":
           await ctx.runMutation(internal.users.updateUser, {
