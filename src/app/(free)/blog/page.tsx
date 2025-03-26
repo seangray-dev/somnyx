@@ -42,7 +42,7 @@ export default function BlogPage() {
           </p>
         </div>
       </div>
-      <ul className="container flex flex-col gap-4 pt-12 sm:grid sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="container flex flex-col gap-4 py-12 sm:grid sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => (
           <li key={post.slug}>
             <BlogPostCard {...post} />

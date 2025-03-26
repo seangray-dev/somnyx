@@ -18,10 +18,10 @@ import { BlogPost } from "../types";
 export function BlogPostCard({ title, description, slug, date }: BlogPost) {
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="space-y-4">
         <CardTitle className="text-pretty">{title}</CardTitle>
         <CardDescription className="flex flex-col gap-2 text-pretty">
-          <span>{description}</span>
+          <span className="text-base">{description}</span>
           <span className="text-xs text-muted-foreground">
             {formatDate(date, "MMMM d, yyyy")}
           </span>
@@ -30,7 +30,7 @@ export function BlogPostCard({ title, description, slug, date }: BlogPost) {
 
       <CardFooter className="flex flex-col gap-4">
         <Link className="w-full" href={{ pathname: `/blog/${slug}` }}>
-          <Button variant={"secondary"} size={"sm"} className="w-full">
+          <Button variant={"secondary"} size={"lg"} className="w-full">
             Read More
           </Button>
         </Link>
