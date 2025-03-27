@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { headers } from "next/headers";
 
 import { auth } from "@clerk/nextjs/server";
 
@@ -29,8 +30,11 @@ export default function TabsLayout({
   children: React.ReactNode;
 }) {
   const { userId, sessionId, redirectToSignIn } = auth();
+  const headersList = headers();
+  const pathname = headersList.get("x-pathname") || "";
 
-  if (!userId || !sessionId) {
+  // Allow public access to dreams route
+  if (pathname !== "/dreams" && (!userId || !sessionId)) {
     redirectToSignIn();
   }
 
