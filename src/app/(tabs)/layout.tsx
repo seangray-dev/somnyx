@@ -31,10 +31,12 @@ export default function TabsLayout({
 }) {
   const { userId, sessionId, redirectToSignIn } = auth();
   const headersList = headers();
-  const pathname = headersList.get("x-pathname") || "";
+  const url = headersList.get("referer") || headersList.get("next-url") || "";
+  const path = new URL(url).pathname;
+  const isPublicDreamsRoute = path.startsWith("/dreams");
 
   // Allow public access to dreams route
-  if (pathname !== "/dreams" && (!userId || !sessionId)) {
+  if (!isPublicDreamsRoute && (!userId || !sessionId)) {
     redirectToSignIn();
   }
 
