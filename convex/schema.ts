@@ -429,4 +429,18 @@ export default defineSchema({
     processed: v.optional(v.boolean()),
     processedAt: v.optional(v.string()),
   }).index("by_url", ["url"]),
+
+  referrals: defineTable({
+    referrerId: v.string(), // the user who created the referral code
+    referralCode: v.string(), // permanent unique code for this user
+    referees: v.array(
+      v.object({
+        refereeId: v.string(),
+        completedAt: v.number(),
+        rewardAmount: v.number(),
+      })
+    ),
+  })
+    .index("by_referrerId", ["referrerId"])
+    .index("by_referralCode", ["referralCode"]),
 });
