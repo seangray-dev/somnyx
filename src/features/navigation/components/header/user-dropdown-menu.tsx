@@ -12,6 +12,7 @@ import {
   LayoutDashboardIcon,
   LibraryBigIcon,
   LogOutIcon,
+  UserPlusIcon,
 } from "lucide-react";
 
 import UserAvatar from "@/components/shared/user-avatar";
@@ -60,6 +61,11 @@ export default function UserDropdownMenu() {
       icon: <BookOpenIcon size={16} />,
     },
     { label: "Settings", href: "/settings", icon: <CogIcon size={16} /> },
+    {
+      label: "Referrals",
+      href: "/referrals",
+      icon: <UserPlusIcon size={16} />,
+    },
     { label: "Support", href: "/support", icon: <HelpCircleIcon size={16} /> },
   ];
 

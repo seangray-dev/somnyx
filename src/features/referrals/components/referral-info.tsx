@@ -23,17 +23,30 @@ import {
 import { baseUrl } from "@/config/app";
 import { cn } from "@/lib/utils";
 
-import useGetMyReferralCode from "../api/use-get-my-referral-code";
+import useGetMyReferrals from "../api/use-get-my-referrals";
 
-export default function ReferallInfo() {
-  const { data: referralCode, isLoading } = useGetMyReferralCode();
+interface Referee {
+  refereeId: string;
+  completedAt: number;
+  rewardAmount: number;
+  email: string | undefined;
+}
+
+export default function ReferralInfo() {
+  const { data: referrals, isLoading: isLoadingReferrals } =
+    useGetMyReferrals();
   const [copied, setCopied] = useState<boolean>(false);
+  const { referralCode, referees = [] } = referrals || {};
+
+  const isLoading = isLoadingReferrals;
 
   if (isLoading) {
     return null;
   }
 
-  const referralLink = `${baseUrl}/r/${referralCode}`;
+  const isDev = process.env.NODE_ENV === "development";
+  const domain = isDev ? "localhost:3000" : baseUrl;
+  const referralLink = `${domain}/r/${referralCode}`;
 
   const handleCopy = async () => {
     try {
@@ -44,6 +57,8 @@ export default function ReferallInfo() {
       console.error("Failed to copy text: ", err);
     }
   };
+
+  const claims = referees.length;
 
   return (
     <div className="flex flex-col gap-4">
@@ -111,12 +126,31 @@ export default function ReferallInfo() {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>Your referrals (0/5)</CardTitle>
+          <CardTitle>Your referrals ({claims} / 5)</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* TODO: Conditional render referrals list */}
           <p className="text-sm text-muted-foreground">
-            No referrals yet. Share your referral link to get started!
+            {referees.length > 0 ? (
+              <ul className="space-y-1">
+                {referees.map((referee: Referee) => (
+                  <li key={referee.refereeId}>
+                    {referee.email} -{" "}
+                    {referee.completedAt
+                      ? new Date(referee.completedAt).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )
+                      : "Pending"}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              "No referrals yet. Share your referral link to get started!"
+            )}
           </p>
         </CardContent>
       </Card>

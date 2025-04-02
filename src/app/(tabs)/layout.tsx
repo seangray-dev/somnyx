@@ -29,16 +29,16 @@ export default function TabsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { userId, sessionId, redirectToSignIn } = auth();
-  const headersList = headers();
-  const url = headersList.get("referer") || headersList.get("next-url") || "";
-  const path = new URL(url).pathname;
-  const isPublicDreamsRoute = path.startsWith("/dreams");
+  // const { userId, sessionId, redirectToSignIn } = auth();
+  // const headersList = headers();
+  // const url = headersList.get("referer") || headersList.get("next-url") || "";
+  // const path = new URL(url).pathname;
+  // const isPublicDreamsRoute = path.startsWith("/dreams");
 
-  // Allow public access to dreams route
-  if (!isPublicDreamsRoute && (!userId || !sessionId)) {
-    redirectToSignIn();
-  }
+  // // Allow public access to dreams route
+  // if (!isPublicDreamsRoute && (!userId || !sessionId)) {
+  //   redirectToSignIn();
+  // }
 
   return (
     <div className="flex min-h-screen flex-col">
