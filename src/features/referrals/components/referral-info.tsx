@@ -9,7 +9,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -117,12 +116,6 @@ export default function ReferralInfo() {
             </Tooltip>
           </TooltipProvider>
         </CardContent>
-        <CardFooter>
-          {/* TODO: Referee name/date if the user was referred by someone */}
-          <p className="text-sm text-muted-foreground">
-            You have not been referred. Use a referral link to get free credits.
-          </p>
-        </CardFooter>
       </Card>
       <Card>
         <CardHeader>
