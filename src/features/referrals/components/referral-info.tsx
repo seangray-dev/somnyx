@@ -23,6 +23,7 @@ import { baseUrl } from "@/config/app";
 import { cn } from "@/lib/utils";
 
 import useGetMyReferrals from "../api/use-get-my-referrals";
+import { getDisplayName } from "../utils/get-display-name";
 
 interface Referee {
   refereeId: string;
@@ -31,11 +32,18 @@ interface Referee {
   email: string | undefined;
 }
 
+interface Referrer {
+  firstName: string | undefined;
+  lastName: string | undefined;
+  email: string;
+  completedAt: number | undefined;
+}
+
 export default function ReferralInfo() {
   const { data: referrals, isLoading: isLoadingReferrals } =
     useGetMyReferrals();
   const [copied, setCopied] = useState<boolean>(false);
-  const { referralCode, referees = [] } = referrals || {};
+  const { referralCode, referees = [], referrer } = referrals || {};
 
   const isLoading = isLoadingReferrals;
 
@@ -61,6 +69,28 @@ export default function ReferralInfo() {
 
   return (
     <div className="flex flex-col gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Your Referral Status</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            {referrer ? (
+              <>
+                You were referred by {getDisplayName(referrer)} on{" "}
+                {referrer.completedAt &&
+                  new Date(referrer.completedAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+              </>
+            ) : (
+              "You have not been referred. Use a referral link to get free credits!"
+            )}
+          </p>
+        </CardContent>
+      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Refer friends and earn free credits</CardTitle>

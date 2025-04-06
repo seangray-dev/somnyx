@@ -2,13 +2,14 @@
 
 import { useParams } from "next/navigation";
 
-import { CheckCircle2, HandCoinsIcon, Loader2 } from "lucide-react";
+import { HandCoinsIcon, Loader2 } from "lucide-react";
 
 import LoadingButton from "@/components/shared/loading-button";
 import useGetReferrerByCode from "@/features/referrals/api/use-get-referrer-by-code";
 import useProcessReferral from "@/features/referrals/api/use-process-referral";
-import ReferralError from "@/features/referrals/components/referral-error";
 import ReferralClaimed from "@/features/referrals/components/referral-claimed";
+import ReferralError from "@/features/referrals/components/referral-error";
+import { getDisplayName } from "@/features/referrals/utils/get-display-name";
 
 export default function ReferralPage() {
   const { code } = useParams();
@@ -32,18 +33,9 @@ export default function ReferralPage() {
   }
 
   const { referrer, hasClaimed } = referral;
-  const { firstName, lastName, email } = referrer;
-
-  const getDisplayName = () => {
-    if (firstName && lastName) {
-      return `${firstName} ${lastName}`;
-    }
-
-    return email;
-  };
 
   if (hasClaimed) {
-    return <ReferralClaimed getDisplayName={getDisplayName} />;
+    return <ReferralClaimed referrer={referrer} />;
   }
 
   return (
@@ -51,7 +43,7 @@ export default function ReferralPage() {
       <div className="flex flex-col items-center gap-1">
         <h1 className="text-3xl font-bold">Congrats!</h1>
         <p className="text-muted-foreground">
-          You've been referred by {getDisplayName()}!
+          You've been referred by {getDisplayName(referrer)}!
         </p>
       </div>
       <p>

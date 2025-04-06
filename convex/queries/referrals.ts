@@ -11,6 +11,8 @@ export const getMyReferrals = query({
       console.error("User not authenticated");
       return null;
     }
+
+    // Get user's own referral info
     const referral = await ctx.db
       .query("referrals")
       .withIndex("by_referrerId", (q) => q.eq("referrerId", userId))
@@ -19,6 +21,30 @@ export const getMyReferrals = query({
     if (!referral) {
       console.error("Referral not found for user", userId);
       return null;
+    }
+
+    // Get all referrals to find who referred this user
+    const allReferrals = await ctx.db.query("referrals").collect();
+    const referrerInfo = allReferrals.find((r) =>
+      r.referees.some((referee) => referee.refereeId === userId)
+    );
+
+    let referrer = null;
+    if (referrerInfo) {
+      const referrerUser = await ctx.db
+        .query("users")
+        .withIndex("by_userId", (q) => q.eq("userId", referrerInfo.referrerId))
+        .first();
+
+      if (referrerUser) {
+        referrer = {
+          firstName: referrerUser.first_name,
+          lastName: referrerUser.last_name,
+          email: referrerUser.email,
+          completedAt: referrerInfo.referees.find((r) => r.refereeId === userId)
+            ?.completedAt,
+        };
+      }
     }
 
     const refereesWithEmails = await Promise.all(
@@ -34,7 +60,7 @@ export const getMyReferrals = query({
       })
     );
 
-    return { ...referral, referees: refereesWithEmails };
+    return { ...referral, referees: refereesWithEmails, referrer };
   },
 });
 
