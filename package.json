@@ -15,7 +15,9 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "stripe:listen": "stripe listen --forward-to https://vivid-hornet-727.convex.site/stripe",
     "stripe:trigger": "stripe trigger payment_intent.succeeded",
-    "scrape:reddit": "NODE_OPTIONS=\"--loader ts-node/esm\" ts-node scraper.ts"
+    "scrape:reddit": "NODE_OPTIONS=\"--loader ts-node/esm\" ts-node scraper.ts",
+    "build:production": "npx convex deploy --cmd 'next build'",
+    "build:preview": "next build"
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.0.9",
