@@ -11,7 +11,7 @@ export default function ReferralError() {
         <div className="flex items-center gap-2">
           <AlertCircleIcon className="-mt-1 h-4 w-4" />
           <AlertTitle className="text-lg">
-            We're sorry for the inconvenience
+            We&apos;re sorry for the inconvenience
           </AlertTitle>
         </div>
         <AlertDescription className="pt-2">

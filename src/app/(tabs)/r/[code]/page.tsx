@@ -43,7 +43,7 @@ export default function ReferralPage() {
       <div className="flex flex-col items-center gap-1">
         <h1 className="text-3xl font-bold">Congrats!</h1>
         <p className="text-muted-foreground">
-          You've been referred by {getDisplayName(referrer)}!
+          You&apos;ve been referred by {getDisplayName(referrer)}!
         </p>
       </div>
       <p>

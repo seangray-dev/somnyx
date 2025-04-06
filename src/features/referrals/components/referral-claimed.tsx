@@ -17,7 +17,7 @@ export default function ReferralClaimed({ referrer }: { referrer: Referrer }) {
         <CheckCircle2 className="mb-2 size-10 text-primary" />
         <h1 className="text-3xl font-bold">Already Claimed!</h1>
         <p className="text-muted-foreground">
-          You've already claimed a referral from {getDisplayName(referrer)}
+          You&apos;ve already claimed a referral from {getDisplayName(referrer)}
         </p>
       </div>
       <p className="text-center text-muted-foreground">

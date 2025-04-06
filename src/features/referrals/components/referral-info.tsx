@@ -32,13 +32,6 @@ interface Referee {
   email: string | undefined;
 }
 
-interface Referrer {
-  firstName: string | undefined;
-  lastName: string | undefined;
-  email: string;
-  completedAt: number | undefined;
-}
-
 export default function ReferralInfo() {
   const { data: referrals, isLoading: isLoadingReferrals } =
     useGetMyReferrals();
@@ -51,9 +44,7 @@ export default function ReferralInfo() {
     return null;
   }
 
-  const isDev = process.env.NODE_ENV === "development";
-  const domain = isDev ? "localhost:3000" : baseUrl;
-  const referralLink = `${domain}/r/${referralCode}`;
+  const referralLink = `${baseUrl}/r/${referralCode}`;
 
   const handleCopy = async () => {
     try {
