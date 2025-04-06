@@ -102,6 +102,14 @@ http.route({
               profileImage: result.data.image_url,
             });
 
+            // Create referral code for new user
+            await ctx.runMutation(
+              internal.mutations.referrals.createReferralCode,
+              {
+                referrerId: result.data.id,
+              }
+            );
+
             await sendWelcomeEmail({
               name: result.data.first_name || undefined,
               email: result.data.email_addresses[0].email_address,
