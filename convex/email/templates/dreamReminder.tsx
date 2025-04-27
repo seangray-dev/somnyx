@@ -77,7 +77,7 @@ export default function DreamReminderEmail({
         sending you.
       </EmailText>
 
-      <div className="mt-6 flex justify-center">
+      <div className="mt-6 text-center">
         <EmailButton href={`${BASE_URL}/dashboard`}>
           Capture Your Dreams Now →
         </EmailButton>
