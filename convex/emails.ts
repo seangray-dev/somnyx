@@ -44,7 +44,7 @@ export const sendDreamReminderEmail = async ({
   const { error } = await resend.emails.send({
     from: "Somnyx <notifications@somnyx.app>",
     to: email,
-    subject: "Missing Your Dreams!",
+    subject: "Don't Forget To Log Your Dreams!",
     react: DreamReminderEmail({ name, daysSinceLastDream }),
     text: getDreamReminderPlainText({ name, daysSinceLastDream }),
   });
