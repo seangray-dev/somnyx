@@ -15,6 +15,11 @@ export default function robots(): MetadataRoute.Robots {
         "https://accounts.somnyx.app/",
       ],
     },
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: [
+      `${baseUrl}/sitemap.xml`,
+      `${baseUrl}/blog/sitemap.xml`,
+      `${baseUrl}/dream-dictionary/sitemap.xml`,
+      `${baseUrl}/dreams/sitemap.xml`,
+    ],
   };
 }

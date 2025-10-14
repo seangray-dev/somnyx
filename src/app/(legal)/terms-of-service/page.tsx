@@ -5,7 +5,7 @@ import matter from "gray-matter";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import path from "path";
 
-import { SEO } from "@/config/app";
+import { SEO, baseUrl } from "@/config/app";
 
 function getTermsOfService() {
   const filePath = path.join(
@@ -28,6 +28,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: SEO.legal.termsOfService.title,
     description: SEO.legal.termsOfService.description,
+    alternates: {
+      canonical: `${baseUrl}/terms-of-service`,
+    },
     openGraph: {
       title: SEO.legal.termsOfService.title,
       description: SEO.legal.termsOfService.description,
