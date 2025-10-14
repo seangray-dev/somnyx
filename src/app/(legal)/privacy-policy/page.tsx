@@ -5,7 +5,7 @@ import matter from "gray-matter";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import path from "path";
 
-import { SEO } from "@/config/app";
+import { SEO, baseUrl } from "@/config/app";
 
 function getPrivacyPolicy() {
   const filePath = path.join(process.cwd(), "data/legal", "privacy-policy.mdx");
@@ -24,6 +24,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: SEO.legal.privacyPolicy.title,
     description: SEO.legal.privacyPolicy.description,
+    alternates: {
+      canonical: `${baseUrl}/privacy-policy`,
+    },
     openGraph: {
       title: SEO.legal.privacyPolicy.title,
       description: SEO.legal.privacyPolicy.description,
