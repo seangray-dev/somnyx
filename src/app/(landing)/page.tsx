@@ -4,6 +4,7 @@ import HeroSection from "@/features/landing/components/hero-section";
 import HowItWorksSection from "@/features/landing/components/how-it-works-section";
 import { generatePageJSONLD } from "@/features/landing/utils/json-ld";
 import PricingSection from "@/features/pricing-payments/components/pricing-section";
+import { landingFaqJsonLdString } from "@/lib/seo/faq-json-ld-strings";
 
 export default function LandingPage() {
   return (
@@ -13,6 +14,10 @@ export default function LandingPage() {
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(generatePageJSONLD()),
         }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: landingFaqJsonLdString }}
       />
       <HeroSection />
       <FeaturesSection />

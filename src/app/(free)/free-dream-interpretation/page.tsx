@@ -5,6 +5,7 @@ import FooterCtaSection from "@/components/dream-dictionary/footer-cta-section";
 import { SEO, baseUrl } from "@/config/app";
 import DreamInterpreter from "@/features/free-analysis/components/dream-interpreter";
 import { generateJSONLD } from "@/features/free-analysis/util/json-ld";
+import { freeInterpretationFaqJsonLdString } from "@/lib/seo/faq-json-ld-strings";
 
 export default function page() {
   const jsonLd = generateJSONLD();
@@ -14,6 +15,10 @@ export default function page() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: freeInterpretationFaqJsonLdString }}
       />
       <div className="pt-28">
         <section className="container space-y-5 text-pretty pb-12 md:text-center">

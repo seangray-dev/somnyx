@@ -1,9 +1,18 @@
 import { Metadata } from "next";
 
 import { SEO, baseUrl } from "@/config/app";
+import { landingFaqJsonLdString } from "@/lib/seo/faq-json-ld-strings";
 
 export default function layout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: landingFaqJsonLdString }}
+      />
+      {children}
+    </>
+  );
 }
 
 export async function generateMetadata(): Promise<Metadata> {
