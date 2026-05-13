@@ -28,6 +28,10 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: SEO.legal.termsOfService.title,
     description: SEO.legal.termsOfService.description,
+    robots: {
+      index: false,
+      follow: true,
+    },
     alternates: {
       canonical: `${baseUrl}/terms-of-service`,
     },

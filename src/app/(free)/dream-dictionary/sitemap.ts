@@ -17,7 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${baseUrl}/dream-dictionary/${theme.seo_slug}-dream-meaning`,
     lastModified: new Date(theme.updatedAt),
     changeFrequency: "monthly" as const,
-    priority: 0.7,
+    priority: 0.95,
   }));
 
   return [...dictionaryRoutes];
